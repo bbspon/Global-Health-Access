@@ -1,0 +1,317 @@
+// import React from "react";
+// import { Navbar, Nav, Button, NavDropdown, Container } from "react-bootstrap";
+// import { Link, useNavigate } from "react-router-dom";
+
+// const Header = () => {
+//   const token = localStorage.getItem("token");
+//   const navigate = useNavigate();
+
+//   const handleLogout = () => {
+//     localStorage.removeItem("token");
+//     navigate("/login");
+//   };
+
+//   return (
+//     <header
+//       style={{
+//         width: "100%",
+//         backgroundColor: "#f8f9fa",
+//         boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+//       }}
+//     >
+//       <Navbar
+//         expand="lg"
+//         className="px-3"
+//         style={{ width: "100%", margin: "0 auto", maxWidth: "100%" }}
+//       >
+//         <Container fluid className="px-0">
+//           <Navbar.Brand
+//             as={Link}
+//             to="/health-access/plans"
+//             className="d-flex align-items-center gap-2"
+//           >
+//                 <img
+//                 src="/health.png"
+//                 alt="BBSCART Logo"
+//                 width="250px"
+//                 height="120px"
+//                 style={{ objectFit: "contain", marginRight: "10px", marginTop: "-10px" , marginBottom: "-10px" }}
+//                 />
+//             {/* <span>
+//               <strong>BBS</strong> Health Access
+//             </span> */}
+//           </Navbar.Brand>
+
+//           <Navbar.Toggle />
+//           <Navbar.Collapse>
+//             <Nav className="ms-auto align-items-center gap-3">
+//               <Nav.Link as={Link} to="/health-access/plans">
+//                 Health Plans
+//               </Nav.Link>
+//               <Nav.Link as={Link} to="/health-access/compare">
+//                 Compare Plans
+//               </Nav.Link>
+//               <Nav.Link as={Link} to="/myplan">
+//               My Plans
+//               </Nav.Link>
+//               {token && (
+//                 <Nav.Link as={Link} to="/myplan">
+//                   My Plan
+//                 </Nav.Link>
+//               )}
+
+//               {!token ? (
+//                 <Button
+//                   size="sm"
+//                   variant="outline-primary"
+//                   as={Link}
+//                   to="/login"
+//                 >
+//                   Login
+//                 </Button>
+//               ) : (
+//                 <NavDropdown title="Account" id="user-nav">
+//                   <NavDropdown.Item as={Link} to="/user">
+//                     Profile
+//                   </NavDropdown.Item>
+//                   <NavDropdown.Divider />
+//                   <NavDropdown.Item onClick={handleLogout}>
+//                     Logout
+//                   </NavDropdown.Item>
+//                 </NavDropdown>
+//               )}
+//             </Nav>
+//           </Navbar.Collapse>
+//         </Container>
+//       </Navbar>
+//     </header>
+//   );
+// };
+
+// export default Header;
+
+import React, { useState, useRef } from "react";
+import {
+  Navbar,
+  Nav,
+  Button,
+  NavDropdown,
+  Container,
+  Badge,
+  Overlay,
+  Popover,
+  ListGroup,
+} from "react-bootstrap";
+import { Link, useNavigate } from "react-router-dom";
+import { Bell, Cart, Globe } from "react-bootstrap-icons";
+
+const Header = () => {
+  const token = localStorage.getItem("token");
+  const username = localStorage.getItem("username");
+  const [cartCount, setCartCount] = useState(2);
+  const [notifications, setNotifications] = useState(3);
+  const [language, setLanguage] = useState("EN");
+  const [showNotif, setShowNotif] = useState(false);
+
+  const navigate = useNavigate();
+  const notifTarget = useRef(null);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    navigate("/login");
+  };
+
+  const toggleLanguage = () => {
+    setLanguage((prev) => (prev === "EN" ? "हि" : "EN"));
+  };
+
+  const notificationList = [
+    { title: "Appointment confirmed", time: "2 mins ago" },
+    { title: "Lab report uploaded", time: "1 hour ago" },
+    { title: "Reminder: OPD at 5 PM", time: "Today" },
+  ];
+
+  return (
+    <header
+      style={{
+        width: "100%",
+        backgroundColor: "#f8f9fa",
+        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+        position: "sticky",
+        top: 0,
+        zIndex: 999,
+      }}
+    >
+      <Navbar expand="lg" className="px-3">
+        <Container fluid className="px-0">
+          <Navbar.Brand
+            as={Link}
+            to="/"
+            className="d-flex align-items-center gap-2"
+          >
+            <img
+              src="/health.png"
+              alt="BBSCART Logo"
+              width="250px"
+              height="120px"
+              style={{
+                objectFit: "contain",
+                marginRight: "10px",
+                marginTop: "-10px",
+                marginBottom: "-10px",
+              }}
+            />
+          </Navbar.Brand>
+
+          <Navbar.Toggle />
+          <Navbar.Collapse className="justify-content-end">
+            <Nav className="align-items-center gap-3">
+              <Nav.Link as={Link} to="/about">
+                About Us
+              </Nav.Link>
+              <Nav.Link as={Link} to="/hospital">
+                Health Partners
+              </Nav.Link>
+              <Nav.Link as={Link} to="/plan-comparison">
+                Compare Plans
+              </Nav.Link>
+              <Nav.Link as={Link} to="/myplan">
+                My Plans
+              </Nav.Link>
+
+              <NavDropdown title="More Services" id="services-nav">
+                <NavDropdown.Item as={Link} to="/plans-landing">
+                  Health Access Plan
+                </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/health-access/wellness">
+                  Wellness Store
+                </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/health-access/offers">
+                  Special Offers
+                </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/health-access/remedies">
+                  Remedies
+                </NavDropdown.Item>
+              </NavDropdown>
+
+              {/* 🔔 Notification Button with Popover */}
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                className="position-relative"
+                ref={notifTarget}
+                onClick={() => setShowNotif(!showNotif)}
+              >
+                <Bell size={16} />
+                {notifications > 0 && (
+                  <Badge
+                    bg="danger"
+                    pill
+                    className="position-absolute top-0 start-100 translate-middle"
+                  >
+                    {notifications}
+                  </Badge>
+                )}
+              </Button>
+
+              <Overlay
+                target={notifTarget.current}
+                show={showNotif}
+                placement="bottom-end"
+                rootClose
+                onHide={() => setShowNotif(false)}
+              >
+                <Popover className="shadow-sm" style={{ minWidth: "250px" }}>
+                  <Popover.Header as="h5">Notifications</Popover.Header>
+                  <Popover.Body style={{ maxHeight: "250px", overflowY: "auto" }}>
+                    {notificationList.length === 0 ? (
+                      <div className="text-muted text-center">No new notifications</div>
+                    ) : (
+                      <ListGroup variant="flush">
+                        {notificationList.map((note, idx) => (
+                          <ListGroup.Item key={idx}>
+                            {note.title}
+                            <br />
+                            <small className="text-muted">{note.time}</small>
+                          </ListGroup.Item>
+                        ))}
+                      </ListGroup>
+                    )}
+                    <div className="text-end mt-2">
+                      <Button
+                        size="sm"
+                        variant="link"
+                        onClick={() => {
+                          setShowNotif(false);
+                          navigate("/hospital/notifications ");
+                        }}
+                      >
+                        See All →
+                      </Button>
+                    </div>
+                  </Popover.Body>
+                </Popover>
+              </Overlay>
+
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                className="position-relative"
+                as={Link}
+                to="/cart"
+              >
+                <Cart size={16} />
+                {cartCount > 0 && (
+                  <Badge
+                    bg="primary"
+                    pill
+                    className="position-absolute top-0 start-100 translate-middle"
+                  >
+                    {cartCount}
+                  </Badge>
+                )}
+              </Button>
+
+              <Button
+                size="sm"
+                variant="outline-dark"
+                onClick={toggleLanguage}
+                title="Switch Language"
+              >
+                <Globe size={16} /> {language}
+              </Button>
+
+              {!token ? (
+                <Button
+                  size="sm"
+                  variant="outline-primary"
+                  as={Link}
+                  to="/login"
+                >
+                  Register
+                </Button>
+              ) : (
+                <NavDropdown title={`Hi, ${username || "User"}`} id="user-nav">
+                  <NavDropdown.Item as={Link} to="/user">
+                    Profile
+                  </NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/orders">
+                    My Orders
+                  </NavDropdown.Item>
+                  <NavDropdown.Divider />
+                  <NavDropdown.Item onClick={handleLogout}>
+                    Logout
+                  </NavDropdown.Item>
+                </NavDropdown>
+              )}
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+    </header>
+  );
+};
+
+export default Header;
+
