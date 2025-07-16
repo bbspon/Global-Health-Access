@@ -283,14 +283,11 @@ const Header = () => {
               </Button>
 
               {!token ? (
-                <Button
-                  size="sm"
-                  variant="outline-primary"
-                  as={Link}
-                  to="/login"
+               <a href="/signup"> <Button
+              
                 >
                   Register
-                </Button>
+                </Button></a>
               ) : (
                 <NavDropdown title={`Hi, ${username || "User"}`} id="user-nav">
                   <NavDropdown.Item as={Link} to="/user">

@@ -104,6 +104,12 @@ import DoctorReferralPage from "./pages/DoctorReferralPage";
 import HealthcareCartPage from "./pages/Cart";
 import AddOnSelector from "./pages/AddOnSelector";
 import AboutUs from "./pages/AboutUs";
+import HealthAccessCMS from "./cms/HealthAccessCMS";
+import PlanBuilder from "./cms/PlanBuilder";
+import HospitalCMS from "./cms/HospitalCMS";
+import LabCMS from "./cms/LabCMS";
+import AdminDashboardUtilities from "./cms/AdminDashboardUtilities";
+
 
 function App() {
   return (
@@ -212,14 +218,20 @@ function App() {
           <Route path="/doctor-referral" element={<DoctorReferralPage/>} />
    
           <Route path="/add-on-selector" element={<AddOnSelector/>} />
-            
+            <Route path="/admin-dashboard" element={<AdminDashboardUtilities/>} />  
 
           <Route path="/plans" element={<HealthPlansLandingPage />} />
           <Route path="/compare" element={<PlanComparisonPage />} />
           <Route path="/buy/:planId" element={<BuyPlanPage />} />
           <Route path="/myplan" element={<MyHealthPlan />} />
          
-
+         <Route path="/admin" element={<HealthAccessCMS/>}>
+             <Route path="plan" element={<PlanBuilder/>} />
+             <Route path="hospital-cms" element={<HospitalCMS />} />
+             
+             <Route path="lab-cms" element={<LabCMS />} />
+         </Route>
+          
         </Routes>
 
          <Footer />

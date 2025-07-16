@@ -48,14 +48,14 @@ const HomeDashboard = () => {
     <>
       <Container fluid className="home-dashboard-container p-5">
         {/* Header */}
-        <Row className="align-items-center mb-4">
-          <Col md={6}>
-            <h4 className="text-light">
+        <Row className="align-items-center mb-4 ">
+          <Col md={6} className="d-flex flex-column align-items-start">
+            <h4 className="text-light ">
               Welcome to <strong>BBSCART Health</strong>
             </h4>
-            <p className="text-secondary">Futuristic Health Access Dashboard</p>
+            <p className="text-secondary ">Futuristic Health Access Dashboard</p>
           </Col>
-          <Col md={6} className="d-flex justify-content-end gap-2 flex-wrap">
+          {/* <Col md={6} className="d-flex justify-content-end gap-2 flex-wrap">
             <Dropdown as={ButtonGroup}>
               <Button variant="outline-light">
                 <Globe /> UAE
@@ -85,7 +85,7 @@ const HomeDashboard = () => {
             <Button variant="outline-info">
               <Bell /> Alerts
             </Button>
-          </Col>
+          </Col> */}
         </Row>
 
         {/* Tiles Grid */}

@@ -37,14 +37,27 @@ const HealthObjectivePage = () => {
     indicators={false}
     fade
     interval={2000}
-    className="position-absolute top-0 start-0 w-100 h-100"
-    style={{ zIndex: 0, height: "400px" }} // Carousel height
+    className="position-absolute top-0 start-0 w-100% h-500px"
+    style={{ zIndex: 0, height: "200px", width: "100%" }} // Carousel height
   >
     <Carousel.Item>
       <div
         style={{
-          backgroundImage:
-            "url('https://images.livemint.com/img/2021/12/21/600x338/health-insurance-kMkD--621x414@LiveMint_1640076030753.jpg')",
+         backgroundImage: `url('/health1.jpg')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          opacity: 0.4,
+          height: "400px",
+          width: "100%",
+          height: "600px",
+        }}
+      />
+    </Carousel.Item>
+
+    <Carousel.Item>
+      <div
+        style={{
+         backgroundImage: `url('/health2.jpg')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           opacity: 0.4,
@@ -57,9 +70,8 @@ const HealthObjectivePage = () => {
     <Carousel.Item>
       <div
         style={{
-          backgroundImage:
-            "url('https://mir-s3-cdn-cf.behance.net/project_modules/1400/6388ac148310363.62d33beab66cd.jpg')",
-          backgroundSize: "cover",
+         backgroundImage: `url('/health3.jpg')`,        
+           backgroundSize: "cover",
           backgroundPosition: "center",
           opacity: 0.4,
           height: "400px",
@@ -68,12 +80,11 @@ const HealthObjectivePage = () => {
       />
     </Carousel.Item>
 
-    <Carousel.Item>
+        <Carousel.Item>
       <div
         style={{
-          backgroundImage:
-            "url('https://tse4.mm.bing.net/th/id/OIP.e7DiYK2qJN-gq46DBIDOlAHaFj?w=1200&h=900&rs=1&pid=ImgDetMain&o=7&rm=3')",
-          backgroundSize: "cover",
+         backgroundImage: `url('/health4.jpg')`,        
+           backgroundSize: "cover",
           backgroundPosition: "center",
           opacity: 0.4,
           height: "400px",
@@ -87,21 +98,28 @@ const HealthObjectivePage = () => {
 
   {/* 🌟 Foreground Text Content */}
   <Card.Body
-    className="d-flex flex-column justify-content-center align-items-center"
-    style={{ position: "relative",top:"80px", zIndex: 1, height: "800px" }} // Align vertically
-  >
-    <h2 className="fw-bold text-danger mb-3 ">
-      🎯 Affordable Health Membership for All
-    </h2>
-    <p className="  mb-4 p-2 px-4 text-dark " >
-      Access OPD, diagnostics, dental, accident care — no insurance needed.
-    </p>
-    <Link to="/membership-tiers">
-      <Button variant="success" size="lg">
-        Explore Plans & Pricing
-      </Button>
-    </Link>
-  </Card.Body>
+  className="d-flex flex-column justify-content-center align-items-center"
+  style={{
+    position: "relative",
+    bottom: "-130px",
+    left: "0px",
+    zIndex: 1,
+    height: "800px"
+  }}
+>
+  <h2 className="fw-bold text-danger fs-5"> {/* Smaller heading */}
+    🎯 Affordable Health Membership for All
+  </h2>
+  <p className="p-2 px-4 text-dark fs-6"> {/* Smaller paragraph */}
+    Access OPD, diagnostics, dental, accident care — no insurance needed.
+  </p>
+  <Link to="/plans-landing">
+    <Button variant="success" size="sm"> {/* Smaller button */}
+      Explore Plans & Pricing
+    </Button>
+  </Link>
+</Card.Body>
+
 </Card>
 
 
