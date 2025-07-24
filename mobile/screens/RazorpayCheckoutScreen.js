@@ -1,34 +1,52 @@
-import React, { useEffect, useState } from 'react';
-import { WebView } from 'react-native-webview';
-import axios from 'axios';
+import React from "react";
+import { View, Button, Alert } from "react-native";
+import RazorpayCheckout from "react-native-razorpay";
+import axios from "axios";
 
-const RazorpayCheckoutScreen = ({ route, navigation }) => {
-  const { planId, user } = route.params;
-  const [orderURL, setOrderURL] = useState('');
+const RazorpayCheckoutScreen = () => {
+  const handlePay = async () => {
+    try {
+      const bbsUser = JSON.parse(await AsyncStorage.getItem("bbsUser"));
 
-  useEffect(() => {
-    axios
-      .post('https://yourdomain.com/api/payment/razorpay-order', { planId })
-      .then(res => {
-        const { id, amount } = res.data.order;
-        const html = `
-          <html><body>
-          <script src="https://checkout.razorpay.com/v1/checkout.js"
-          data-key="RAZORPAY_KEY_HERE"
-          data-amount="${amount}"
-          data-currency="INR"
-          data-order_id="${id}"
-          data-name="BBSCART Health"
-          data-description="Purchase Plan"
-          data-prefill.name="${user.name}"
-          data-prefill.email="${user.email}"
-          ></script></body></html>`;
-        setOrderURL(`data:text/html,${encodeURIComponent(html)}`);
+      const { data } = await axios.post("http://localhost:5000/api/razorpay/create-order", {
+        userId: bbsUser.userId,
+        amount: 499,
       });
-  }, []);
 
-  if (!orderURL) return null;
-  return <WebView originWhitelist={['*']} source={{ uri: orderURL }} />;
+      const options = {
+        description: 'Health Plan',
+        image: 'https://yourlogo.url',
+        currency: 'INR',
+        key: 'RAZORPAY_KEY_ID', // Replace with your key
+        amount: data.order.amount,
+        name: 'BBS Health Access',
+        order_id: data.order.id,
+        prefill: {
+          email: bbsUser.email,
+          contact: bbsUser.phone,
+          name: bbsUser.name,
+        },
+        theme: { color: '#53a20e' }
+      };
+
+      RazorpayCheckout.open(options)
+        .then((response) => {
+          axios.post("http://localhost:5000/api/razorpay/verify-payment", response);
+          Alert.alert("Success", "Payment completed");
+        })
+        .catch(() => {
+          Alert.alert("Error", "Payment failed");
+        });
+    } catch (err) {
+      console.log("Payment error", err);
+    }
+  };
+
+  return (
+    <View style={{ marginTop: 100, padding: 20 }}>
+      <Button title="Pay ₹499" onPress={handlePay} />
+    </View>
+  );
 };
 
 export default RazorpayCheckoutScreen;

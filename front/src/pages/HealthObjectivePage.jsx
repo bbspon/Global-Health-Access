@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Row,
@@ -10,7 +10,7 @@ import {
   Image,
   Carousel,
 } from "react-bootstrap";
-
+import axios from "axios";
 import { Link } from "react-router-dom";
 import {
   HeartPulse,
@@ -18,112 +18,74 @@ import {
   Clipboard2Heart,
   Globe,
   InfoCircle,
-  PeopleFill,
-  GeoAltFill,
 } from "react-bootstrap-icons";
 import HomeDashboard from "./HomeDashboard";
 
 const HealthObjectivePage = () => {
+  const [content, setContent] = useState(null);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/api/health-objective")
+      .then((res) => setContent(res.data))
+      .catch((err) => console.error("Failed to load health content", err));
+  }, []);
+
   return (
     <Container fluid className="my-4 p-5">
       {/* 🔥 Header Section with Carousel Background */}
-    <Card
-  className="text-center mb-4 shadow-sm border-0 text-white position-relative overflow-hidden"
-  style={{ height: "400px" }} // Card height
->
-  {/* 🎞️ Background Carousel */}
-  <Carousel
-    controls={false}
-    indicators={false}
-    fade
-    interval={2000}
-    className="position-absolute top-0 start-0 w-100% h-500px"
-    style={{ zIndex: 0, height: "200px", width: "100%" }} // Carousel height
-  >
-    <Carousel.Item>
-      <div
-        style={{
-         backgroundImage: `url('/health1.jpg')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          opacity: 0.4,
-          height: "400px",
-          width: "100%",
-          height: "600px",
-        }}
-      />
-    </Carousel.Item>
+      <Card
+        className="text-center mb-4 shadow-sm border-0 text-white position-relative overflow-hidden"
+        style={{ height: "400px" }}
+      >
+        <Carousel
+          controls={false}
+          indicators={false}
+          fade
+          interval={2000}
+          className="position-absolute top-0 start-0 w-100%"
+          style={{ zIndex: 0, height: "200px", width: "100%" }}
+        >
+          {["/health1.jpg", "/health2.jpg", "/health3.jpg", "/health4.jpg"].map(
+            (img, i) => (
+              <Carousel.Item key={i}>
+                <div
+                  style={{
+                    backgroundImage: `url('${img}')`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    opacity: 0.4,
+                    height: "600px",
+                    width: "100%",
+                  }}
+                />
+              </Carousel.Item>
+            )
+          )}
+        </Carousel>
 
-    <Carousel.Item>
-      <div
-        style={{
-         backgroundImage: `url('/health2.jpg')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          opacity: 0.4,
-          height: "400px",
-          width: "100%",
-        }}
-      />
-    </Carousel.Item>
+        {/* 🌟 Foreground Text Content */}
+        <Card.Body
+          className="d-flex flex-column justify-content-center align-items-center"
+          style={{
+            position: "relative",
+            bottom: "-130px",
+            left: "0px",
+            zIndex: 1,
+            height: "800px",
+          }}
+        >
+          <h2 className="fw-bold text-danger fs-5">🎯 {content?.heading}</h2>
+          <p className="p-2 px-4 text-dark fs-6">{content?.subheading}</p>
+          <Link to="/plans-landing">
+            <Button variant="success" size="sm">
+              {content?.ctaText}
+            </Button>
+          </Link>
+        </Card.Body>
+      </Card>
 
-    <Carousel.Item>
-      <div
-        style={{
-         backgroundImage: `url('/health3.jpg')`,        
-           backgroundSize: "cover",
-          backgroundPosition: "center",
-          opacity: 0.4,
-          height: "400px",
-          width: "100%",
-        }}
-      />
-    </Carousel.Item>
-
-        <Carousel.Item>
-      <div
-        style={{
-         backgroundImage: `url('/health4.jpg')`,        
-           backgroundSize: "cover",
-          backgroundPosition: "center",
-          opacity: 0.4,
-          height: "400px",
-          width: "100%",
-        }}
-      />
-    </Carousel.Item>
-  </Carousel>
-
- 
-
-  {/* 🌟 Foreground Text Content */}
-  <Card.Body
-  className="d-flex flex-column justify-content-center align-items-center"
-  style={{
-    position: "relative",
-    bottom: "-130px",
-    left: "0px",
-    zIndex: 1,
-    height: "800px"
-  }}
->
-  <h2 className="fw-bold text-danger fs-5"> {/* Smaller heading */}
-    🎯 Affordable Health Membership for All
-  </h2>
-  <p className="p-2 px-4 text-dark fs-6"> {/* Smaller paragraph */}
-    Access OPD, diagnostics, dental, accident care — no insurance needed.
-  </p>
-  <Link to="/plans-landing">
-    <Button variant="success" size="sm"> {/* Smaller button */}
-      Explore Plans & Pricing
-    </Button>
-  </Link>
-</Card.Body>
-
-</Card>
-
-
-   <HomeDashboard/>
+      <HomeDashboard />
 
       {/* 🧭 Vision Points */}
       <Row className="g-4 my-2">
@@ -135,10 +97,9 @@ const HealthObjectivePage = () => {
                 Citizen Benefits
               </h5>
               <ul className="mt-3">
-                <li>Affordable prepaid plans</li>
-                <li>Predictable monthly cost</li>
-                <li>Easy OPD/IPD/Diagnostic access</li>
-                <li>No claims, approvals or waiting</li>
+                {(content?.citizenBenefits || []).map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
               </ul>
             </Card.Body>
           </Card>
@@ -152,25 +113,28 @@ const HealthObjectivePage = () => {
                 Hospital Benefits
               </h5>
               <ul className="mt-3">
-                <li>Monthly recurring revenue</li>
-                <li>Better patient footfall</li>
-                <li>No insurance dependency</li>
-                <li>Higher utilization of resources</li>
+                {(content?.hospitalBenefits || []).map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
               </ul>
             </Card.Body>
           </Card>
         </Col>
-   
       </Row>
 
-             {/* 📸 Banner Image */}
+      {/* 📸 Banner Image */}
       <Image
-        src="https://www.novotel-visakhapatnam.com/wp-content/uploads/sites/24/2022/12/unnamed.jpg"   
-        className="mb-4 shadow-sm  d-block mx-auto mt-5 "
-        style={{ maxWidth: "50%", height: "400px",  border: "1px solid #ccc", borderRadius: "10px" }}
+        src="https://www.novotel-visakhapatnam.com/wp-content/uploads/sites/24/2022/12/unnamed.jpg"
+        className="mb-4 shadow-sm  d-block mx-auto mt-5"
+        style={{
+          maxWidth: "50%",
+          height: "400px",
+          border: "1px solid #ccc",
+          borderRadius: "10px",
+        }}
         alt="Affordable Health for All"
       />
-    
+
       {/* 🧬 Coverage & Scope */}
       <Card className="my-4 shadow-sm">
         <Card.Body>
@@ -181,16 +145,16 @@ const HealthObjectivePage = () => {
           <Row>
             <Col md={6}>
               <ul>
-                <li>✔️ OPD consultations</li>
-                <li>✔️ Diagnostics & blood tests</li>
-                <li>✔️ Basic dental care</li>
+                {(content?.coverage || []).map((item, i) => (
+                  <li key={i}>✔️ {item}</li>
+                ))}
               </ul>
             </Col>
             <Col md={6}>
               <ul>
-                <li>✔️ Partial IPD room discount</li>
-                <li>✔️ Minor accidental care</li>
-                <li>❌ No claim insurance model</li>
+                {(content?.exclusions || []).map((item, i) => (
+                  <li key={i}>❌ {item}</li>
+                ))}
               </ul>
             </Col>
           </Row>
@@ -215,53 +179,31 @@ const HealthObjectivePage = () => {
         </Card.Body>
       </Card>
 
-      {/* 👥 Testimonial Slider Placeholder */}
+      {/* 👥 Testimonials */}
       <Card className="mb-4 p-3 bg-light border-0">
         <h5 className="fw-bold mb-3">👥 What People Say</h5>
-        <p className="fst-italic">
-          "This health membership helped my family save ₹10,000 last year!"
-        </p>
-        <p className="fst-italic">
-          "Super convenient — booked an OPD appointment in 2 clicks."
-        </p>
+        {(content?.testimonials || []).map((t, i) => (
+          <p className="fst-italic" key={i}>
+            “{t}”
+          </p>
+        ))}
       </Card>
 
       {/* 💬 FAQ Section */}
       <Accordion className="mb-4">
-        <Accordion.Item eventKey="0">
-          <Accordion.Header>
-            <InfoCircle className="me-2 text-primary" />
-            Is this a health insurance plan?
-          </Accordion.Header>
-          <Accordion.Body>
-            No. This is a prepaid membership model with fixed benefits. There
-            are no claim forms, approvals, or reimbursement hassles.
-          </Accordion.Body>
-        </Accordion.Item>
-        <Accordion.Item eventKey="1">
-          <Accordion.Header>
-            <InfoCircle className="me-2 text-primary" />
-            What happens if I don't use it?
-          </Accordion.Header>
-          <Accordion.Body>
-            Your benefits reset monthly. If unused, the next month starts fresh.
-            You can cancel anytime.
-          </Accordion.Body>
-        </Accordion.Item>
-        <Accordion.Item eventKey="2">
-          <Accordion.Header>
-            <InfoCircle className="me-2 text-primary" />
-            Can I use this with my family?
-          </Accordion.Header>
-          <Accordion.Body>
-            Yes! We offer family packs at discounted pricing. See the plans
-            section.
-          </Accordion.Body>
-        </Accordion.Item>
+        {(content?.faq || []).map((item, i) => (
+          <Accordion.Item eventKey={i.toString()} key={i}>
+            <Accordion.Header>
+              <InfoCircle className="me-2 text-primary" />
+              {item.question}
+            </Accordion.Header>
+            <Accordion.Body>{item.answer}</Accordion.Body>
+          </Accordion.Item>
+        ))}
       </Accordion>
 
       {/* 🔗 Quick Navigation CTAs */}
-      <Row className="text-center g-3   py-5">
+      <Row className="text-center g-3 py-5">
         <Col md={4}>
           <Link to="/health-membership">
             <Button variant="outline-primary" className="w-100">
@@ -284,8 +226,6 @@ const HealthObjectivePage = () => {
           </Link>
         </Col>
       </Row>
-
-    
     </Container>
   );
 };

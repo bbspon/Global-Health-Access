@@ -1,72 +1,60 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Table, Button, Form } from "react-bootstrap";
+import { Container, Card, ListGroup, Badge, Button } from "react-bootstrap";
+import { useNavigate, Link } from "react-router-dom";
 
 const MyWalletPage = () => {
-  const [balance, setBalance] = useState(0);
-  const [amount, setAmount] = useState("");
-  const [transactions, setTransactions] = useState([]);
-
-  const fetchWallet = async () => {
-    const res = await axios.get("/api/wallet/me");
-    setBalance(res.data.balance);
-    setTransactions(res.data.transactions);
-  };
-
-  const recharge = async () => {
-    await axios.post("/api/wallet/topup", {
-      amount: parseFloat(amount),
-      method: "gateway", // assumed gateway
-      transactionId: "TXN" + Date.now(),
-    });
-    fetchWallet();
-    alert("Wallet Recharged");
-  };
+  const [wallet, setWallet] = useState({ balance: 0, transactions: [] });
 
   useEffect(() => {
+    const fetchWallet = async () => {
+      const token = JSON.parse(localStorage.getItem("bbsUser"))?.token;
+      try {
+        const res = await axios.get(
+          "http://localhost:5000/api/wallet/my-wallet",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setWallet(res.data);
+      } catch (err) {
+        console.error("Error loading wallet data", err);
+      }
+    };
+
     fetchWallet();
   }, []);
 
   return (
-    <div className="container py-4">
-      <h4>My Wallet</h4>
-      <p>Current Balance: ₹{balance}</p>
+    <Container className="mt-4">
+      <h3>My Wallet</h3>
+      <Button as={Link} to="/wallet/topup" variant="success">
+        ➕ Top Up Wallet
+      </Button>
+      <Card className="my-3 shadow-sm">
+        <Card.Body>
+          <h4>
+            Current Balance:{" "}
+            <Badge bg="success">₹{wallet.balance.toFixed(2)}</Badge>
+          </h4>
+        </Card.Body>
+      </Card>
 
-      <Form.Group>
-        <Form.Control
-          type="number"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="Amount"
-        />
-        <Button className="mt-2" onClick={recharge}>
-          Recharge Wallet
-        </Button>
-      </Form.Group>
-
-      <hr />
-      <h5>Recharge History</h5>
-      <Table striped>
-        <thead>
-          <tr>
-            <th>Amount</th>
-            <th>Method</th>
-            <th>Date</th>
-            <th>Txn ID</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((txn, idx) => (
-            <tr key={idx}>
-              <td>₹{txn.amount}</td>
-              <td>{txn.method}</td>
-              <td>{new Date(txn.timestamp).toLocaleString()}</td>
-              <td>{txn.transactionId}</td>
-            </tr>
+      <Card className="shadow-sm">
+        <Card.Header>Transaction History</Card.Header>
+        <ListGroup variant="flush">
+          {wallet.transactions.map((txn, index) => (
+            <ListGroup.Item key={index}>
+              <strong>{txn.type.toUpperCase()}</strong> - ₹{txn.amount}{" "}
+              <span className="text-muted">({txn.purpose})</span>
+              <div className="text-muted small">
+                {new Date(txn.timestamp).toLocaleString()}
+              </div>
+            </ListGroup.Item>
           ))}
-        </tbody>
-      </Table>
-    </div>
+        </ListGroup>
+      </Card>
+    </Container>
   );
 };
 

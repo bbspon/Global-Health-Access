@@ -86,6 +86,9 @@ exports.loginUser = async (req, res) => {
         },
         token,
       });
+      // ✅ 1. Save token & role
+      // localStorage.setItem("accessToken", data.token);
+      // localStorage.setItem("userRole", data.user.role);
     } catch (error) {
       console.error("Login Error:", error);
       res

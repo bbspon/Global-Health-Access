@@ -1,102 +1,81 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Card,
-  Badge,
-  Row,
-  Col,
-  Spinner,
-  Alert,
-  Button,
-} from "react-bootstrap";
-import { getMyActivePlan } from "../services/healthPlanAPI";
-import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { Card, Badge, Button } from "react-bootstrap";
+import { useNavigate, Link } from "react-router-dom";
 
 const MyHealthPlan = () => {
-  const [plan, setPlan] = useState(null);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
+  const [plan, setPlan] = useState(null);
+  const [userId, setUserId] = useState(null);
+ const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+ const userID = bbsUserData?.user?.id;
   useEffect(() => {
     const fetchPlan = async () => {
+      const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+      const token = bbsUserData?.token;
+      const userIdFromStorage = bbsUserData?.user?._id;
+
+      setUserId(userIdFromStorage);
+
       try {
-        const data = await getMyActivePlan();
-        setPlan(data.plan);
-      } catch {
-        setPlan(null);
-      } finally {
-        setLoading(false);
+        const res = await axios.get("http://localhost:5000/api/user/my-plan", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setPlan(res.data);
+      } catch (err) {
+        console.error("Error loading plan", err);
       }
     };
+
     fetchPlan();
   }, []);
 
-  const badgeColor = {
-    basic: "secondary",
-    premium: "info",
-    super_premium: "warning",
-  };
-
-  if (loading)
-    return <Spinner animation="border" className="d-block mx-auto mt-5" />;
-
-  if (!plan) {
-    return (
-      <Container className="py-4 text-center">
-        <Alert variant="info">You don't have an active health plan yet.</Alert>
-        <Button onClick={() => navigate("/health-access/plans")}>
-          Browse Plans
-        </Button>
-      </Container>
-    );
-  }
+  if (!plan) return <p>No active plan found.</p>;
 
   return (
-    <Container className="py-4">
-      <h3 className="mb-4 text-center">My Active Health Plan</h3>
-      <Card className="shadow-sm mb-3">
-        <Card.Body>
-          <Row className="align-items-center">
-            <Col md={8}>
-              <h5>
-                {plan.name}{" "}
-                <Badge bg={badgeColor[plan.tier] || "dark"} className="ms-2">
-                  {plan.tier.toUpperCase()}
-                </Badge>
-              </h5>
-              <p className="mb-1">
-                <strong>Valid from:</strong>{" "}
-                {new Date(plan.startDate).toLocaleDateString()}
-              </p>
-              <p className="mb-1">
-                <strong>Valid till:</strong>{" "}
-                {new Date(plan.endDate).toLocaleDateString()}
-              </p>
-              <p className="mb-1">
-                <strong>Status:</strong> {plan.status}
-              </p>
-              <p className="mb-1">
-                <strong>Payment:</strong> {plan.paymentMethod.toUpperCase()}
-              </p>
-              <p className="mb-1">
-                <strong>Wallet Used:</strong> ₹{plan.usedWalletAmount}
-              </p>
-              <p className="mb-1">
-                <strong>Txn ID:</strong> {plan.transactionId}
-              </p>
-            </Col>
-            <Col md={4}>
-              <h6>Plan Features</h6>
-              <ul className="small">
-                {plan.features.map((f, i) => (
-                  <li key={i}>{f}</li>
-                ))}
-              </ul>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
-    </Container>
+    <Card className="p-4 shadow-sm">
+      <h4>My Health Plan</h4>
+      <p>
+        <strong>Name:</strong> {plan.planId?.name}
+      </p>
+      <Badge bg="info" className="mb-2">
+        {(plan.planId?.tier || "N/A").toUpperCase()}
+      </Badge>
+      <p>
+        <strong>Status:</strong> {plan.status}
+      </p>
+      <p>
+        <strong>Price:</strong> ₹{plan.planId?.price}
+      </p>
+      <p>
+        <strong>Valid Till:</strong>{" "}
+        {new Date(plan.endDate).toLocaleDateString()}
+      </p>
+      <p>
+        <strong>Txn ID:</strong> {plan.transactionId}
+      </p>
+      <p>
+        <strong>Add-ons:</strong>{" "}
+        {plan.selectedAddons && plan.selectedAddons.join(", ")}
+      </p>
+      <div className="d-flex gap-2 flex-wrap">
+        <Button variant="primary">View QR</Button>
+        <Button onClick={() => navigate(`/user-plan/${plan._id}/family`)}>
+          Manage Family
+        </Button>
+        <Link
+          to={`/my-health/prescription-loop/${plan._id}`}
+          className="btn btn-outline-secondary"
+        >
+          View Prescriptions
+        </Link>
+        <Button
+          onClick={() => navigate(`/health-access/my-plan/coach/${userID}`)}
+        >
+          View Health Coach Dashboard
+        </Button>
+      </div>
+    </Card>
   );
 };
 

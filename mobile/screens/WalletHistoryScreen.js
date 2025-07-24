@@ -1,74 +1,75 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  TextInput,
-  Button,
   FlatList,
   StyleSheet,
-} from 'react-native';
-import axios from 'axios';
+  Picker,
+  SafeAreaView,
+} from "react-native";
+import axios from "axios";
 
 const WalletHistoryScreen = () => {
   const [transactions, setTransactions] = useState([]);
-  const [filters, setFilters] = useState({ type: '', min: '', max: '' });
-
-  const fetchHistory = async () => {
-    const { data } = await axios.get(
-      'https://yourdomain.com/api/wallet/history',
-      {
-        params: filters,
-      },
-    );
-    setTransactions(data);
-  };
+  const [typeFilter, setTypeFilter] = useState("");
 
   useEffect(() => {
+    const fetchHistory = async () => {
+      const token = JSON.parse(localStorage.getItem("bbsUser"))?.token;
+      try {
+        const res = await axios.get(
+          `http://localhost:5000/api/wallet/wallet-history${
+            typeFilter ? `?type=${typeFilter}` : ""
+          }`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setTransactions(res.data);
+      } catch (err) {
+        console.error("History fetch failed", err);
+      }
+    };
+
     fetchHistory();
-  }, []);
+  }, [typeFilter]);
 
   return (
-    <View style={styles.container}>
-      <TextInput
-        placeholder="Type (credit/debit)"
-        onChangeText={val => setFilters({ ...filters, type: val })}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Min Amount"
-        keyboardType="numeric"
-        onChangeText={val => setFilters({ ...filters, min: val })}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Max Amount"
-        keyboardType="numeric"
-        onChangeText={val => setFilters({ ...filters, max: val })}
-        style={styles.input}
-      />
-      <Button title="Apply Filters" onPress={fetchHistory} />
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.header}>Wallet History</Text>
+
+      <Picker
+        selectedValue={typeFilter}
+        style={styles.picker}
+        onValueChange={(itemValue) => setTypeFilter(itemValue)}
+      >
+        <Picker.Item label="All" value="" />
+        <Picker.Item label="Credit" value="credit" />
+        <Picker.Item label="Debit" value="debit" />
+      </Picker>
 
       <FlatList
         data={transactions}
-        keyExtractor={item => item._id}
+        keyExtractor={(item, idx) => idx.toString()}
         renderItem={({ item }) => (
           <View style={styles.item}>
+            <Text style={styles.type}>{item.type.toUpperCase()}</Text>
+            <Text>₹{item.amount}</Text>
+            <Text>{item.reason}</Text>
             <Text>{new Date(item.createdAt).toLocaleString()}</Text>
-            <Text>
-              {item.type.toUpperCase()} — ₹{item.amount}
-            </Text>
-            <Text>{item.description}</Text>
           </View>
         )}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 20 },
-  input: { borderBottomWidth: 1, marginBottom: 10, padding: 8 },
-  item: { marginBottom: 15, borderBottomWidth: 1, paddingBottom: 8 },
+  container: { flex: 1, padding: 20 },
+  header: { fontSize: 22, marginBottom: 10 },
+  picker: { height: 50, width: "100%" },
+  item: { padding: 10, borderBottomWidth: 1 },
+  type: { fontWeight: "bold" },
 });
 
 export default WalletHistoryScreen;

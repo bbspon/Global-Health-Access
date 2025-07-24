@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Container, Row, Col, Form, Button, Card, Alert } from "react-bootstrap";
+import { Container, Form, Button, Card, Alert } from "react-bootstrap";
+import axios from "axios";
 
 const HomeVisitBooking = () => {
   const [serviceType, setServiceType] = useState("");
@@ -7,23 +8,40 @@ const HomeVisitBooking = () => {
   const [address, setAddress] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
-
-  const handleSubmit = (e) => {
+  const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+  const userIdFromStorage = bbsUserData?.user?.id;
+  console.log(userIdFromStorage, "UserId");
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Simple validation
     if (!serviceType || !slot || !address) {
       setError("Please fill in all fields before proceeding.");
       return;
     }
 
     setError("");
-    setSubmitted(true);
 
-    // Simulate payment process or API call
-    console.log("Booking Details:", { serviceType, slot, address });
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/home-visits",
+        {
+          serviceType,
+          slot,
+          address,
+          userId: userIdFromStorage, // Optional: replace or remove if not available
+          paymentStatus: "Paid", // Optional: or set to "Pending"
+        }
+      );
 
-    // Future: Navigate to payment or trigger payment modal here
+      console.log("Booking successful:", response.data);
+      setSubmitted(true);
+      setServiceType("");
+      setSlot("");
+      setAddress("");
+    } catch (err) {
+      console.error("Booking error:", err);
+      setError("Booking failed. Please try again.");
+    }
   };
 
   return (
@@ -66,8 +84,16 @@ const HomeVisitBooking = () => {
               />
             </Form.Group>
 
-            {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
-            {submitted && <Alert variant="success" className="mt-3">✅ Booking Confirmed! Redirecting to payment...</Alert>}
+            {error && (
+              <Alert variant="danger" className="mt-3">
+                {error}
+              </Alert>
+            )}
+            {submitted && (
+              <Alert variant="success" className="mt-3">
+                ✅ Booking Confirmed! Redirecting to payment...
+              </Alert>
+            )}
 
             <Button className="mt-3" variant="primary" type="submit">
               Confirm & Pay

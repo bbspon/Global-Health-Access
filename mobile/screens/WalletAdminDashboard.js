@@ -1,13 +1,19 @@
-// WalletAdminDashboard.js
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, ScrollView, TextInput, Switch, StyleSheet, Alert
+  View,
+  Text,
+  ScrollView,
+  TextInput,
+  Switch,
+  StyleSheet,
+  Alert,
 } from 'react-native';
 import { Card, Button, Divider } from 'react-native-paper';
 import axios from 'axios';
 
 const WalletAdminDashboard = () => {
   const [walletStats, setWalletStats] = useState({});
+  const [adminTransactions, setAdminTransactions] = useState([]); // ✅ NEW
   const [cashbackRate, setCashbackRate] = useState(5);
   const [subsidyLimit, setSubsidyLimit] = useState(1000);
   const [healthEnabled, setHealthEnabled] = useState(true);
@@ -17,36 +23,62 @@ const WalletAdminDashboard = () => {
   const [creditUserId, setCreditUserId] = useState('');
   const [creditAmount, setCreditAmount] = useState('');
 
+  // Load wallet summary
   useEffect(() => {
-    axios.get('http://localhost:5000/api/admin/wallet/summary')
-      .then(res => setWalletStats(res.data))
-      .catch(() => Alert.alert("Error", "Failed to load wallet summary."));
+    axios
+      .get('http://localhost:5000/api/admin/wallet/summary')
+      .then((res) => setWalletStats(res.data))
+      .catch(() => Alert.alert('Error', 'Failed to load wallet summary.'));
+  }, []);
+
+  // ✅ Load admin wallet history
+  useEffect(() => {
+    const fetchAdminWalletHistory = async () => {
+      const bbsUser = JSON.parse(localStorage.getItem('bbsUser'));
+      const token = bbsUser?.token;
+
+      try {
+        const res = await axios.get(
+          'http://localhost:5000/api/wallet/admin/wallet-history',
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setAdminTransactions(res.data);
+      } catch (err) {
+        Alert.alert('Error', 'Failed to fetch wallet history');
+      }
+    };
+
+    fetchAdminWalletHistory();
   }, []);
 
   const handleUpdateConfig = () => {
-    axios.post('http://localhost:5000/api/admin/wallet/config', {
-      cashbackRate,
-      subsidyLimit,
-      healthEnabled,
-      golddexEnabled,
-      smartSuggest,
-      splitPay,
-    })
-      .then(() => Alert.alert("✅ Success", "Config updated successfully."))
-      .catch(() => Alert.alert("❌ Error", "Config update failed."));
+    axios
+      .post('http://localhost:5000/api/admin/wallet/config', {
+        cashbackRate,
+        subsidyLimit,
+        healthEnabled,
+        golddexEnabled,
+        smartSuggest,
+        splitPay,
+      })
+      .then(() => Alert.alert('✅ Success', 'Config updated successfully.'))
+      .catch(() => Alert.alert('❌ Error', 'Config update failed.'));
   };
 
   const handleManualCredit = () => {
-    axios.post('http://localhost:5000/api/admin/wallet/manual-credit', {
-      userId: creditUserId,
-      amount: Number(creditAmount)
-    })
+    axios
+      .post('http://localhost:5000/api/admin/wallet/manual-credit', {
+        userId: creditUserId,
+        amount: Number(creditAmount),
+      })
       .then(() => {
-        Alert.alert("✅ Success", `Credited ₹${creditAmount} to ${creditUserId}`);
+        Alert.alert('✅ Success', `Credited ₹${creditAmount} to ${creditUserId}`);
         setCreditUserId('');
         setCreditAmount('');
       })
-      .catch(() => Alert.alert("❌ Error", "Failed to credit wallet."));
+      .catch(() => Alert.alert('❌ Error', 'Failed to credit wallet.'));
   };
 
   return (
@@ -97,15 +129,19 @@ const WalletAdminDashboard = () => {
             <Switch value={golddexEnabled} onValueChange={setGolddexEnabled} />
           </View>
           <View style={styles.switchRow}>
-            <Text>Smart Suggest Enabled</Text>
+            <Text>Smart Suggest</Text>
             <Switch value={smartSuggest} onValueChange={setSmartSuggest} />
           </View>
           <View style={styles.switchRow}>
-            <Text>Split Pay Enabled</Text>
+            <Text>Split Pay Option</Text>
             <Switch value={splitPay} onValueChange={setSplitPay} />
           </View>
 
-          <Button mode="contained" style={styles.button} onPress={handleUpdateConfig}>
+          <Button
+            mode="contained"
+            style={styles.button}
+            onPress={handleUpdateConfig}
+          >
             🔄 Update Config
           </Button>
         </Card.Content>
@@ -136,6 +172,29 @@ const WalletAdminDashboard = () => {
         </Card.Content>
       </Card>
 
+      {/* ✅ Admin Wallet History Table */}
+      <Card style={styles.card}>
+        <Card.Title title="📜 Admin Wallet History" />
+        <Card.Content>
+          {adminTransactions.length === 0 ? (
+            <Text style={{ color: 'gray' }}>No transactions found.</Text>
+          ) : (
+            adminTransactions.map((txn, index) => (
+              <View key={index} style={styles.txnRow}>
+                <Text style={styles.txnText}>
+                  🧑 {txn.user} | ₹{txn.amount} | {txn.type.toUpperCase()}
+                </Text>
+                <Text style={styles.txnSub}>
+                  {txn.method} - {txn.purpose} |{' '}
+                  {new Date(txn.timestamp).toLocaleString()}
+                </Text>
+                <Divider style={{ marginVertical: 6 }} />
+              </View>
+            ))
+          )}
+        </Card.Content>
+      </Card>
+
       <Divider style={{ marginVertical: 20 }} />
       <Text style={styles.footer}>BBSCART Wallet Control Center © 2025</Text>
     </ScrollView>
@@ -149,8 +208,12 @@ const styles = StyleSheet.create({
   title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
   card: { marginBottom: 16 },
   input: {
-    borderWidth: 1, borderColor: '#ccc', padding: 10,
-    borderRadius: 6, marginVertical: 10, backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    borderRadius: 6,
+    marginVertical: 10,
+    backgroundColor: '#fff',
   },
   switchRow: {
     flexDirection: 'row',
@@ -165,5 +228,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'gray',
     fontSize: 12,
+  },
+  txnRow: {
+    marginBottom: 8,
+  },
+  txnText: {
+    fontWeight: 'bold',
+  },
+  txnSub: {
+    fontSize: 12,
+    color: '#666',
   },
 });

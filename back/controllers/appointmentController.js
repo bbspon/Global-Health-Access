@@ -31,15 +31,55 @@ exports.confirmAppointment = async (req, res) => {
   // Optionally notify user or provider
   res.json({ message: "Appointment confirmed", appointment });
 };
-const deductForAppointment = async (userId, appointmentId, amount) => {
-  await axios.post(
-    `${process.env.API_URL}/api/wallet/deduct`,
-    {
-      amount,
-      usageType: "appointment",
-      referenceId: appointmentId,
-      note: "Doctor Appointment Booking",
-    },
-    { headers: { Authorization: `Bearer ${userToken}` } }
-  );
+
+exports.bookAppointment = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const {
+      type,
+      providerName,
+      doctorName,
+      specialization,
+      appointmentDate,
+      slot,
+      notes,
+    } = req.body;
+
+    const appointment = new Appointment({
+      userId,
+      type,
+      providerName,
+      doctorName,
+      specialization,
+      appointmentDate,
+      slot,
+      notes,
+    });
+
+    await appointment.save();
+    res.status(201).json({ message: "Appointment booked successfully." });
+  } catch (err) {
+    console.error("Appointment booking failed", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+exports.createAppointment = async (req, res) => {
+  try {
+    const { bookingType, providerName, dateTime, patientName, sendWhatsapp } =
+      req.body;
+
+    const newAppointment = new Appointment({
+      bookingType,
+      providerName,
+      dateTime,
+      patientName,
+      sendWhatsapp,
+    });
+
+    await newAppointment.save();
+    res.status(201).json({ message: "Appointment booked successfully." });
+  } catch (error) {
+    console.error("Booking Error:", error);
+    res.status(500).json({ error: "Failed to book appointment." });
+  }
 };

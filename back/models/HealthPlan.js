@@ -14,9 +14,18 @@ const healthPlanSchema = new mongoose.Schema({
     AED: Number,
     USD: Number,
   },
+  addons: [
+    {
+      name: { type: String },
+      description: { type: String },
+      price: { type: Number },
+      included: { type: Boolean, default: false },
+    },
+  ],
   validityInDays: { type: Number, default: 365 },
   isActive: { type: Boolean, default: true },
   isRecommended: { type: Boolean, default: false },
+
   createdAt: { type: Date, default: Date.now },
 });
 

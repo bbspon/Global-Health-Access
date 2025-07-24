@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Form, Button } from "react-bootstrap";
-import { deductWalletAmount } from "../services/walletAPI";
 
 const BookAppointmentPage = () => {
   const [form, setForm] = useState({
@@ -14,26 +13,28 @@ const BookAppointmentPage = () => {
     notes: "",
   });
 
-  // Need To check Any Booking Page:
-  const handleDoctorBooking = async () => {
-    try {
-      await deductWalletAmount({
-        amount: 500,
-        usageType: "appointment",
-        referenceId: "APT123",
-        note: "Doctor Booking Fee",
-      });
-      alert("Wallet deducted successfully");
-    } catch (err) {
-      alert("Insufficient wallet balance or error");
-    }
-  };
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const submit = async () => {
-    await axios.post("/api/appointments/book", form);
-    alert("Appointment Booked");
+  const handleSubmit = async () => {
+    const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+    const token = bbsUserData?.token;
+
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/appointments/book",
+        form,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      alert("Appointment Booked Successfully");
+    } catch (error) {
+      console.error("Booking failed", error);
+      alert("Error booking appointment");
+    }
   };
 
   return (
@@ -76,7 +77,7 @@ const BookAppointmentPage = () => {
           placeholder="Reason or Notes"
           onChange={handleChange}
         />
-        <Button className="mt-3" onClick={submit}>
+        <Button className="mt-3" onClick={handleSubmit}>
           Book Now
         </Button>
       </Form>

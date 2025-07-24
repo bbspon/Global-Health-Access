@@ -10,14 +10,11 @@ import {
   Table,
   ListGroup,
   Modal,
-  Form,
 } from "react-bootstrap";
 import {
   CheckCircleFill,
   ArrowUpCircle,
   ArrowRepeat,
-  PeopleFill,
-  InfoCircle,
 } from "react-bootstrap-icons";
 
 const tiers = [
@@ -56,13 +53,75 @@ const tiers = [
 
 const HealthMembershipPage = () => {
   const [currentPlan, setCurrentPlan] = useState("Basic");
-  const [usedConsults, setUsedConsults] = useState(1);
+  const [usedConsults, setUsedConsults] = useState(0);
   const [usedOpd, setUsedOpd] = useState(0);
   const [showUpgrade, setShowUpgrade] = useState(false);
 
-  const handleUpgrade = (planName) => {
-    setCurrentPlan(planName);
-    setShowUpgrade(false);
+  // 🔹 Fetch membership details from backend
+  useEffect(() => {
+    const fetchMembership = async () => {
+      try {
+         const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+         const token = bbsUserData?.token;
+        const res = await fetch(
+          "http://localhost:5000/api/membership/my-membership",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await res.json();
+        setCurrentPlan(data.planType || "Basic");
+        setUsedConsults(data.consultsUsed || 0);
+        setUsedOpd(data.opdUsed || 0);
+      } catch (err) {
+        console.error("Error fetching membership", err);
+      }
+    };
+    fetchMembership();
+  }, []);
+
+  // 🔹 Plan upgrade handler
+  const handleUpgrade = async (planName) => {
+    try {
+        const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+        const token = bbsUserData?.token;
+      const res = await fetch("http://localhost:5000/api/membership/update", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ planType: planName }),
+      });
+      const data = await res.json();
+      setCurrentPlan(data.planType);
+      setShowUpgrade(false);
+    } catch (err) {
+      console.error("Upgrade failed", err);
+    }
+  };
+
+  // 🔹 Auto-renew toggle
+  const handleAutoRenew = async () => {
+    try {
+        const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+        const token = bbsUserData?.token;
+      const res = await fetch(
+        "http://localhost:5000/api/membership/toggle-renew",
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await res.json();
+      alert(`Auto-renew is now ${data.autoRenew ? "enabled" : "disabled"}`);
+    } catch (err) {
+      console.error("Toggle auto-renew failed", err);
+    }
   };
 
   const currentTier = tiers.find((tier) => tier.name === currentPlan);
@@ -106,11 +165,14 @@ const HealthMembershipPage = () => {
                 ))}
               </ListGroup>
               <div className="mt-3 d-flex justify-content-between">
-                <Button variant="outline-primary" onClick={() => setShowUpgrade(true)}>
+                <Button
+                  variant="outline-primary"
+                  onClick={() => setShowUpgrade(true)}
+                >
                   <ArrowUpCircle className="me-2" />
                   Upgrade Plan
                 </Button>
-                <Button variant="outline-dark">
+                <Button variant="outline-dark" onClick={handleAutoRenew}>
                   <ArrowRepeat className="me-2" />
                   Enable Auto Renew
                 </Button>
@@ -135,7 +197,9 @@ const HealthMembershipPage = () => {
           <tr>
             <td>AI Consults</td>
             {tiers.map((t) => (
-              <td key={t.name}>{t.consultLimit === Infinity ? "Unlimited" : t.consultLimit}</td>
+              <td key={t.name}>
+                {t.consultLimit === Infinity ? "Unlimited" : t.consultLimit}
+              </td>
             ))}
           </tr>
           <tr>
@@ -181,9 +245,13 @@ const HealthMembershipPage = () => {
             <Card.Body>
               <Card.Title>🧠 Smart Suggestion</Card.Title>
               <Card.Text>
-                You’ve used 90% of your consults. We recommend switching to the Premium Plan to unlock unlimited AI support.
+                You’ve used 90% of your consults. We recommend switching to the
+                Premium Plan to unlock unlimited AI support.
               </Card.Text>
-              <Button variant="outline-danger" onClick={() => setShowUpgrade(true)}>
+              <Button
+                variant="outline-danger"
+                onClick={() => setShowUpgrade(true)}
+              >
                 View Upgrade Options
               </Button>
             </Card.Body>
@@ -195,7 +263,8 @@ const HealthMembershipPage = () => {
             <Card.Body>
               <Card.Title>🎖 Future Feature: Badges</Card.Title>
               <Card.Text>
-                Coming Soon: Earn badges like Wellness Champ, Diagnostic Hero & more based on your health engagement.
+                Coming Soon: Earn badges like Wellness Champ, Diagnostic Hero &
+                more based on your health engagement.
               </Card.Text>
               <Badge bg="info">Gamification Beta</Badge>
             </Card.Body>

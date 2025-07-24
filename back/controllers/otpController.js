@@ -1,23 +1,29 @@
 const Otp = require("../models/Otp");
 const generateOtp = require("../utils/generateOtp");
-const sendSms = require("../utils/sendSms"); // Your custom SMS API integration
 
-exports.sendAppointmentOtp = async (req, res) => {
-  const { phone } = req.body;
+exports.sendOtp = async (req, res) => {
+  const { phoneNumber } = req.body;
+  if (!phoneNumber)
+    return res.status(400).json({ message: "Phone number required" });
+
   const otpCode = generateOtp();
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 min expiry
 
-  await Otp.create({ phone, otp: otpCode, purpose: "appointment" });
-  await sendSms(phone, `Your OTP for appointment confirmation is ${otpCode}`);
+  await Otp.create({ phoneNumber, otpCode, expiresAt });
 
-  res.json({ message: "OTP sent" });
+  console.log("🔐 OTP sent to", phoneNumber, "=>", otpCode); // Replace with SMS/WhatsApp API
+  res.status(200).json({ message: "OTP sent" });
 };
 
-exports.verifyAppointmentOtp = async (req, res) => {
-  const { phone, otp } = req.body;
-  const record = await Otp.findOne({ phone, otp, purpose: "appointment" });
+exports.verifyOtp = async (req, res) => {
+  const { phoneNumber, otpCode } = req.body;
 
-  if (!record) return res.status(400).json({ error: "Invalid OTP" });
+  const record = await Otp.findOne({ phoneNumber, otpCode });
+  if (!record) return res.status(400).json({ message: "Invalid OTP" });
+  if (record.expiresAt < new Date())
+    return res.status(400).json({ message: "OTP expired" });
 
-  await Otp.deleteMany({ phone }); // Clear OTPs
-  res.json({ verified: true });
+  record.verified = true;
+  await record.save();
+  res.status(200).json({ message: "OTP verified" });
 };

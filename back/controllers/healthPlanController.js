@@ -1,4 +1,6 @@
 const HealthPlan = require("../models/HealthPlan");
+const UserPlan = require("../models/UserPlan");
+const HealthPlanAccess = require("../models/HealthPlanAccess");
 
 exports.getAllHealthPlans = async (req, res) => {
   try {
@@ -45,5 +47,38 @@ exports.getPlansForComparison = async (req, res) => {
   } catch (error) {
     console.error("Comparison API Error:", error);
     res.status(500).json({ success: false, message: "Server error while comparing plans" });
+  }
+};
+exports.getPlanById = async (req, res) => {
+  try {
+    const plan = await HealthPlan.findById(req.params.id);
+    if (!plan) return res.status(404).json({ message: "Plan not found" });
+    res.status(200).json(plan);
+  } catch (err) {
+    console.error("Error getting plan by ID:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+exports.getPlans = async (req, res) => {
+  try {
+    const plans = await HealthPlanAccess.find();
+    res.json(plans);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to load plans" });
+  }
+};
+
+exports.enrollPlan = async (req, res) => {
+  const { userId, selectedPlan } = req.body;
+  if (!userId || !selectedPlan) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  try {
+    const newEnrollment = new UserPlan({ userId, selectedPlan });
+    await newEnrollment.save();
+    res.status(200).json({ message: "User enrolled successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to enroll in plan" });
   }
 };

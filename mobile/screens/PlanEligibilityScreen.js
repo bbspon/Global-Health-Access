@@ -1,79 +1,76 @@
-import React, { useState } from 'react';
+// Mobile → src/screens/PlanEligibilityScreen.js
+import React, { useState } from "react";
 import {
   View,
   Text,
   TextInput,
   Button,
-  StyleSheet,
   Alert,
-  ActivityIndicator,
-} from 'react-native';
-import axios from 'axios';
+  Picker,
+} from "react-native";
+import axios from "axios";
 
-const PlanEligibilityScreen = () => {
-  const [form, setForm] = useState({ age: '', city: '', income: '' });
-  const [loading, setLoading] = useState(false);
+const PlanEligibilityScreen = ({ navigation }) => {
+  const [age, setAge] = useState("");
+  const [city, setCity] = useState("");
+  const [planType, setPlanType] = useState("basic");
+
+  const token = JSON.parse(localStorage.getItem("bbsUser"))?.token;
 
   const checkEligibility = async () => {
-    setLoading(true);
     try {
       const res = await axios.post(
-        'https://yourdomain.com/api/health-plans/check-eligibility',
-        form,
+        "http://localhost:5000/api/plan/check-eligibility",
+        { age, city, planType },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
+
       if (res.data.eligible) {
-        Alert.alert('Eligible ✅', 'You are eligible for this plan.');
+        Alert.alert("✅ Eligible", res.data.message, [
+          { text: "Buy Plan", onPress: () => navigation.navigate("BuyPlanScreen") },
+        ]);
       } else {
-        Alert.alert(
-          'Not Eligible ❌',
-          res.data.reason || 'No reason provided.',
-        );
+        Alert.alert("⚠️ Not Eligible", res.data.message);
       }
-    } catch {
-      Alert.alert('Error', 'Failed to check eligibility');
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      Alert.alert("❌ Error", err.response?.data?.message || "Failed to check.");
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>Check Plan Eligibility</Text>
+    <View style={{ padding: 20 }}>
+      <Text style={{ fontWeight: "bold", fontSize: 18 }}>
+        🔍 Check Plan Eligibility
+      </Text>
 
       <TextInput
         placeholder="Age"
+        value={age}
+        onChangeText={setAge}
         keyboardType="numeric"
-        style={styles.input}
-        onChangeText={val => setForm({ ...form, age: val })}
-        value={form.age}
+        style={{ borderBottomWidth: 1, marginVertical: 10 }}
       />
       <TextInput
         placeholder="City"
-        style={styles.input}
-        onChangeText={val => setForm({ ...form, city: val })}
-        value={form.city}
+        value={city}
+        onChangeText={setCity}
+        style={{ borderBottomWidth: 1, marginVertical: 10 }}
       />
-      <TextInput
-        placeholder="Monthly Income"
-        keyboardType="numeric"
-        style={styles.input}
-        onChangeText={val => setForm({ ...form, income: val })}
-        value={form.income}
-      />
+      <Picker
+        selectedValue={planType}
+        onValueChange={(itemValue) => setPlanType(itemValue)}
+        style={{ marginBottom: 20 }}
+      >
+        <Picker.Item label="Basic" value="basic" />
+        <Picker.Item label="Prime" value="prime" />
+        <Picker.Item label="Elite" value="elite" />
+      </Picker>
 
-      {loading ? (
-        <ActivityIndicator />
-      ) : (
-        <Button title="Check Eligibility" onPress={checkEligibility} />
-      )}
+      <Button title="Check Eligibility" onPress={checkEligibility} />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { padding: 20 },
-  heading: { fontSize: 18, fontWeight: 'bold', marginBottom: 12 },
-  input: { borderBottomWidth: 1, marginBottom: 16, padding: 8 },
-});
 
 export default PlanEligibilityScreen;

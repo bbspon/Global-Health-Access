@@ -1,70 +1,131 @@
 import React, { useState, useEffect } from "react";
 import {
-  Container, Card, Row, Col, Button, Badge, Alert
+  Container,
+  Card,
+  Row,
+  Col,
+  Button,
+  Badge,
+  Alert,
 } from "react-bootstrap";
-import QRCode from 'react-qr-code';
-import { Download, GeoAltFill, ShieldCheck, Calendar2Check } from "react-bootstrap-icons";
+import QRCode from "react-qr-code";
+import {
+  Download,
+  GeoAltFill,
+  ShieldCheck,
+  Calendar2Check,
+} from "react-bootstrap-icons";
+import axios from "axios";
 
 const DigitalHealthCard = () => {
   const [qrData, setQrData] = useState("");
   const [refreshed, setRefreshed] = useState(false);
-  const [userInfo] = useState({
-    name: "Rajesh Kumar",
-    tier: "Premium",
-    planExpiry: "2025-12-31",
-    coverage: { opd: 6, ipd: 2, labs: 4 },
-    city: "Chennai",
-    state: "Tamil Nadu",
-    status: "Active"
-  });
+  const [userInfo, setUserInfo] = useState(null);
 
   useEffect(() => {
-    // Simulated secure QR token
-    const generateQR = () => {
-      const token = `${userInfo.name}-${userInfo.tier}-${new Date().getTime()}`;
-      setQrData(token);
-      setRefreshed(true);
+    const fetchCard = async () => {
+      try {
+        const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+        const token = bbsUserData?.token;
+        const res = await axios.get(
+          "http://localhost:5000/api/card/digital-card",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setUserInfo(res.data);
+        setQrData(res.data.qrToken);
+      } catch (err) {
+        console.error("Error loading digital health card", err);
+      }
     };
-    generateQR();
-    const refreshInterval = setInterval(generateQR, 1000 * 60 * 60 * 48); // 48h refresh
-    return () => clearInterval(refreshInterval);
+
+    fetchCard();
   }, []);
 
+  const handleRefreshQR = async () => {
+    try {
+      const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+      const token = bbsUserData?.token;
+      const res = await axios.put(
+        "http://localhost:5000/api/card/digital-card/refresh",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setQrData(res.data.qrToken);
+      setRefreshed(true);
+    } catch (err) {
+      alert("QR refresh failed");
+    }
+  };
+
   const handleDownloadPDF = () => {
-    window.print(); // Or use pdf-lib / react-pdf for real PDF
+    window.print(); // Replace with PDF download lib if needed
   };
 
   return (
     <Container className="my-4">
       <h2 className="mb-3">🩺 Your Digital Health Access Card</h2>
 
-      <Card className="shadow-lg border-primary p-3">
-        <Row>
-          <Col md={6} className="d-flex align-items-center justify-content-center">
-            <QRCode value={qrData} size={200} />
-          </Col>
-          <Col md={6}>
-            <h4>{userInfo.name}</h4>
-            <Badge bg="success" className="mb-2">{userInfo.status}</Badge>
-            <p><ShieldCheck /> Plan: <strong>{userInfo.tier}</strong></p>
-            <p><Calendar2Check /> Valid Till: <strong>{userInfo.planExpiry}</strong></p>
-            <p>🧾 Coverage:</p>
-            <ul>
-              <li>OPD Visits: {userInfo.coverage.opd}</li>
-              <li>IPD Stays: {userInfo.coverage.ipd}</li>
-              <li>Lab Tests: {userInfo.coverage.labs}</li>
-            </ul>
-            <p><GeoAltFill /> {userInfo.city}, {userInfo.state}</p>
-            <Button variant="outline-primary" onClick={handleDownloadPDF}>
-              <Download /> Download as PDF
-            </Button>
-          </Col>
-        </Row>
-      </Card>
+      {userInfo ? (
+        <Card className="shadow-lg border-primary p-3">
+          <Row>
+            <Col
+              md={6}
+              className="d-flex align-items-center justify-content-center"
+            >
+              <QRCode value={qrData} size={200} />
+            </Col>
+            <Col md={6}>
+              <h4>{userInfo.name}</h4>
+              <Badge bg="success" className="mb-2">
+                {userInfo.status}
+              </Badge>
+              <p>
+                <ShieldCheck /> Plan: <strong>{userInfo.planTier}</strong>
+              </p>
+              <p>
+                <Calendar2Check /> Valid Till:{" "}
+                <strong>{userInfo.planExpiry}</strong>
+              </p>
+              <p>🧾 Coverage:</p>
+              <ul>
+                <ul>
+                  <li>OPD Visits: {userInfo.coverage?.opd ?? "N/A"}</li>
+                  <li>IPD Stays: {userInfo.coverage?.ipd ?? "N/A"}</li>
+                  <li>Lab Tests: {userInfo.coverage?.labs ?? "N/A"}</li>
+                </ul>
+              </ul>
+              <p>
+                <GeoAltFill /> {userInfo.city}, {userInfo.state}
+              </p>
+              <div className="d-flex gap-2">
+                <Button variant="outline-primary" onClick={handleDownloadPDF}>
+                  <Download /> Download as PDF
+                </Button>
+                <Button variant="outline-info" onClick={handleRefreshQR}>
+                  🔄 Refresh QR
+                </Button>
+              </div>
+            </Col>
+          </Row>
+        </Card>
+      ) : (
+        <Alert variant="warning" className="mt-3">
+          Loading your digital health card...
+        </Alert>
+      )}
 
       {refreshed && (
         <Alert variant="info" className="mt-3">
-          🔁 QR refreshed. Valid for next 48 hours. Show this at any partner hospital.
+          🔁 QR refreshed. Valid for next 48 hours. Show this at any partner
+          hospital.
         </Alert>
       )}
     </Container>

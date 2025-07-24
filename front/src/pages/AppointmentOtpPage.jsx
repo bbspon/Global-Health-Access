@@ -1,39 +1,66 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Form, Button } from "react-bootstrap";
 
-const AppointmentOtpPage = ({ phone, appointmentId }) => {
-  const [otp, setOtp] = useState("");
-  const [sent, setSent] = useState(false);
+const AppointmentOtpPage = () => {
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [otpCode, setOtpCode] = useState("");
+  const [stage, setStage] = useState("send"); // send or verify
+  const [message, setMessage] = useState("");
 
   const sendOtp = async () => {
-    await axios.post("/api/otp/send-otp", { phone });
-    setSent(true);
+    try {
+      const res = await axios.post("http://localhost:5000/api/otp/send-otp", {
+        phoneNumber,
+      });
+      setMessage(res.data.message);
+      setStage("verify");
+    } catch (err) {
+      setMessage("Failed to send OTP");
+    }
   };
 
-  const verify = async () => {
-    const res = await axios.post("/api/otp/verify-otp", { phone, otp });
-    if (res.data.verified) {
-      await axios.post("/api/appointments/confirm", { appointmentId });
-      alert("Appointment Confirmed!");
+  const verifyOtp = async () => {
+    try {
+      const res = await axios.post("http://localhost:5000/api/otp/verify-otp", {
+        phoneNumber,
+        otpCode,
+      });
+      setMessage(res.data.message);
+    } catch (err) {
+      setMessage("Invalid or expired OTP");
     }
   };
 
   return (
-    <div className="container py-4">
-      <h4>OTP Verification</h4>
-      {!sent ? (
-        <Button onClick={sendOtp}>Send OTP</Button>
-      ) : (
-        <>
-          <Form.Control
-            placeholder="Enter OTP"
-            onChange={(e) => setOtp(e.target.value)}
+    <div className="container mt-5">
+      <h2>OTP Verification</h2>
+      <p>{message}</p>
+      {stage === "send" ? (
+        <div>
+          <input
+            type="text"
+            className="form-control mb-2"
+            placeholder="Enter phone number"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
           />
-          <Button className="mt-2" onClick={verify}>
-            Confirm Appointment
-          </Button>
-        </>
+          <button className="btn btn-primary" onClick={sendOtp}>
+            Send OTP
+          </button>
+        </div>
+      ) : (
+        <div>
+          <input
+            type="text"
+            className="form-control mb-2"
+            placeholder="Enter OTP"
+            value={otpCode}
+            onChange={(e) => setOtpCode(e.target.value)}
+          />
+          <button className="btn btn-success" onClick={verifyOtp}>
+            Verify OTP
+          </button>
+        </div>
       )}
     </div>
   );

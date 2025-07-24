@@ -1,62 +1,79 @@
-import React, { useState } from 'react';
-import { View, Text, Button, Picker, Switch, StyleSheet } from 'react-native';
-import axios from 'axios';
+// Mobile → src/screens/PlanPaymentScreen.js
+import React, { useState } from "react";
+import { View, Text, TextInput, Button, ActivityIndicator, Alert } from "react-native";
+import axios from "axios";
 
-const PlanPaymentScreen = ({ planId, totalAmount }) => {
-  const [method, setMethod] = useState('wallet');
-  const [partial, setPartial] = useState(false);
+const PlanPaymentScreen = () => {
+  const [planId, setPlanId] = useState("");
+  const [amount, setAmount] = useState("");
+  const [method, setMethod] = useState("razorpay");
+  const [txnId, setTxnId] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const pay = async () => {
-    const res = await axios.post(
-      'https://yourdomain.com/api/plan-payment/initiate',
-      {
-        planId,
-        amount: totalAmount,
-        method,
-        partialPayment: partial,
-      },
-    );
+  const token = JSON.parse(localStorage.getItem("bbsUser"))?.token;
 
-    const { payment } = res.data;
+  const initiatePayment = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/plan/pay/initiate",
+        { planId, amount, method },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setTxnId(res.data.txnId);
+      Alert.alert("Initiated", "Payment session started.");
+    } catch (err) {
+      Alert.alert("Error", err.response?.data?.message || "Failed to initiate.");
+    }
+    setLoading(false);
+  };
 
-    if (method === 'wallet') {
-      await axios.post('https://yourdomain.com/api/plan-payment/wallet-pay', {
-        paymentId: payment._id,
-      });
-      alert('Paid with Wallet');
-    } else {
-      alert('Proceed to payment gateway');
+  const confirmPayment = async () => {
+    if (!txnId) return Alert.alert("Error", "No transaction to confirm");
+
+    try {
+      const paymentRef = "MOBILE_TXN_" + new Date().getTime();
+      await axios.post(
+        "http://localhost:5000/api/plan/pay/confirm",
+        { txnId, paymentRef },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      Alert.alert("Success", "Payment confirmed and plan activated.");
+    } catch (err) {
+      Alert.alert("Error", "Failed to confirm.");
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Payment Options</Text>
+    <View style={{ padding: 20 }}>
+      <Text>💳 Plan Payment</Text>
 
-      <Picker selectedValue={method} onValueChange={v => setMethod(v)}>
-        <Picker.Item label="Wallet" value="wallet" />
-        <Picker.Item label="Online Gateway" value="gateway" />
-      </Picker>
+      <TextInput
+        placeholder="Plan ID"
+        value={planId}
+        onChangeText={setPlanId}
+        style={{ borderBottomWidth: 1, marginVertical: 10 }}
+      />
 
-      <View style={styles.row}>
-        <Text>Use Partial Payment (40%)</Text>
-        <Switch value={partial} onValueChange={setPartial} />
-      </View>
+      <TextInput
+        placeholder="Amount"
+        value={amount}
+        keyboardType="numeric"
+        onChangeText={setAmount}
+        style={{ borderBottomWidth: 1, marginBottom: 10 }}
+      />
 
-      <Button title="Pay Now" onPress={pay} />
+      <Button title="Initiate Payment" onPress={initiatePayment} />
+
+      {loading && <ActivityIndicator style={{ marginTop: 10 }} />}
+
+      {txnId && (
+        <View style={{ marginTop: 20 }}>
+          <Button title="Confirm Payment" color="green" onPress={confirmPayment} />
+        </View>
+      )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { padding: 20 },
-  title: { fontSize: 20, fontWeight: 'bold', marginBottom: 10 },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-});
 
 export default PlanPaymentScreen;

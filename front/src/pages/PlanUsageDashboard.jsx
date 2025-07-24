@@ -1,5 +1,4 @@
-// PlanUsageDashboard.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Row,
@@ -9,8 +8,10 @@ import {
   Button,
   Modal,
   Badge,
+  Spinner,
 } from "react-bootstrap";
-
+import axios from "axios";
+import { useNavigate, Link } from "react-router-dom";
 const planColors = {
   Basic: "secondary",
   Silver: "info",
@@ -19,98 +20,96 @@ const planColors = {
   Corporate: "primary",
 };
 
-const dummyData = [
-  {
-    user: "Aarav Shah",
-    plan: "Gold",
-    family: ["Spouse: Nidhi Shah"],
-    opdUsed: 4,
-    opdCap: 4,
-    ipdUsed: 2,
-    ipdCap: 3,
-    labUsed: 2500,
-    labCap: 3000,
-    mentalHealthUsed: 1,
-    mentalHealthCap: 3,
-    addOns: { opd: 1 },
-    alerts: ["OPD usage at 100%"],
-  },
-  {
-    user: "Fatima Ali",
-    plan: "Premium",
-    family: [],
-    opdUsed: 1,
-    opdCap: 10,
-    ipdUsed: 0,
-    ipdCap: 5,
-    labUsed: 500,
-    labCap: 4000,
-    mentalHealthUsed: 0,
-    mentalHealthCap: 4,
-    addOns: {},
-    alerts: [],
-  },
-  {
-    user: "Ravi Patel",
-    plan: "Corporate",
-    family: ["Spouse: Meera Patel", "Child: Arya Patel"],
-    opdUsed: 6,
-    opdCap: 8,
-    ipdUsed: 3,
-    ipdCap: 4,
-    labUsed: 3500,
-    labCap: 4000,
-    mentalHealthUsed: 2,
-    mentalHealthCap: 3,
-    addOns: { lab: 500 },
-    alerts: ["Lab limit at 95%"],
-  },
-  {
-    user: "Neha Verma",
-    plan: "Silver",
-    family: [],
-    opdUsed: 2,
-    opdCap: 4,
-    ipdUsed: 1,
-    ipdCap: 3,
-    labUsed: 1000,
-    labCap: 2000,
-    mentalHealthUsed: 0,
-    mentalHealthCap: 2,
-    addOns: {},
-    alerts: [],
-  },
-  {
-    user: "Imran Khan",
-    plan: "Basic",
-    family: ["Spouse: Zara Khan"],
-    opdUsed: 1,
-    opdCap: 2,
-    ipdUsed: 0,
-    ipdCap: 1,
-    labUsed: 400,
-    labCap: 1000,
-    mentalHealthUsed: 0,
-    mentalHealthCap: 1,
-    addOns: {},
-    alerts: [],
-  },
-];
-
 const PlanUsageDashboard = () => {
-  const [data, setData] = useState(dummyData);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [pdfModal, setPdfModal] = useState(false);
   const [resetModal, setResetModal] = useState(false);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const fetchData = async () => {
+      const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+      const token = bbsUserData?.token;
+
+      try {
+        const [usageRes, plansRes] = await Promise.all([
+          axios.get("http://localhost:5000/api/user/plan-usage", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get("http://localhost:5000/api/plans", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
+        const usageData = usageRes.data;
+        const plans = plansRes.data;
+
+        const merged = usageData.map((u) => {
+          const planDetails = plans.find((p) => p._id === u.planId);
+          return {
+            ...u,
+            plan: planDetails?.name || "Unknown Plan",
+            tier: planDetails?.tier || "basic",
+            description: planDetails?.description || "",
+            price: planDetails?.price || 0,
+          };
+        });
+
+        setData(merged);
+      } catch (err) {
+        console.error("Error loading data", err);
+        setData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handlePDFDownload = () => {
     setPdfModal(true);
     setTimeout(() => setPdfModal(false), 3000);
   };
 
-  const handleManualReset = () => {
-    setResetModal(true);
-    setTimeout(() => setResetModal(false), 2000);
+  const handleManualReset = async () => {
+    try {
+      const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+      const token = bbsUserData?.token;
+
+      await axios.post(
+        "http://localhost:5000/api/user/plan-usage/reset",
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setResetModal(true);
+      setTimeout(() => {
+        setResetModal(false);
+        window.location.reload();
+      }, 2000);
+    } catch (err) {
+      console.error("Reset failed", err);
+    }
   };
+
+  if (loading) {
+    return (
+      <Container className="text-center mt-5">
+        <Spinner animation="border" /> Loading Plan Usage Dashboard...
+      </Container>
+    );
+  }
+
+  if (!data.length) {
+    return (
+      <Container className="text-center mt-5">
+        <h5>No plan usage data found.</h5>
+      </Container>
+    );
+  }
 
   return (
     <Container fluid>
@@ -122,7 +121,7 @@ const PlanUsageDashboard = () => {
               <Card.Body>
                 <Card.Title>
                   {user.user}{" "}
-                  <Badge bg={planColors[user.plan] || "secondary"}>
+                  <Badge bg={planColors[user.tier] || "secondary"}>
                     {user.plan} Plan
                   </Badge>
                 </Card.Title>
@@ -135,12 +134,14 @@ const PlanUsageDashboard = () => {
                 <hr />
 
                 {["opd", "ipd", "lab", "mentalHealth"].map((type) => {
-                  const used = (user[`${type}Used`] || 0) + (user.addOns?.[type] || 0);
+                  const used =
+                    (user[`${type}Used`] || 0) + (user.addOns?.[type] || 0);
                   const cap = user[`${type}Cap`] || 1;
                   const percent = Math.round((used / cap) * 100);
                   const alert = user.alerts?.find((a) =>
                     a.toLowerCase().includes(type)
                   );
+
                   return (
                     <div className="mb-3" key={type}>
                       <strong>
@@ -169,6 +170,12 @@ const PlanUsageDashboard = () => {
                   </Button>
                   <Button variant="outline-danger" onClick={handleManualReset}>
                     ♻️ Manual Reset
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={() => navigate("/health-access/renew-plan")}
+                  >
+                    🔁 Renew My Plan
                   </Button>
                 </div>
               </Card.Body>

@@ -42,48 +42,82 @@ exports.purchasePlan = async (req, res) => {
       .json({ success: false, message: "Server error during plan purchase" });
   }
 };
-exports.getMyActivePlan = async (req, res) => {
+// Buy Plan Controller
+exports.buyPlanController = async (req, res) => {
   try {
+    const { planId, selectedAddons = [], paymentMethod, usedWalletAmount = 0, referralCode } = req.body;
     const userId = req.user._id;
 
-    const userPlan = await UserPlan.findOne({
-      userId,
-      status: "active",
-    }).populate("planId");
+    const plan = await Plan.findById(planId);
+    if (!plan) return res.status(404).json({ message: "Plan not found" });
 
-    if (!userPlan) {
-      return res.status(200).json({ success: true, plan: null });
+    // Total price calculation
+    const addonTotal = selectedAddons.reduce((acc, addonName) => {
+      const addon = plan.addons.find((a) => a.name === addonName);
+      return addon ? acc + addon.price : acc;
+    }, 0);
+
+    const totalPrice = plan.price + addonTotal;
+
+    // Handle wallet deduction
+    if (paymentMethod === "wallet") {
+      if (req.user.walletBalance < totalPrice) {
+        return res.status(400).json({ message: "Insufficient wallet balance" });
+      }
+
+      req.user.walletBalance -= totalPrice;
+      await req.user.save();
+
+      await WalletTransaction.create({
+        user: userId,
+        type: "debit",
+        amount: totalPrice,
+        purpose: "plan_purchase",
+        timestamp: new Date(),
+        method: "wallet",
+      });
     }
 
-    const {
-      planId: plan,
-      startDate,
-      endDate,
+    // Save purchased plan to user
+    await UserPlan.create({
+      user: userId,
+      planId,
+      addons: selectedAddons,
+      purchaseDate: new Date(),
+      status: "active",
       paymentMethod,
-      usedWalletAmount,
-      transactionId,
-    } = userPlan;
+      totalPaid: totalPrice,
+      referralCodeUsed: referralCode || null,
+    });
 
-    const response = {
-      name: plan.name,
-      tier: plan.tier,
-      features: plan.features,
-      description: plan.description,
-      price: plan.price,
-      validityInDays: plan.validityInDays,
-      startDate,
-      endDate,
-      status: userPlan.status,
-      paymentMethod,
-      usedWalletAmount,
-      transactionId,
-    };
-
-    return res.status(200).json({ success: true, plan: response });
+    return res.status(200).json({ message: "Plan purchased successfully" });
   } catch (error) {
-    console.error("Fetch My Plan Error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Server error while fetching plan" });
+    console.error("Plan purchase failed:", error);
+    return res.status(500).json({ message: "Plan purchase failed", error });
+  }
+};
+
+exports.getMyPlan = async (req, res) => {
+  try {
+    const userId = req.user._id || req.user.id; // Handle both cases
+
+    console.log("📩 getMyPlan called for user:", userId);
+
+    const plan = await UserPlan.findOne({
+      userId,
+      status: "active",
+    }).sort({ startDate: -1 });
+
+    if (!plan) {
+      return res.status(404).json({ message: "No active plan found." });
+    }
+
+    // Optionally populate the plan details
+    const fullPlan = await HealthPlan.findById(plan.planId);
+
+    res.status(200).json({ ...plan.toObject(), planDetails: fullPlan });
+  } catch (error) {
+    console.error("❌ Error in getMyPlan:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };

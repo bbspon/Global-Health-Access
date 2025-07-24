@@ -1,67 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Modal, Button, Badge, Spinner, Alert } from 'react-bootstrap';
-
-// Mock partner data function
-const getMockPartners = async () => {
-  return [
-    {
-      id: 'p1',
-      name: 'City Hospital',
-      type: 'Hospital',
-      kyc: 'Complete',
-      verified: true,
-      risk: 'Low',
-      syncStatus: 'Healthy',
-      docs: [
-        { name: 'License.pdf', url: '/docs/License.pdf' },
-        { name: 'TaxCert.pdf', url: '/docs/TaxCert.pdf' },
-      ],
-    },
-    {
-      id: 'p2',
-      name: 'LabX Diagnostics',
-      type: 'Lab',
-      kyc: 'Pending',
-      verified: false,
-      risk: 'High',
-      syncStatus: 'Offline',
-      docs: [],
-    },
-  ];
-};
+import React, { useState, useEffect } from "react";
+import { Table, Modal, Button, Badge, Spinner, Alert } from "react-bootstrap";
+import axios from "axios";
 
 const riskColor = (risk) => {
-  if (risk === 'High') return 'danger';
-  if (risk === 'Medium') return 'warning';
-  return 'success';
+  if (risk === "High") return "danger";
+  if (risk === "Medium") return "warning";
+  return "success";
 };
 
-export default function ComplianceDashboard() {
+export default function ComplianceMainPage() {
   const [partners, setPartners] = useState([]);
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [previewDoc, setPreviewDoc] = useState(null); // currently previewed document
+  const [previewDoc, setPreviewDoc] = useState(null);
 
   useEffect(() => {
-    fetchMockPartners();
+    fetchCompliancePartners();
   }, []);
-
-  const fetchMockPartners = async () => {
-    setLoading(true);
+  const fetchCompliancePartners = async () => {
     try {
-      const data = await getMockPartners();
-      setPartners(data);
+      const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+      const token = bbsUserData?.token;
+      const res = await axios.get("http://localhost:5000/api/compliance/main", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(res, "response");
+
+      // Unwrap the nested data structure
+      const nested = res.data?.data?.[0]?.data || [];
+      console.log("✅ Extracted partners:", nested);
+      setPartners(nested);
     } catch (err) {
-      setError('Failed to load mock data');
-      setPartners([]);
+      console.error("Error fetching data:", err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
     <div className="container mt-4">
-      <h2 className="mb-4">🛡️ Compliance Dashboard (Mock)</h2>
+      <h2 className="mb-4">🛡️ Compliance Main Page</h2>
 
       {loading && <Spinner animation="border" />}
       {error && <Alert variant="danger">{error}</Alert>}
@@ -81,26 +62,30 @@ export default function ComplianceDashboard() {
             </tr>
           </thead>
           <tbody>
-            {partners.map((p) => (
-              <tr key={p.id}>
+            {partners.map((p, idx) => (
+              <tr key={idx}>
                 <td>{p.name}</td>
                 <td>{p.type}</td>
                 <td>
-                  <Badge bg={p.kyc === 'Complete' ? 'success' : 'danger'}>
+                  <Badge bg={p.kyc === "Complete" ? "success" : "danger"}>
                     {p.kyc}
                   </Badge>
                 </td>
-                <td>{p.verified ? '✅' : '❌'}</td>
+                <td>{p.verified ? "✅" : "❌"}</td>
                 <td>
                   <Badge bg={riskColor(p.risk)}>{p.risk}</Badge>
                 </td>
                 <td>{p.docs?.length || 0} files</td>
-                <td>{p.syncStatus || 'Unknown'}</td>
+                <td>{p.syncStatus || "Unknown"}</td>
                 <td>
-                  <Button variant="primary" size="sm" onClick={() => {
-                    setSelected(p);
-                    setPreviewDoc(null); // Reset doc preview
-                  }}>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => {
+                      setSelected(p);
+                      setPreviewDoc(null);
+                    }}
+                  >
                     View
                   </Button>
                 </td>
@@ -110,7 +95,6 @@ export default function ComplianceDashboard() {
         </Table>
       )}
 
-      {/* Partner Modal */}
       <Modal show={!!selected} onHide={() => setSelected(null)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Partner Compliance Info</Modal.Title>
@@ -118,12 +102,25 @@ export default function ComplianceDashboard() {
         <Modal.Body>
           {selected && (
             <>
-              <p><strong>Name:</strong> {selected.name}</p>
-              <p><strong>Type:</strong> {selected.type}</p>
-              <p><strong>KYC:</strong> {selected.kyc}</p>
-              <p><strong>Risk:</strong> <Badge bg={riskColor(selected.risk)}>{selected.risk}</Badge></p>
-              <p><strong>Verified:</strong> {selected.verified ? '✅' : '❌'}</p>
-              <p><strong>Sync:</strong> {selected.syncStatus}</p>
+              <p>
+                <strong>Name:</strong> {selected.name}
+              </p>
+              <p>
+                <strong>Type:</strong> {selected.type}
+              </p>
+              <p>
+                <strong>KYC:</strong> {selected.kyc}
+              </p>
+              <p>
+                <strong>Risk:</strong>{" "}
+                <Badge bg={riskColor(selected.risk)}>{selected.risk}</Badge>
+              </p>
+              <p>
+                <strong>Verified:</strong> {selected.verified ? "✅" : "❌"}
+              </p>
+              <p>
+                <strong>Sync:</strong> {selected.syncStatus}
+              </p>
 
               <h5 className="mt-3">📄 Documents</h5>
               {selected.docs?.length > 0 ? (
@@ -144,7 +141,6 @@ export default function ComplianceDashboard() {
                 <p>No documents uploaded.</p>
               )}
 
-              {/* In-page PDF preview */}
               {previewDoc && (
                 <div className="mt-4">
                   <h6>Preview: {previewDoc.name}</h6>
@@ -152,7 +148,7 @@ export default function ComplianceDashboard() {
                     src={previewDoc.url}
                     width="100%"
                     height="500px"
-                    style={{ border: '1px solid #ccc' }}
+                    style={{ border: "1px solid #ccc" }}
                     title={previewDoc.name}
                   />
                   <a

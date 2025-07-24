@@ -1,87 +1,192 @@
-// 🌐 React (Web) + Bootstrap – Medical Records Vault UI
-
-import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Card, Modal, Form, Spinner, Alert, Badge } from 'react-bootstrap';
-import { CloudUpload, FileEarmarkMedical, Search, ShieldLock, Download, Funnel } from 'react-bootstrap-icons';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const MedicalVault = () => {
   const [records, setRecords] = useState([]);
-  const [uploadModal, setUploadModal] = useState(false);
   const [file, setFile] = useState(null);
+  const [uploadModal, setUploadModal] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [uploadData, setUploadData] = useState({
+    name: "",
+    category: "",
+    date: "",
+    tags: "",
+  });
 
+const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+const token = bbsUserData?.token;
+
+  // 🔁 Fetch Records
   const fetchRecords = async () => {
-    // Replace with API fetch
-    setRecords([
-      { id: 1, name: 'Lab Report - CBC', category: 'Lab', date: '2025-06-21', tags: ['Blood', 'General'], fileUrl: '#' },
-      { id: 2, name: 'Prescription - Dr. Rao', category: 'OPD', date: '2025-07-01', tags: ['Diabetes'], fileUrl: '#' },
-    ]);
+    try {
+      const res = await axios.get("http://localhost:5000/api/medical-vault", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setRecords(res.data);
+    } catch (err) {
+      console.error("Error fetching records:", err);
+    }
   };
 
+  // ⬆️ Upload Record
   const handleUpload = async () => {
-    if (!file) return;
-    setUploading(true);
-    setTimeout(() => {
+    if (!file || !uploadData.name || !uploadData.date || !uploadData.category) {
+      alert("All fields are required!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("name", uploadData.name);
+    formData.append("category", uploadData.category);
+    formData.append("date", uploadData.date);
+    formData.append(
+      "tags",
+      JSON.stringify(uploadData.tags.split(",").map((tag) => tag.trim()))
+    );
+
+    try {
+      setUploading(true);
+      await axios.post(
+        "http://localhost:5000/api/medical-vault/upload",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       setUploading(false);
       setUploadModal(false);
       fetchRecords();
-    }, 2000);
+    } catch (err) {
+      console.error("Upload error:", err);
+      setUploading(false);
+    }
   };
 
   useEffect(() => {
     fetchRecords();
   }, []);
 
-  const filteredRecords = records.filter((rec) => rec.name.toLowerCase().includes(searchTerm.toLowerCase()));
-
   return (
-    <Container className="py-4">
-      <h3 className="mb-3">🧬 My Medical Vault</h3>
-      <Row className="mb-3">
-        <Col md={6}><Form.Control placeholder="Search records..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></Col>
-        <Col className="text-end">
-          <Button variant="primary" onClick={() => setUploadModal(true)}><CloudUpload /> Upload Record</Button>
-        </Col>
-      </Row>
+    <div className="container p-4">
+      <h2 className="text-xl font-bold mb-4">🧬 My Medical Vault</h2>
 
-      {filteredRecords.length ? (
-        <Row>
-          {filteredRecords.map((rec) => (
-            <Col md={6} lg={4} className="mb-4" key={rec.id}>
-              <Card>
-                <Card.Body>
-                  <Card.Title><FileEarmarkMedical /> {rec.name}</Card.Title>
-                  <Card.Text>
-                    <strong>Type:</strong> {rec.category}<br />
-                    <strong>Date:</strong> {rec.date}<br />
-                    {rec.tags.map((t, i) => <Badge key={i} className="me-1" bg="info">{t}</Badge>)}
-                  </Card.Text>
-                  <Button size="sm" variant="success" href={rec.fileUrl} target="_blank"><Download /> View</Button>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      ) : <Alert variant="info">No records found.</Alert>}
+      <button
+        onClick={() => setUploadModal(true)}
+        className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
+      >
+        📤 Upload Record
+      </button>
+
+      <input
+        type="text"
+        placeholder="Search records..."
+        className="w-full p-2 border rounded mb-4"
+      />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {records.map((record, index) => (
+          <div key={index} className="border p-4 rounded shadow">
+            <h3 className="font-semibold text-lg">📄 {record.name}</h3>
+            <p>
+              <strong>Type:</strong> {record.category}
+            </p>
+            <p>
+              <strong>Date:</strong> {record.date}
+            </p>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {record.tags.map((tag, i) => (
+                <span
+                  key={i}
+                  className="bg-blue-100 text-blue-700 px-2 py-1 text-xs rounded"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <a
+              href={`http://localhost:5000${record.fileUrl}`}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 inline-block bg-green-600 text-white px-4 py-1 rounded"
+            >
+              👁 View
+            </a>
+          </div>
+        ))}
+      </div>
 
       {/* Upload Modal */}
-      <Modal show={uploadModal} onHide={() => setUploadModal(false)}>
-        <Modal.Header closeButton><Modal.Title>Upload Medical Record</Modal.Title></Modal.Header>
-        <Modal.Body>
-          <Form.Group>
-            <Form.Label>Select File (PDF/Image)</Form.Label>
-            <Form.Control type="file" accept="application/pdf,image/*" onChange={(e) => setFile(e.target.files[0])} />
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setUploadModal(false)}>Cancel</Button>
-          <Button variant="primary" onClick={handleUpload} disabled={uploading}>
-            {uploading ? <Spinner size="sm" animation="border" /> : 'Upload'}
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </Container>
+      {uploadModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4">
+              Upload Medical Record
+            </h3>
+
+            <input
+              type="text"
+              placeholder="Name"
+              value={uploadData.name}
+              onChange={(e) =>
+                setUploadData({ ...uploadData, name: e.target.value })
+              }
+              className="w-full border p-2 mb-2 rounded"
+            />
+            <input
+              type="text"
+              placeholder="Category"
+              value={uploadData.category}
+              onChange={(e) =>
+                setUploadData({ ...uploadData, category: e.target.value })
+              }
+              className="w-full border p-2 mb-2 rounded"
+            />
+            <input
+              type="date"
+              value={uploadData.date}
+              onChange={(e) =>
+                setUploadData({ ...uploadData, date: e.target.value })
+              }
+              className="w-full border p-2 mb-2 rounded"
+            />
+            <input
+              type="text"
+              placeholder="Tags (comma separated)"
+              value={uploadData.tags}
+              onChange={(e) =>
+                setUploadData({ ...uploadData, tags: e.target.value })
+              }
+              className="w-full border p-2 mb-2 rounded"
+            />
+            <input
+              type="file"
+              onChange={(e) => setFile(e.target.files[0])}
+              className="w-full mb-4"
+            />
+
+            <div className="flex justify-between">
+              <button
+                onClick={handleUpload}
+                disabled={uploading}
+                className="bg-blue-600 text-white px-4 py-2 rounded"
+              >
+                {uploading ? "Uploading..." : "Upload"}
+              </button>
+              <button
+                onClick={() => setUploadModal(false)}
+                className="bg-gray-400 text-white px-4 py-2 rounded"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

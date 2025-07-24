@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Navbar, Nav, Form, Button, Card, Row, Col, Modal, ProgressBar } from 'react-bootstrap';
+import axios from "axios";
 
 // Mock API stubs
 const fetchCategories = async () => ['Doctor', 'Hospital', 'Lab', 'Pharmacy', 'Plan', 'Billing', 'Other'];
@@ -36,10 +37,42 @@ export default function GrievanceResolutionSystem() {
     })();
   }, []);
 
-  const handleSubmit = () => {
-    alert('Complaint submitted with details:\n' + JSON.stringify({ form, uploads }));
-    setStep('timeline');
-  };
+ const handleSubmit = async () => {
+   const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+   const token = bbsUserData?.token;
+   const formData = new FormData();
+
+   formData.append("type", form.category || "Other");
+   formData.append("title", `${form.priority} Complaint`);
+   formData.append("description", form.description);
+   formData.append("partnerId", ""); // optional
+   formData.append("anonymous", form.anonymous);
+
+   // Attach first upload if exists
+   if (uploads.length > 0) {
+     formData.append("image", uploads[0]);
+   }
+
+   try {
+     const res = await axios.post(
+       "http://localhost:5000/api/grievance/submit",
+       formData,
+       {
+         headers: {
+           "Content-Type": "multipart/form-data",
+           Authorization: `Bearer ${token}`,
+         },
+       }
+     );
+
+     alert("Complaint submitted successfully!");
+     setStep("timeline");
+   } catch (error) {
+     console.error("Grievance submit failed:", error);
+     alert("Submission failed. Please try again.");
+   }
+ };
+
   const handleInboxResolve = (id) => {
     alert(`Partner resolving complaint ${id}`);
   };

@@ -1,67 +1,84 @@
 import React, { useEffect, useState } from "react";
-import { Container, Row, Col, Spinner, Alert, Button } from "react-bootstrap";
+import axios from "axios";
 import PlanCard from "../components/HealthAccess/PlanCard";
-import { getHealthPlans } from "../services/healthPlanAPI";
 import BuyPlanModal from "../components/HealthAccess/BuyPlanModal";
-import {  useNavigate } from "react-router-dom";
-
+import { useNavigate, Link } from "react-router-dom";
+import {
+  Button,
+} from "react-bootstrap";
 const HealthPlansLandingPage = () => {
   const [plans, setPlans] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [filteredPlans, setFilteredPlans] = useState([]);
+  const [selectedTier, setSelectedTier] = useState("all");
   const [showModal, setShowModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/api/plans")
+      .then((res) => {
+        setPlans(res.data);
+        setFilteredPlans(res.data); // Default: all plans
+      })
+      .catch((err) => console.error("Failed to fetch plans", err));
+  }, []);
+
+  const handleTierFilter = (tier) => {
+    setSelectedTier(tier);
+    if (tier === "all") {
+      setFilteredPlans(plans);
+    } else {
+      setFilteredPlans(plans.filter((p) => p.tier === tier));
+    }
+  };
 
   const handleBuyClick = (plan) => {
     setSelectedPlan(plan);
     setShowModal(true);
   };
-  const handleConfirmPurchase = (plan) => {
-    setShowModal(false);
-    // Navigate to BuyPlanPage or trigger API (future block)
-  };
-  
-  useEffect(() => {
-    const fetchPlans = async () => {
-      try {
-        const data = await getHealthPlans();
-        setPlans(data?.plans || []);
-      } catch (err) {
-        setError("Failed to load health plans");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPlans();
-  }, []);
 
   return (
-    <Container className="py-4">
-      <h2 className="text-center mb-4">Choose Your Health Access Plan</h2>
+    <div className="container my-4">
+      <h2 className="mb-3">Explore Our Health Plans</h2>
 
-      {loading && <Spinner animation="border" className="d-block mx-auto" />}
+      {/* Tier Filters */}
+      <div className="mb-4">
+        <label className="me-3 fw-semibold">Filter by Tier:</label>
+        {["all", "basic", "premium", "elite"].map((tier) => (
+          <button
+            key={tier}
+            className={`btn btn-sm me-2 ${
+              selectedTier === tier ? "btn-primary" : "btn-outline-secondary"
+            }`}
+            onClick={() => handleTierFilter(tier)}
+          >
+            {tier.charAt(0).toUpperCase() + tier.slice(1)}
+          </button>
+        ))}
+        <Button variant="info" as={Link} to="/health-access/plan-eligibility">
+          Check Plan Eligibility
+        </Button>
+      </div>
 
-      {error && <Alert variant="danger">{error}</Alert>}
+      {/* Plan Cards */}
+      <div className="row">
+        {filteredPlans.map((plan) => (
+          <div key={plan._id} className="col-md-4 mb-3">
+            <PlanCard plan={plan} onBuyClick={handleBuyClick} />
+          </div>
+        ))}
+      </div>
 
-      {!loading && plans.length === 0 && (
-        <Alert variant="info">No health plans available at the moment.</Alert>
+      {/* Buy Plan Modal */}
+      {showModal && selectedPlan && (
+        <BuyPlanModal
+          show={showModal}
+          onClose={() => setShowModal(false)}
+          plan={selectedPlan}
+        />
       )}
 
-      <Row>
-        {plans.map((plan) => (
-          <Col key={plan._id} xs={12} md={6} lg={4} className="mb-4">
-            <PlanCard plan={plan} onBuyClick={handleBuyClick} />
-          </Col>
-        ))}
-      </Row>
-      <BuyPlanModal
-        show={showModal}
-        onClose={() => setShowModal(false)}
-        plan={selectedPlan}
-        onConfirm={handleConfirmPurchase}
-      />
       <Button
         variant="outline-info"
         size="sm"
@@ -69,7 +86,7 @@ const HealthPlansLandingPage = () => {
       >
         Compare All Plans
       </Button>
-    </Container>
+    </div>
   );
 };
 

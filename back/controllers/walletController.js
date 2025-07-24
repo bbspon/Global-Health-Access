@@ -1,136 +1,83 @@
-const razorpay = require("../utils/razorpay");
-const WalletTransaction = require("../models/Transaction");
 const User = require("../models/User");
-const Transaction = require("../models/Transaction");
-const Wallet = require("../models/Wallet");
-
-const createTopUpOrder = async (req, res) => {
-  const { amount } = req.body;
-
-  const options = {
-    amount: amount * 100, // in paise
-    currency: "INR",
-    receipt: `wallet_topup_${Date.now()}`,
-  };
-
+const WalletTransaction = require("../models/WalletTransaction");
+exports.getWalletBalance = async (req, res) => {
   try {
-    const order = await razorpay.orders.create(options);
-    res.json({ order });
+    const userId = req.user._id;
+
+    const user = await User.findById(userId).select("walletBalance");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ walletBalance: user.walletBalance || 0 });
   } catch (error) {
-    res.status(500).json({ msg: "Failed to create order", error });
+    console.error("Error fetching wallet balance:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
-const getWalletHistory = async (req, res) => {
-  const userId = req.user._id;
-  const { type, startDate, endDate, page = 1, limit = 10 } = req.query;
+exports.topupWallet = async (req, res) => {
+  try {
+    const { amount, method, referenceId } = req.body;
+    const userId = req.user._id; // ✅ correct way
 
-  const filters = { userId, method: "wallet" };
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ message: "Invalid amount." });
+    }
 
-  if (type) filters.type = type;
-  if (startDate && endDate) {
-    filters.createdAt = {
-      $gte: new Date(startDate),
-      $lte: new Date(endDate),
-    };
+    const transaction = await WalletTransaction.create({
+      user: userId,
+      amount,
+      type: "credit",
+      status: "success", // assume success for now; replace if using payment gateway callback
+      method,
+      referenceId,
+      purpose: "top-up", // ✅ Required field
+    });
+
+    res.status(201).json(transaction);
+  } catch (err) {
+    console.error("Wallet topup failed:", err);
+    res.status(500).json({ message: "Wallet top-up failed" });
   }
-
-  const skip = (page - 1) * limit;
-
-  const total = await Transaction.countDocuments(filters);
-  const transactions = await Transaction.find(filters)
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(parseInt(limit));
-
-  res.json({ total, page: parseInt(page), transactions });
 };
-  
-const confirmTopUp = async (req, res) => {
-  const { amount, razorpayPaymentId } = req.body;
-  const userId = req.user._id;
+exports.getWalletDetails = async (req, res) => {
+  try {
+    const userId = req.user._id;
 
-  await User.findByIdAndUpdate(userId, { $inc: { wallet: amount } });
+   const transactions = await WalletTransaction.find({ user: userId }).sort({ timestamp: -1 });
 
-  const txn = new WalletTransaction({
-    userId,
-    type: "credit",
-    amount,
-    method: "razorpay",
-    reference: razorpayPaymentId,
-    description: `Wallet top-up`,
-  });
 
-  await txn.save();
+    const balance = transactions.reduce((acc, txn) => {
+      return txn.type === "credit" ? acc + txn.amount : acc - txn.amount;
+    }, 0);
 
-  res.json({ success: true });
-};
-const getPlanUsage = async (req, res) => {
-  const userId = req.user._id;
-
-  const plans = await UserPlan.find({ userId }).populate("planId");
-
-  const result = plans.map((plan) => ({
-    _id: plan._id,
-    title: plan.planId.title,
-    opdLimit: plan.planId.opdLimit,
-    labLimit: plan.planId.labLimit,
-    videoLimit: plan.planId.videoLimit,
-    usage: plan.usage,
-    createdAt: plan.createdAt,
-  }));
-
-  res.json(result);
-};
-  
-// Ensure wallet exists
-const getOrCreateWallet = async (userId) => {
-  let wallet = await Wallet.findOne({ userId });
-  if (!wallet) wallet = await Wallet.create({ userId });
-  return wallet;
-};
-
-// Top-up wallet
-exports.topUpWallet = async (req, res) => {
-  const { amount, method, transactionId } = req.body;
-  const wallet = await getOrCreateWallet(req.user._id);
-
-  wallet.balance += amount;
-  wallet.transactions.push({
-    amount,
-    method,
-    type: "credit",
-    transactionId,
-    note: "Recharge"
-  });
-
-  await wallet.save();
-  res.json({ success: true, balance: wallet.balance });
-};
-
-// Get wallet balance + history
-exports.getWallet = async (req, res) => {
-  const wallet = await getOrCreateWallet(req.user._id);
-  res.json(wallet);
-};
-exports.deductFromWallet = async (req, res) => {
-  const { amount, usageType, referenceId, note } = req.body;
-  const wallet = await Wallet.findOne({ userId: req.user._id });
-
-  if (!wallet || wallet.balance < amount) {
-    return res.status(400).json({ error: "Insufficient wallet balance" });
+    res.json({ balance, transactions });
+  } catch (err) {
+    console.error("Wallet fetch failed:", err);
+    res.status(500).json({ message: "Failed to fetch wallet info" });
   }
-
-  wallet.balance -= amount;
-  wallet.transactions.push({
-    amount,
-    method: "wallet",
-    type: "debit",
-    transactionId: `${usageType}-${referenceId}`,
-    note,
-  });
-
-  await wallet.save();
-  res.json({ success: true, balance: wallet.balance });
 };
-  
-module.exports = { createTopUpOrder, confirmTopUp };
+exports.getWalletHistory = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { type, startDate, endDate } = req.query;
+
+    const query = { user: userId }; // 🔥 Fix here
+
+    if (type) query.type = type;
+
+    if (startDate && endDate) {
+      query.createdAt = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate),
+      };
+    }
+
+    const history = await WalletTransaction.find(query).sort({ createdAt: -1 });
+
+    res.json(history);
+  } catch (err) {
+    console.error("Wallet history fetch failed:", err);
+    res.status(500).json({ message: "Failed to fetch wallet history" });
+  }
+};

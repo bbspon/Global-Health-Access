@@ -1,87 +1,55 @@
-import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  ActivityIndicator,
-  TouchableOpacity,
-} from 'react-native';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Button } from "react-native";
+import axios from "axios";
+import { useRoute } from "@react-navigation/native";
 
-const PlanDetailsScreen = ({ route, navigation }) => {
-  const { id } = route.params;
+const PlanDetails = () => {
+  const route = useRoute();
+  const { planId } = route.params;
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get(`https://yourdomain.com/api/health-plans/${id}`)
-      .then(res => setPlan(res.data))
-      .finally(() => setLoading(false));
-  }, [id]);
+    const fetchPlan = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/api/plans/${planId}`);
+        setPlan(res.data);
+      } catch (err) {
+        console.error("Failed to load plan:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
+    fetchPlan();
+  }, [planId]);
+
+  if (loading) return <ActivityIndicator size="large" color="#000" style={{ marginTop: 50 }} />;
+  if (!plan) return <Text style={{ textAlign: 'center', color: 'red' }}>Plan not found</Text>;
 
   return (
     <ScrollView style={styles.container}>
-      {plan ? (
-        <>
-          <Text style={styles.title}>{plan.title}</Text>
-          <Text style={styles.tier}>{plan.tier} Tier</Text>
-          <Text style={styles.price}>₹{plan.price}</Text>
-          <Text style={styles.validity}>Validity: {plan.validity}</Text>
-
-          <Text style={styles.section}>Benefits:</Text>
-          {plan.benefits?.map((b, i) => (
-            <Text key={i}>• {b}</Text>
-          ))}
-
-          {plan.extras?.length > 0 && (
-            <>
-              <Text style={styles.section}>Extras:</Text>
-              {plan.extras.map((ex, i) => (
-                <Text key={i}>• {ex}</Text>
-              ))}
-            </>
-          )}
-
-          <TouchableOpacity
-            style={styles.buyBtn}
-            onPress={() => navigation.navigate('BuyPlanScreen', { plan })}
-          >
-            <Text style={styles.buyText}>Buy This Plan</Text>
-          </TouchableOpacity>
-        </>
-      ) : (
-        <Text>Plan not found</Text>
-      )}
+      <Text style={styles.title}>{plan.name}</Text>
+      <Text style={styles.badge}>{(plan.tier || "").toUpperCase()}</Text>
+      <Text style={styles.description}>{plan.description}</Text>
+      <Text style={styles.price}>₹ {plan.price} / year</Text>
+      <Text style={styles.featuresTitle}>Features:</Text>
+      {plan.features?.map((feature, i) => (
+        <Text key={i} style={styles.feature}>• {feature}</Text>
+      ))}
+      <Button title="Buy This Plan" onPress={() => {}} />
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 16, backgroundColor: '#fff' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 22, fontWeight: 'bold' },
-  tier: { fontSize: 14, color: '#007bff', marginVertical: 4 },
-  price: { fontSize: 18, marginVertical: 4 },
-  validity: { fontSize: 14, marginBottom: 12 },
-  section: { fontSize: 16, fontWeight: 'bold', marginTop: 16 },
-  buyBtn: {
-    backgroundColor: '#28a745',
-    padding: 12,
-    marginTop: 20,
-    alignItems: 'center',
-    borderRadius: 8,
-  },
-  buyText: { color: '#fff', fontSize: 16 },
+  container: { padding: 20 },
+  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 8 },
+  badge: { backgroundColor: '#ddd', padding: 4, borderRadius: 4, alignSelf: 'flex-start' },
+  description: { marginVertical: 10 },
+  price: { fontSize: 18, fontWeight: '600', marginVertical: 5 },
+  featuresTitle: { fontWeight: 'bold', marginTop: 10 },
+  feature: { marginLeft: 10, marginTop: 4 },
 });
 
-export default PlanDetailsScreen;
+export default PlanDetails;

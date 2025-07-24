@@ -39,7 +39,7 @@ import NotificationsPage from "./pages/hospital-dashboard/NotificationsPage";
 import HealthRecordVaultPage from "./pages/HealthRecordVaultPage";
 import BookingManager from "./pages/BookingManager";
 import PaymentsWalletPage from "./pages/PaymentsWalletPage";
-import PlanTermsModal from "./pages/PlanTermsModal";
+import PlanTermsModal from "./components/HealthAccess/PlanTermsModal";
 import DataFlowPage from "./pages/DataFlowPage";
 import PlanComparison from "./pages/PlanComparison";
 import BuyPlan from "./pages/BuyPlan";
@@ -109,133 +109,251 @@ import PlanBuilder from "./cms/PlanBuilder";
 import HospitalCMS from "./cms/HospitalCMS";
 import LabCMS from "./cms/LabCMS";
 import AdminDashboardUtilities from "./cms/AdminDashboardUtilities";
-
-
+import QRCodeDisplay from "./pages/QRCodeDisplay";
+import PlanDetailsPage from "./pages/PlanDetailsPage";
+import PurchaseSummaryPage from "./pages/PurchaseSummaryPage";
+import PlanPaymentPage from "./pages/PlanPaymentPage";
+import PlanEligibilityPage from "./pages/PlanEligibilityPage";
+import WalletTopupPage from "./pages/WalletTopupPage";
+import MyWalletPage from "./pages/MyWalletPage";
+import RazorpayCheckoutPage from "./pages/RazorpayCheckoutPage";
+import HealthPlanValueCalculator from "./cms/HealthPlanValueCalculator";
+import FamilyMembersPage from "./pages/FamilyMembersPage";
+import EmergencySOSSection from "./cms/EmergencySOSSection";
+import EmergencySOSPage from "./pages/EmergencySOSPage";
+import BuyWithWalletPage from "./pages/BuyWithWalletPage";
+import PlanUsagePage from "./pages/PlanUsagePage";
+import BookAppointmentPage from "./pages/BookAppointmentPage";
+import AppointmentOtpPage from "./pages/AppointmentOtpPage";
+import WellnessTrackerWidgets from "./cms/WellnessTracker";
+import WellnessTrackerPage from "./pages/WellnessTrackerPage";
+import HealthIDCard from "./pages/HealthIDCard";
+import ProfileSharingPage from "./pages/ProfileSharingPage";
 function App() {
   return (
     <AuthProvider>
-        <Header />
+      <Header />
 
-        <Routes>
-          {/* Public routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/cart" element={<HealthcareCartPage />} />
-          
-          <Route path="/about" element={<AboutUs />} />
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/cart" element={<HealthcareCartPage />} />
+        <Route path="/about" element={<AboutUs />} />
+        {/* Main app routes */}
+        <Route path="/" element={<HealthObjectivePage />} />
+        <Route path="/plans-landing" element={<HealthAccessPage />} />
+        <Route path="/health-membership" element={<HealthMembershipPage />} />
+        <Route path="/stakeholders" element={<StakeholdersPage />} />
+        <Route path="/plan-management" element={<PlanManagementDashboard />} />
+        <Route path="/hospital" element={<HospitalDashboard />} />
+        {/*Hospital Dashboard*/}
+        <Route path="/hospital/onboarding" element={<HospitalOnboarding />} />
+        <Route path="/hospital/plan-tiers" element={<HospitalPlanTiers />} />
+        <Route
+          path="/hospital/availability"
+          element={<ServiceAvailability />}
+        />
+        <Route path="/hospital/carepass-scan" element={<CarePassScanner />} />
+        <Route path="//hospital/staff" element={<HospitalBilling />} />
+        <Route path="/hospital/billing" element={<AnalyticsPage />} />
+        <Route path="/hospital/analytics" element={<SupportPage />} />
+        <Route path="/hospital/support" element={<StaffManager />} />
+        <Route path="/hospital/notifications" element={<NotificationsPage />} />
+        <Route
+          path="/health-access/plan/:id/records"
+          element={<HealthRecordVaultPage />}
+        />
+        <Route path="/booking-manager" element={<BookingManager />} />
+        <Route path="/payments-wallet" element={<PaymentsWalletPage />} />
+        <Route path="/plan-terms-modal" element={<PlanTermsModal />} />
+        <Route path="/data-flow" element={<DataFlowPage />} />
+        <Route path="/plan-comparison" element={<PlanComparison />} />
+        <Route path="/buy-plan" element={<BuyPlan />} />
+        <Route path="/digital-health-card" element={<DigitalHealthCard />} />
+        <Route path="/health-card" element={<HealthIDCard />} />
 
-          {/* Main app routes */}
-          <Route path="/" element={<HealthObjectivePage />} />
-          <Route path="/plans-landing" element={<HealthAccessPage/>} />
-          <Route path="/health-membership" element={<HealthMembershipPage/>} />
-          <Route path="/stakeholders" element={<StakeholdersPage />} />
-          <Route path="/plan-management" element={<PlanManagementDashboard />} />
-          <Route path="/hospital" element={<HospitalDashboard />} />
+        <Route path="/country-plans" element={<CountryPlans />} />
+        <Route path="/medical-vault" element={<MedicalVault />} />
+        {/*09.07.2025*/}
+        <Route path="/revenue-engine" element={<RevenueEngineDashboard />} />
+        <Route path="/hospital-ai" element={<HospitalAIDashboard />} />
+        <Route path="/compliance" element={<ComplianceDashboard />} />
+        <Route path="/wallet-admin" element={<WalletAdminDashboard />} />
+        <Route
+          path="/admin-partner"
+          element={<AdminDashboardsPartnerControl />}
+        />
+        <Route path="/global-rollout" element={<GlobalRolloutPage />} />
+        <Route path="/localization" element={<LocalizationMultiLangUX />} />
+        <Route path="/admin-wellness" element={<AdminWellnessDashboard />} />
+        <Route path="/emergency" element={<EmergencyDashboard />} />
+        <Route path="/doctor-management" element={<DoctorManagement />} />
+        <Route path="/plan-usage" element={<PlanUsageDashboard />} />
+        <Route path="/plan-usage-Page" element={<PlanUsagePage />} />
+        <Route path="/loyalty-reward" element={<LoyaltyRewardsDashboard />} />
+        <Route path="/role-based" element={<RoleBasedDashboard />} />
+        <Route path="/coverage-status" element={<CoverageStatusDashboard />} />
+        <Route
+          path="/health-access/my-plan/coach/:userId"
+          element={<HealthCoachDashboard />}
+        />
+        {/* Telehealth Engine */}
+        <Route path="/consult-room" element={<ConsultRoom />} />
+        <Route path="/home-visit" element={<HomeVisitBooking />} />
+        <Route
+          path="/my-health/prescription-loop/:userId"
+          element={<PrescriptionLoop />}
+        />
+        <Route path="/hospital-admin" element={<HospitalDiscovery />} />
+        <Route
+          path="/family-dependent"
+          element={<FamilyDependentDashboard />}
+        />
+        <Route
+          path="/pharmacy-integration"
+          element={<PharmacyIntegrationDashboard />}
+        />
+        {/*10.07.2025*/}
+        <Route
+          path="/health-insights-trFends"
+          element={<HealthInsightsTrendsAI />}
+        />
+        <Route path="/virtual-health" element={<VirtualHealthCommunity />} />
+        <Route path="/feedback-engine" element={<FeedbackEngineDashboard />} />
+        <Route path="/govt-corp" element={<GovtCorpNGOPartnershipsWeb />} />
+        <Route
+          path="/health-intelligence"
+          element={<HealthIntelligenceDashboard />}
+        />
+        <Route
+          path="/ai-risk-engine"
+          element={<AIDiseasePredictionRiskEngine />}
+        />
+        <Route path="/introp-gov" element={<InteropGovHealthSystem />} />
+        <Route
+          path="/gamified-health"
+          element={<GamifiedHealthJourneyPage />}
+        />
+        <Route
+          path="/insurance-integration"
+          element={<InsuranceIntegration />}
+        />
+        <Route
+          path="/uae-insurance-integration"
+          element={<UAEInsuranceIntegration />}
+        />
+        <Route
+          path="/insurance-integra"
+          element={<InsuranceIntegrationPage />}
+        />
+        <Route
+          path="/health-access-ecosystem"
+          element={<HealthAccessAPIEcosystem />}
+        />
+        <Route
+          path="/offline-deployment"
+          element={<OfflineDeploymentDashboard />}
+        />
+        <Route path="/bookAppointment" element={<BookAppointmentPage />} />
+        <Route path="/bookingManager" element={<BookingManager />} />
+        <Route path="/appointment-otp" element={<AppointmentOtpPage />} />
+        <Route
+          path="/Wellness-tracker-Widgets"
+          element={<WellnessTrackerWidgets />}
+        />
+        <Route path="/Wellness-tracker" element={<WellnessTrackerPage />} />
+        <Route path="/health-ecosystem" element={<HealthEcosystemHub />} />
+        <Route
+          path="/hospital-partnership"
+          element={<HospitalPartnershipDashboard />}
+        />
+        <Route path="/emergencySOSSection" element={<EmergencySOSSection />} />
+        <Route path="/emergencySOSPage" element={<EmergencySOSPage />} />
+        <Route path="/lab-diagnostics" element={<LabDiagnostics />} />
+        <Route path="/pharmary-order" element={<PharmacyOrders />} />
+        <Route path="/offline" element={<OfflineHealthKiosk />} />
+        <Route path="/doctor-scorecard" element={<DoctorScoreCard />} />
+        <Route path="/health-insights" element={<HealthInsightsEngine />} />
+        <Route
+          path="/disease-surveillance"
+          element={<DiseaseSurveillanceDashboard />}
+        />
+        <Route path="/unified-api" element={<UnifiedAPIAdminDashboard />} />
+        <Route path="/compliance-center" element={<ComplianceMainPage />} />
+        <Route
+          path="/ecosystem-expansion"
+          element={<EcosystemExpansionModel />}
+        />
+        <Route
+          path="/health-passport"
+          element={<HealthPassportExportSystem />}
+        />
+        <Route path="/profileSharingPage" element={<ProfileSharingPage />} />
+        <Route
+          path="/grievance-resolution"
+          element={<GrievanceResolutionSystem />}
+        />
+        <Route path="/user-feedback" element={<UserFeedbackRatingsSystem />} />
+        <Route path="/health-plan-renewal" element={<HealthPlanRenewal />} />
+        <Route
+          path="/user-plan/:planId/family"
+          element={<FamilyMembersPage />}
+        />
+        <Route path="/family-timeline" element={<FamilyHealthTimeline />} />
+        <Route path="/dynamic-pricing" element={<DynamicPricingEngine />} />
+        <Route path="/fraud-detection" element={<FraudDetectionDashboard />} />
+        <Route
+          path="/multi-lingual"
+          element={<MultilingualSupportDashboard />}
+        />
+        <Route path="/qr-pass" element={<QRHealthPass />} />
+        <Route path="/doctor-referral" element={<DoctorReferralPage />} />
+        <Route path="/add-on-selector" element={<AddOnSelector />} />
+        <Route path="/admin-dashboard" element={<AdminDashboardUtilities />} />
+        <Route path="/plans" element={<HealthPlansLandingPage />} />
+        <Route path="/qr" element={<QRCodeDisplay />} />
+        <Route path="/compare" element={<PlanComparisonPage />} />
+        <Route path="/health-access/buy-plan" element={<BuyPlanPage />} />
+        <Route path="/myplan" element={<MyHealthPlan />} />
+        <Route path="/health-access/plan/:id" element={<PlanDetailsPage />} />
+        <Route path="/buyWithWalletPage" element={<BuyWithWalletPage />} />
+        <Route
+          path="/health-access/renew-plan"
+          element={<HealthPlanRenewal />}
+        />
+        <Route path="/wallet/topup" element={<WalletTopupPage />} />
+        <Route path="/wallet/my" element={<MyWalletPage />} />
+        <Route
+          path="/walletAdminDashboard"
+          element={<WalletAdminDashboard />}
+        />
+        <Route
+          path="/wallet/razorpay-checkout"
+          element={<RazorpayCheckoutPage />}
+        />
+        <Route
+          path="/health-plan-calculator"
+          element={<HealthPlanValueCalculator />}
+        />
+        <Route
+          path="/health-access/purchase-summary"
+          element={<PurchaseSummaryPage />}
+        />
+        <Route
+          path="/health-access/plan-eligibility"
+          element={<PlanEligibilityPage />}
+        />
+        <Route path="/health-access/pay-plan" element={<PlanPaymentPage />} />
+        <Route path="/admin" element={<HealthAccessCMS />}>
+          <Route path="plan" element={<PlanBuilder />} />
+          <Route path="hospital-cms" element={<HospitalCMS />} />
 
-          {/*Hospital Dashboard*/}
-         <Route path="/hospital/onboarding" element={<HospitalOnboarding />} />
-         <Route path="/hospital/plan-tiers" element={<HospitalPlanTiers/>} />
-         <Route path="/hospital/availability" element={<ServiceAvailability/>} /> 
-         <Route path="/hospital/carepass-scan" element={<CarePassScanner/>} />
-         <Route path="//hospital/staff" element={<HospitalBilling />} />
-         <Route path="/hospital/billing" element={<AnalyticsPage />} />
-         <Route path="/hospital/analytics" element={<SupportPage />} />
-         <Route path="/hospital/support" element={<StaffManager/>} />
-         <Route path="/hospital/notifications" element={<NotificationsPage />} />
+          <Route path="lab-cms" element={<LabCMS />} />
+        </Route>
+      </Routes>
 
-
-          <Route path="/health-records" element={<HealthRecordVaultPage/>} />
-          <Route path="/booking-manager" element={<BookingManager />} />
-          <Route path="/payments-wallet" element={<PaymentsWalletPage />} />
-          <Route path="/plan-terms-modal" element={<PlanTermsModal/>} />
-          <Route path="/data-flow" element={<DataFlowPage />} />
-          <Route path="/plan-comparison" element={<PlanComparison />} />
-          <Route path="/buy-plan" element={<BuyPlan />} />
-          <Route path="/digital-health-card" element={<DigitalHealthCard />} />
-          <Route path="/country-plans" element={<CountryPlans />} />
-          <Route path="/medical-vault" element={<MedicalVault />} />
-
-
-          {/*09.07.2025*/}
-          <Route path="/revenue-engine" element={<RevenueEngineDashboard/>} />
-          <Route path="/hospital-ai" element={<HospitalAIDashboard/>} />
-          <Route path="/compliance" element={<ComplianceDashboard/>} />
-          <Route path="/wallet-admin" element={<WalletAdminDashboard/>} />
-          <Route path="/admin-partner" element={<AdminDashboardsPartnerControl />} />
-          <Route path="/global-rollout" element={<GlobalRolloutPage />} />
-          <Route path="/localization" element={<LocalizationMultiLangUX />} />
-          <Route path="/admin-wellness" element={<AdminWellnessDashboard />} />
-          <Route path="/emergency" element={<EmergencyDashboard />} />
-          <Route path="/doctor-management" element={<DoctorManagement />} />
-          <Route path="/plan-usage" element={<PlanUsageDashboard/>} />
-          <Route path="/loyalty-reward" element={<LoyaltyRewardsDashboard/>} />
-          <Route path="/role-based" element={<RoleBasedDashboard/>} />
-          <Route path="/coverage-status" element={<CoverageStatusDashboard/>} />
-          <Route path="/health-coach" element={<HealthCoachDashboard/>} /> 
-
-           {/* Telehealth Engine */}
-          <Route path="/consult-room" element={<ConsultRoom/>} />
-          <Route path="/home-visit" element={<HomeVisitBooking/>} />
-          <Route path="/prescription" element={<PrescriptionLoop/>} />
-          <Route path="/hospital-admin" element={<HospitalDiscovery/>} /> 
-          <Route path="/family-dependent" element={<FamilyDependentDashboard/>} /> 
-          <Route path="/pharmacy-integration" element={<PharmacyIntegrationDashboard/>} /> 
-
-         {/*10.07.2025*/}
-          <Route path="/health-insights-trends" element={<HealthInsightsTrendsAI/>} />
-          <Route path="/virtual-health" element={<VirtualHealthCommunity/>} />
-          <Route path="/feedback-engine" element={<FeedbackEngineDashboard/>} />
-          <Route path="/govt-corp" element={<GovtCorpNGOPartnershipsWeb/>} />
-          <Route path="/health-intelligence" element={<HealthIntelligenceDashboard/>} />  
-          <Route path="/ai-risk-engine" element={<AIDiseasePredictionRiskEngine/>} />
-          <Route path="/introp-gov" element={<InteropGovHealthSystem/>} />
-          <Route path="/gamified-health" element={<GamifiedHealthJourneyPage/>} />
-          <Route path="/insurance-integration" element={<InsuranceIntegration/>} />
-          <Route path="/uae-insurance-integration" element={<UAEInsuranceIntegration/>} />
-          <Route path="/insurance-integra" element={<InsuranceIntegrationPage/>} />
-          <Route path="/health-access-ecosystem" element={<HealthAccessAPIEcosystem/>} />
-          <Route path="/offline-deployment" element={<OfflineDeploymentDashboard/>} />
-          <Route path="/health-ecosystem" element={<HealthEcosystemHub/>} />
-          <Route path="/hospital-partnership" element={<HospitalPartnershipDashboard/>} />
-          <Route path="/lab-diagnostics" element={<LabDiagnostics/>} />
-          <Route path="/pharmary-order" element={<PharmacyOrders/>} />
-          <Route path="/offline" element={<OfflineHealthKiosk/>} />
-          <Route path="/doctor-scorecard" element={<DoctorScoreCard/>} />
-          <Route path="/health-insights" element={<HealthInsightsEngine/>} />
-          <Route path="/disease-surveillance" element={<DiseaseSurveillanceDashboard/>} />
-          <Route path="/unified-api" element={<UnifiedAPIAdminDashboard/>} />     
-          <Route path="/compliance-center" element={<ComplianceMainPage/>} />  
-          <Route path="/ecosystem-expansion" element={<EcosystemExpansionModel/>} />   
-          <Route path="/health-passport" element={<HealthPassportExportSystem/>} />    
-          <Route path="/grievance-resolution" element={<GrievanceResolutionSystem/>} />      
-          <Route path="/user-feedback" element={<UserFeedbackRatingsSystem/>} />  
-          <Route path="/health-plan-renewal" element={<HealthPlanRenewal/>} />    
-          <Route path="/family-timeline" element={<FamilyHealthTimeline/>} />
-          <Route path="/dynamic-pricing" element={<DynamicPricingEngine/>} />
-          <Route path="/fraud-detection" element={<FraudDetectionDashboard/>} />
-          <Route path="/multi-lingual" element={<MultilingualSupportDashboard/>} />
-          <Route path="/qr-pass" element={<QRHealthPass/>} />
-          <Route path="/doctor-referral" element={<DoctorReferralPage/>} />
-   
-          <Route path="/add-on-selector" element={<AddOnSelector/>} />
-            <Route path="/admin-dashboard" element={<AdminDashboardUtilities/>} />  
-
-          <Route path="/plans" element={<HealthPlansLandingPage />} />
-          <Route path="/compare" element={<PlanComparisonPage />} />
-          <Route path="/buy/:planId" element={<BuyPlanPage />} />
-          <Route path="/myplan" element={<MyHealthPlan />} />
-         
-         <Route path="/admin" element={<HealthAccessCMS/>}>
-             <Route path="plan" element={<PlanBuilder/>} />
-             <Route path="hospital-cms" element={<HospitalCMS />} />
-             
-             <Route path="lab-cms" element={<LabCMS />} />
-         </Route>
-          
-        </Routes>
-
-         <Footer />
-    
+      <Footer />
     </AuthProvider>
   );
 }

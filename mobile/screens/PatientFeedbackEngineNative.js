@@ -1,42 +1,68 @@
 // Filename: PatientFeedbackEngineNative.js
 
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView, Alert, Image, TouchableOpacity, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  Image,
+  Platform,
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Speech from 'expo-speech';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { submitFeedback } from './services/feedbackAPI';
 
 const PatientFeedbackEngineNative = () => {
-  const [feedbacks, setFeedbacks] = useState([]);
   const [type, setType] = useState('');
   const [rating, setRating] = useState('');
   const [tags, setTags] = useState('');
   const [text, setText] = useState('');
   const [image, setImage] = useState(null);
 
-  const validateAndSubmit = () => {
+  const validateAndSubmit = async () => {
     if (!type || !rating || !text) {
       Alert.alert('Missing Info', 'Please fill in all required fields.');
       return;
     }
 
-    const newEntry = {
-      id: `FB${feedbacks.length + 1}`,
+    const token = await AsyncStorage.getItem('bbsUser');
+    const parsedToken = JSON.parse(token)?.token;
+
+    const form = {
       type,
       rating: parseInt(rating),
-      tags: tags.split(',').map(tag => tag.trim()),
+      tags: tags.split(',').map((tag) => tag.trim()),
       text,
-      image,
-      sentiment: rating >= 4 ? 'Positive' : 'Negative',
-      status: rating < 3 ? 'Escalated' : 'Closed',
-      impact: rating < 3 ? 'Flagged to hospital compliance' : 'Added to hospital NPS',
     };
 
-    setFeedbacks([newEntry, ...feedbacks]);
-    setType('');
-    setRating('');
-    setTags('');
-    setText('');
-    setImage(null);
+    if (image) {
+      const filename = image.split('/').pop();
+      const match = /\.(\w+)$/.exec(filename);
+      const typeMime = match ? `image/${match[1]}` : `image`;
+      form.image = {
+        uri: image,
+        name: filename,
+        type: typeMime,
+      };
+    }
+
+    try {
+      await submitFeedback(form, parsedToken);
+      Alert.alert('Success', 'Feedback submitted!');
+      setType('');
+      setRating('');
+      setTags('');
+      setText('');
+      setImage(null);
+    } catch (err) {
+      console.error('Submit Error:', err.response?.data || err.message);
+      Alert.alert('Error', 'Submission failed');
+    }
   };
 
   const handlePickImage = async () => {
@@ -44,14 +70,13 @@ const PatientFeedbackEngineNative = () => {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 0.5,
     });
-    if (!result.cancelled) {
-      setImage(result.uri);
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
     }
   };
 
   const handleVoiceInput = () => {
     Speech.speak('Please describe your experience. Your feedback will be saved.');
-    // For live speech-to-text, additional library needed (e.g. react-native-voice)
     Alert.alert('Voice Input', 'Voice prompt triggered. (Speech-to-text not implemented)');
   };
 
@@ -88,19 +113,6 @@ const PatientFeedbackEngineNative = () => {
       )}
 
       <Button title="Submit Feedback" color="green" onPress={validateAndSubmit} />
-
-      <Text style={styles.subheading}>📋 Submitted Feedbacks</Text>
-      {feedbacks.map((fb) => (
-        <View key={fb.id} style={styles.card}>
-          <Text><Text style={styles.bold}>Type:</Text> {fb.type}</Text>
-          <Text><Text style={styles.bold}>Rating:</Text> {fb.rating}</Text>
-          <Text><Text style={styles.bold}>Tags:</Text> {fb.tags.join(', ')}</Text>
-          <Text><Text style={styles.bold}>Feedback:</Text> {fb.text}</Text>
-          <Text><Text style={styles.bold}>Status:</Text> {fb.status}</Text>
-          <Text><Text style={styles.bold}>Impact:</Text> {fb.impact}</Text>
-          {fb.image && <Image source={{ uri: fb.image }} style={styles.imageThumb} />}
-        </View>
-      ))}
     </ScrollView>
   );
 };
@@ -113,10 +125,6 @@ const styles = StyleSheet.create({
   textArea: { height: 80 },
   row: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10 },
   imagePreview: { width: '100%', height: 200, borderRadius: 10, marginVertical: 10 },
-  imageThumb: { width: 100, height: 100, marginTop: 8, borderRadius: 8 },
-  subheading: { fontSize: 18, marginTop: 20, marginBottom: 10 },
-  card: { borderWidth: 1, borderColor: '#ddd', padding: 10, borderRadius: 8, marginBottom: 10 },
-  bold: { fontWeight: 'bold' },
 });
 
 export default PatientFeedbackEngineNative;

@@ -23,5 +23,13 @@ const getWellnessLogs = async (req, res) => {
   const logs = await WellnessLog.find({ userId }).sort({ date: -1 }).limit(7);
   res.json(logs);
 };
-
+exports.getRecentLogs = async (req, res) => {
+  try {
+    const recentLogs = await WellnessLog.find().sort({ date: -1 }).limit(7);
+    res.json(recentLogs);
+  } catch (error) {
+    console.error("Error fetching logs:", error);
+    res.status(500).json({ message: "Failed to fetch logs" });
+  }
+};
 module.exports = { logWellness, getWellnessLogs };

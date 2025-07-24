@@ -25,12 +25,36 @@ import {
 import { useNavigate } from "react-router-dom";
 
 const features = [
-  { icon: <HeartPulse size={32} />, title: "Health Access Plans", path: "/plans" },
-  { icon: <CalendarCheck size={32} />, title: "Book Doctor / Lab", path: "/booking-manager" },
-  { icon: <PersonBadge size={32} />, title: "Health Data Flow", path: "/data-flow" },
-  { icon: <FileEarmarkText size={32} />, title: "Medical Records", path: "/medical-records" },
-  { icon: <GeoAltFill size={32} />, title: "Nearby Hospitals", path: "/hospitals" },
-  { icon: <Robot size={32} />, title: "BB Health Assistant", path: "/ai-assistant" },
+  {
+    icon: <HeartPulse size={32} />,
+    title: "Health Access Plans",
+    path: "/plans",
+  },
+  {
+    icon: <CalendarCheck size={32} />,
+    title: "Book Doctor / Lab",
+    path: "/booking-manager",
+  },
+  {
+    icon: <PersonBadge size={32} />,
+    title: "Health Data Flow",
+    path: "/data-flow",
+  },
+  {
+    icon: <FileEarmarkText size={32} />,
+    title: "Medical Records",
+    path: "/medical-records",
+  },
+  {
+    icon: <GeoAltFill size={32} />,
+    title: "Nearby Hospitals",
+    path: "/hospitals",
+  },
+  {
+    icon: <Robot size={32} />,
+    title: "Plan Usage Dashboard",
+    path: "/plan-usage",
+  },
   { icon: <CreditCard2Front size={32} />, title: "My Wallet", path: "/wallet" },
   { icon: <Shop size={32} />, title: "BBSCART Offers", path: "/offers" },
 ];

@@ -1,4 +1,5 @@
-// InteropGovHealthSystemMobile.jsx (React Native Version)
+// InteropGovHealthSystemMobile.jsx (React Native Version with Backend Integration)
+
 import React, { useState } from "react";
 import {
   View,
@@ -8,11 +9,13 @@ import {
   Button,
   Modal,
   Alert,
-  TouchableOpacity,
   Platform,
 } from "react-native";
 import * as DocumentPicker from 'expo-document-picker';
 import { Picker } from '@react-native-picker/picker';
+import axios from "axios";
+
+const BASE_URL = "http://localhost:5000/api/govhealth"; // 🔁 Replace with actual API base
 
 const InteropGovHealthSystemMobile = () => {
   const [consentGiven, setConsentGiven] = useState(false);
@@ -26,34 +29,69 @@ const InteropGovHealthSystemMobile = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [planModalVisible, setPlanModalVisible] = useState(false);
 
-  const checkEligibility = () => {
-    const result = {
-      eligibleFor: "ESI + Ayushman Bharat",
-      suggestions: ["Link ABHA ID", "Enable DigiLocker Sync"],
-    };
-    setEligibilityResult(result);
-    setAiSuggestion("Your ESI does not cover OPD. Consider BBSCART Premium+.");
-    setSyncHistory(prev => [...prev, `Checked eligibility at ${new Date().toLocaleString()}`]);
-  };
-
-  const handleConsentToggle = () => {
-    const action = !consentGiven ? "Granted" : "Revoked";
-    setConsentGiven(!consentGiven);
-    setSyncHistory(prev => [...prev, `${action} consent at ${new Date().toLocaleString()}`]);
-  };
-
-  const pickCsvFile = async () => {
-    const result = await DocumentPicker.getDocumentAsync({ type: 'text/csv' });
-    if (result.type === 'success') {
-      setCsvFile(result);
-      setSyncHistory(prev => [...prev, `CSV uploaded: ${result.name}`]);
+  const checkEligibility = async () => {
+    try {
+      const res = await axios.post(`${BASE_URL}/eligibility-check`, {
+        language,
+      });
+      setEligibilityResult(res.data.result);
+      setAiSuggestion(res.data.suggestion);
+      setSyncHistory(prev => [...prev, `Checked eligibility at ${new Date().toLocaleString()}`]);
+    } catch (err) {
+      Alert.alert("Error", "Failed to check eligibility.");
     }
   };
 
-  const simulateDisaster = () => {
-    setDisasterZone(true);
-    Alert.alert("Disaster Alert", "User in disaster-affected zone. Alert sent to BBSCART & Authorities.");
-    setSyncHistory(prev => [...prev, `Disaster alert at ${new Date().toLocaleString()}`]);
+  const handleConsentToggle = async () => {
+    try {
+      const action = !consentGiven;
+      await axios.post(`${BASE_URL}/consent-toggle`, {
+        consent: action,
+      });
+      setConsentGiven(action);
+      setSyncHistory(prev => [
+        ...prev,
+        `${action ? "Granted" : "Revoked"} consent at ${new Date().toLocaleString()}`
+      ]);
+    } catch (err) {
+      Alert.alert("Error", "Failed to toggle consent.");
+    }
+  };
+
+  const pickCsvFile = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({ type: 'text/csv' });
+      if (result.type === 'success') {
+        const formData = new FormData();
+        formData.append("file", {
+          uri: result.uri,
+          name: result.name,
+          type: 'text/csv',
+        });
+
+        await axios.post(`${BASE_URL}/upload-csv`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        setCsvFile(result);
+        setSyncHistory(prev => [...prev, `CSV uploaded: ${result.name}`]);
+      }
+    } catch (err) {
+      Alert.alert("Upload Failed", "Could not upload CSV.");
+    }
+  };
+
+  const simulateDisaster = async () => {
+    try {
+      await axios.post(`${BASE_URL}/disaster-alert`);
+      setDisasterZone(true);
+      Alert.alert("Disaster Alert", "User in disaster-affected zone. Alert sent to BBSCART & Authorities.");
+      setSyncHistory(prev => [...prev, `Disaster alert at ${new Date().toLocaleString()}`]);
+    } catch (err) {
+      Alert.alert("Error", "Failed to send disaster alert.");
+    }
   };
 
   return (

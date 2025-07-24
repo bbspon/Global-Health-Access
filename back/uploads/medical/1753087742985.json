@@ -1,0 +1,62 @@
+{
+    "delivery_agents": [
+        {
+            "_id": "64f1c234abc123456789abcd",
+            "agentId": "AGENT001",
+            "name": "Ravi Kumar",
+            "email": "ravi.agent@bbscart.com",
+            "mobile": "9876543210",
+            "assignedArea": "Anna Nagar",
+            "status": "Active",
+            "joinedDate": "2024-11-20T00:00:00.000Z"
+        }
+    ],
+    "orders": [
+        {
+            "_id": "64f1c234abc123456789a001",
+            "orderId": "ORD1001",
+            "agentId": "AGENT001",
+            "customer": "Suresh",
+            "mobile": "9876543210",
+            "deliveryAddress": "No.5, Gandhi Street, Chennai",
+            "status": "Delivered",
+            "deliveryDate": "2025-07-13T00:00:00.000Z",
+            "items": [
+                {
+                    "productName": "BBSCART Milk 1L",
+                    "quantity": 2
+                },
+                {
+                    "productName": "BBSCART Bread",
+                    "quantity": 1
+                }
+            ]
+        },
+        {
+            "_id": "64f1c234abc123456789a002",
+            "orderId": "ORD1002",
+            "agentId": "AGENT001",
+            "customer": "Priya",
+            "mobile": "9123456789",
+            "deliveryAddress": "Flat 12, Sakura Apt, T Nagar",
+            "status": "Pending",
+            "deliveryDate": "2025-07-14T00:00:00.000Z",
+            "items": [
+                {
+                    "productName": "BBSCART Rice 5kg",
+                    "quantity": 1
+                }
+            ]
+        }
+    ],
+    "earnings": [
+        {
+            "_id": "64f1c234abc123456789e001",
+            "agentId": "AGENT001",
+            "totalEarnings": 950,
+            "lastPaidDate": "2025-07-10T00:00:00.000Z",
+            "pendingAmount": 150,
+            "completedDeliveries": 12
+        }
+    ]
+}

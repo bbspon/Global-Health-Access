@@ -1,95 +1,3 @@
-// import React from "react";
-// import { Navbar, Nav, Button, NavDropdown, Container } from "react-bootstrap";
-// import { Link, useNavigate } from "react-router-dom";
-
-// const Header = () => {
-//   const token = localStorage.getItem("token");
-//   const navigate = useNavigate();
-
-//   const handleLogout = () => {
-//     localStorage.removeItem("token");
-//     navigate("/login");
-//   };
-
-//   return (
-//     <header
-//       style={{
-//         width: "100%",
-//         backgroundColor: "#f8f9fa",
-//         boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-//       }}
-//     >
-//       <Navbar
-//         expand="lg"
-//         className="px-3"
-//         style={{ width: "100%", margin: "0 auto", maxWidth: "100%" }}
-//       >
-//         <Container fluid className="px-0">
-//           <Navbar.Brand
-//             as={Link}
-//             to="/health-access/plans"
-//             className="d-flex align-items-center gap-2"
-//           >
-//                 <img
-//                 src="/health.png"
-//                 alt="BBSCART Logo"
-//                 width="250px"
-//                 height="120px"
-//                 style={{ objectFit: "contain", marginRight: "10px", marginTop: "-10px" , marginBottom: "-10px" }}
-//                 />
-//             {/* <span>
-//               <strong>BBS</strong> Health Access
-//             </span> */}
-//           </Navbar.Brand>
-
-//           <Navbar.Toggle />
-//           <Navbar.Collapse>
-//             <Nav className="ms-auto align-items-center gap-3">
-//               <Nav.Link as={Link} to="/health-access/plans">
-//                 Health Plans
-//               </Nav.Link>
-//               <Nav.Link as={Link} to="/health-access/compare">
-//                 Compare Plans
-//               </Nav.Link>
-//               <Nav.Link as={Link} to="/myplan">
-//               My Plans
-//               </Nav.Link>
-//               {token && (
-//                 <Nav.Link as={Link} to="/myplan">
-//                   My Plan
-//                 </Nav.Link>
-//               )}
-
-//               {!token ? (
-//                 <Button
-//                   size="sm"
-//                   variant="outline-primary"
-//                   as={Link}
-//                   to="/login"
-//                 >
-//                   Login
-//                 </Button>
-//               ) : (
-//                 <NavDropdown title="Account" id="user-nav">
-//                   <NavDropdown.Item as={Link} to="/user">
-//                     Profile
-//                   </NavDropdown.Item>
-//                   <NavDropdown.Divider />
-//                   <NavDropdown.Item onClick={handleLogout}>
-//                     Logout
-//                   </NavDropdown.Item>
-//                 </NavDropdown>
-//               )}
-//             </Nav>
-//           </Navbar.Collapse>
-//         </Container>
-//       </Navbar>
-//     </header>
-//   );
-// };
-
-// export default Header;
-
 import React, { useState, useRef } from "react";
 import {
   Navbar,
@@ -106,8 +14,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { Bell, Cart, Globe } from "react-bootstrap-icons";
 
 const Header = () => {
-  const token = localStorage.getItem("token");
-  const username = localStorage.getItem("username");
+  const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+  const token = bbsUserData?.token;
+  const username = bbsUserData?.user.name;
   const [cartCount, setCartCount] = useState(2);
   const [notifications, setNotifications] = useState(3);
   const [language, setLanguage] = useState("EN");
@@ -167,6 +76,9 @@ const Header = () => {
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
             <Nav className="align-items-center gap-3">
+              <Nav.Link as={Link} to="/plans">
+                Plans
+              </Nav.Link>
               <Nav.Link as={Link} to="/about">
                 About Us
               </Nav.Link>
@@ -224,9 +136,13 @@ const Header = () => {
               >
                 <Popover className="shadow-sm" style={{ minWidth: "250px" }}>
                   <Popover.Header as="h5">Notifications</Popover.Header>
-                  <Popover.Body style={{ maxHeight: "250px", overflowY: "auto" }}>
+                  <Popover.Body
+                    style={{ maxHeight: "250px", overflowY: "auto" }}
+                  >
                     {notificationList.length === 0 ? (
-                      <div className="text-muted text-center">No new notifications</div>
+                      <div className="text-muted text-center">
+                        No new notifications
+                      </div>
                     ) : (
                       <ListGroup variant="flush">
                         {notificationList.map((note, idx) => (
@@ -283,11 +199,10 @@ const Header = () => {
               </Button>
 
               {!token ? (
-               <a href="/signup"> <Button
-              
-                >
-                  Register
-                </Button></a>
+                <a href="/signup">
+                  {" "}
+                  <Button>Register</Button>
+                </a>
               ) : (
                 <NavDropdown title={`Hi, ${username || "User"}`} id="user-nav">
                   <NavDropdown.Item as={Link} to="/user">
@@ -311,4 +226,3 @@ const Header = () => {
 };
 
 export default Header;
-

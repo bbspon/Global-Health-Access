@@ -1,136 +1,100 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Row,
   Col,
   Card,
-  Button,
-  Badge,
   Table,
+  Spinner,
+  Alert,
 } from "react-bootstrap";
-import {
-  Globe,
-  ShieldLock,
-  FileEarmarkText,
-  CloudDownload,
-  GraphUp,
-  Gear,
-} from "react-bootstrap-icons";
-
-const countries = [
-  { name: "India", status: "Compliant", badge: "success" },
-  { name: "UAE", status: "In Review", badge: "warning" },
-  { name: "EU", status: "Pending", badge: "danger" },
-  { name: "SEA", status: "Ready", badge: "info" },
-];
+import axios from "axios";
 
 const ComplianceDashboard = () => {
-  const handleExport = (type) => {
-    alert(`${type} has been exported successfully.`);
-  };
+  const [complianceData, setComplianceData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+    const token = bbsUserData?.token;
+
+    axios
+      .get("http://localhost:5000/api/compliance", {
+        headers: {
+          Authorization: `Bearer ${token}`, // send the token here
+        },
+      })
+      .then((res) => {
+        console.log("✅ Fetched compliance data:", res.data.data);
+
+        setComplianceData(res.data.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Compliance API Error:", err);
+        setError("Failed to fetch compliance data.");
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <Spinner animation="border" className="m-4" />;
+  if (error) return <Alert variant="danger">{error}</Alert>;
 
   return (
-    <Container fluid className="py-4">
-      <Row className="mb-4">
-        <Col>
-          <h3>
-            <ShieldLock className="me-2" />
-            Global Compliance & Legal Readiness
-          </h3>
-          <p>
-            Track and manage the legal status and regulation adapters across
-            countries for BBSCART Health Plans.
-          </p>
-        </Col>
-      </Row>
-
+    <Container className="p-4">
+      <h2 className="text-primary mb-4">Compliance Monitoring Dashboard</h2>
       <Row>
-        {/* Left Column: Country Compliance Status */}
         <Col md={6}>
-          <Card className="mb-4 shadow-sm">
-            <Card.Header>
-              <Globe className="me-2" />
-              Country Compliance Status
-            </Card.Header>
+          <Card className="mb-3">
             <Card.Body>
-              <Table bordered hover responsive>
-                <thead>
-                  <tr>
-                    <th>Country</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {countries.map((c, idx) => (
-                    <tr key={idx}>
-                      <td>{c.name}</td>
-                      <td>
-                        <Badge bg={c.badge}>{c.status}</Badge>
-                      </td>
-                      <td>
-                        <Button
-                          variant="outline-primary"
-                          size="sm"
-                          onClick={() =>
-                            alert(`Viewing adapter details for ${c.name}`)
-                          }
-                        >
-                          View Adapter
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
+              <Card.Title>Hospital Audit Flags</Card.Title>
+              <ul>
+                {complianceData?.auditFlags?.map((flag, i) => (
+                  <li key={i}>{flag}</li>
+                ))}
+              </ul>
             </Card.Body>
           </Card>
         </Col>
-
-        {/* Right Column: Legal Tools */}
         <Col md={6}>
-          <Card className="mb-4 shadow-sm">
-            <Card.Header>
-              <FileEarmarkText className="me-2" />
-              Legal Tools
-            </Card.Header>
+          <Card className="mb-3">
             <Card.Body>
-              <Button
-                className="mb-2 w-100"
-                variant="outline-success"
-                onClick={() => handleExport("Legal Audit Report")}
-              >
-                <CloudDownload className="me-2" />
-                Generate Full Legal Audit Report
-              </Button>
-              <Button
-                className="mb-2 w-100"
-                variant="outline-warning"
-                onClick={() => handleExport("Compliance Overview")}
-              >
-                <CloudDownload className="me-2" />
-                Export Country Compliance Overview
-              </Button>
-              <Button
-                className="mb-2 w-100"
-                variant="outline-info"
-                onClick={() => alert("Geo Simulation Mode Activated")}
-              >
-                <GraphUp className="me-2" />
-                Simulate Plan in Another Country
-              </Button>
-              <Button
-                className="w-100"
-                variant="outline-secondary"
-                onClick={() => alert("Opening Country-Specific Settings")}
-              >
-                <Gear className="me-2" />
-                Manage Country Regulation Settings
-              </Button>
+              <Card.Title>Policy Violations</Card.Title>
+              <ul>
+                {complianceData?.policyViolations?.map((v, i) => (
+                  <li key={i}>{v}</li>
+                ))}
+              </ul>
             </Card.Body>
           </Card>
         </Col>
       </Row>
+      <Card>
+        <Card.Body>
+          <Card.Title>Compliance Records</Card.Title>
+          <Table striped bordered responsive>
+            <thead>
+              <tr>
+                <th>Country</th>
+                <th>Status</th>
+                <th>Badge</th>
+                <th>Last Updated</th>
+              </tr>
+            </thead>
+            <tbody>
+              {complianceData?.map((rec, idx) => (
+                <tr key={idx}>
+                  <td>{rec.country}</td>
+                  <td>{rec.status}</td>
+                  <td>{rec.badge}</td>
+                  <td>{new Date(rec.lastUpdated).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Card.Body>
+      </Card>
     </Container>
   );
 };

@@ -1,13 +1,10 @@
+// routes/planPaymentRoutes.js
 const express = require("express");
-const {
-  initiatePayment,
-  payWithWallet,
-} = require("../controllers/planPaymentController");
+const router = express.Router();
+const planPaymentController = require("../controllers/planPaymentController");
 const auth = require("../middleware/auth");
 
-const router = express.Router();
-
-router.post("/initiate", auth, initiatePayment);
-router.post("/wallet-pay", auth, payWithWallet);
+router.post("/pay/initiate", auth, planPaymentController.initiatePayment);
+router.post("/pay/confirm", auth, planPaymentController.confirmPayment);
 
 module.exports = router;

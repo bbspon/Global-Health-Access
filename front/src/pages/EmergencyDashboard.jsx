@@ -1,39 +1,23 @@
 // EmergencyDashboard.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Container, Row, Col, Card, Button, Table, Modal, Badge
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Table,
+  Modal,
+  Badge,
 } from "react-bootstrap";
 import { GeoAltFill, AlarmFill } from "react-bootstrap-icons";
 import jsPDF from "jspdf";
-
-const dummyLogs = [
-  {
-    user: "Riya Verma",
-    plan: "Gold",
-    time: "2025-07-09 13:24",
-    location: "Bandra, Mumbai",
-    status: "Resolved",
-    method: "Fall Detection",
-    allergies: "Penicillin",
-    conditions: "Diabetes, Asthma",
-    instructions: "Alert daughter, avoid morphine",
-  },
-  {
-    user: "Ahmed Khan",
-    plan: "Platinum",
-    time: "2025-07-08 22:10",
-    location: "Bur Dubai, UAE",
-    status: "Escalated",
-    method: "Voice Trigger",
-    allergies: "None",
-    conditions: "Hypertension",
-    instructions: "Call wife, avoid sedatives",
-  },
-];
+import axios from "axios";
 
 const EmergencyDashboard = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [logs, setLogs] = useState([]);
 
   const handleViewProfile = (user) => {
     setSelectedUser(user);
@@ -59,12 +43,29 @@ const EmergencyDashboard = () => {
 
     doc.save(`Emergency_Profile_${selectedUser.user.replace(/\s+/g, "_")}.pdf`);
   };
+useEffect(() => {
+  const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+  const token = bbsUserData?.token;
+
+  axios
+    .get("http://localhost:5000/api/emergency/logs", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    .then((res) => {
+      console.log("✅ Emergency Logs API Response:", res.data); // <---- ADD THIS
+      setLogs(res.data);
+    })
+    .catch((err) => console.error("❌ API Error:", err));
+}, []);
+
 
   return (
     <Container fluid className="p-4">
       <Row>
         <Col>
-          <h3><AlarmFill className="text-danger me-2" /> Emergency Event Logs</h3>
+          <h3>
+            <AlarmFill className="text-danger me-2" /> Emergency Event Logs
+          </h3>
           <Card className="mt-3 shadow">
             <Card.Body>
               <Table responsive hover>
@@ -80,18 +81,25 @@ const EmergencyDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {dummyLogs.map((log, idx) => (
+                  {logs.map((log, idx) => (
                     <tr key={idx}>
-                      <td>{log.user}</td>
-                      <td><Badge bg="info">{log.plan}</Badge></td>
-                      <td>{log.time}</td>
-                      <td><GeoAltFill className="text-danger" /> {log.location}</td>
+                      <td>{log.guardianContact || "N/A"}</td>
                       <td>
-                        <Badge bg={log.status === "Resolved" ? "success" : "warning"}>
-                          {log.status}
+                        <Badge bg="info">
+                          {log.plan || "No Plan Assigned"}
                         </Badge>
                       </td>
-                      <td>{log.method}</td>
+                      <td>{new Date(log.triggeredAt).toLocaleString()}</td>
+                      <td>
+                        <GeoAltFill className="text-danger" />{" "}
+                        {log.location?.city || "Unknown"}
+                      </td>
+                      <td>
+                        <Badge bg={log.resolved ? "success" : "warning"}>
+                          {log.resolved ? "Resolved" : "Pending"}
+                        </Badge>
+                      </td>
+                      <td>Triggered</td>
                       <td>
                         <Button
                           variant="outline-primary"
@@ -111,19 +119,39 @@ const EmergencyDashboard = () => {
       </Row>
 
       {/* Modal */}
-      <Modal show={showProfile} onHide={() => setShowProfile(false)} centered size="lg">
+      <Modal
+        show={showProfile}
+        onHide={() => setShowProfile(false)}
+        centered
+        size="lg"
+      >
         <Modal.Header closeButton>
           <Modal.Title>Patient Emergency Info</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <h5>Name: {selectedUser?.user}</h5>
-          <p><strong>Health Plan:</strong> {selectedUser?.plan}</p>
-          <p><strong>Medical Conditions:</strong> {selectedUser?.conditions}</p>
-          <p><strong>Allergies:</strong> {selectedUser?.allergies}</p>
-          <p><strong>Emergency Instructions:</strong> {selectedUser?.instructions}</p>
-          <p><strong>Location:</strong> {selectedUser?.location}</p>
-          <p><strong>Trigger Method:</strong> {selectedUser?.method}</p>
-          <p><strong>Time:</strong> {selectedUser?.time}</p>
+          <p>
+            <strong>Health Plan:</strong> {selectedUser?.plan}
+          </p>
+          <p>
+            <strong>Medical Conditions:</strong> {selectedUser?.conditions}
+          </p>
+          <p>
+            <strong>Allergies:</strong> {selectedUser?.allergies}
+          </p>
+          <p>
+            <strong>Emergency Instructions:</strong>{" "}
+            {selectedUser?.instructions}
+          </p>
+          <p>
+            <strong>Location:</strong> {selectedUser?.location}
+          </p>
+          <p>
+            <strong>Trigger Method:</strong> {selectedUser?.method}
+          </p>
+          <p>
+            <strong>Time:</strong> {selectedUser?.time}
+          </p>
           <Button variant="success" onClick={downloadPDF}>
             Download Emergency PDF
           </Button>

@@ -1,209 +1,159 @@
-// === src/pages/BuyPlanPage.jsx ===
-import React, { useEffect, useState } from "react";
-import {
-  Container, Card, Form, Button, Alert, Spinner, Row, Col, InputGroup,
-} from "react-bootstrap";
-import { useParams, useNavigate } from "react-router-dom";
-import { getHealthPlans, purchasePlan } from "../services/healthPlanAPI";
-
-const AddOnSelector = ({ selected, onChange }) => {
-  const availableAddOns = [
-    { name: "Emergency Boost", price: 49 },
-    { name: "Maternity Add-on", price: 199 },
-    { name: "Child Immunization", price: 99 },
-  ];
-
-  const toggleAddOn = (addon) => {
-    const exists = selected.find((a) => a.name === addon.name);
-    if (exists) onChange(selected.filter((a) => a.name !== addon.name));
-    else onChange([...selected, addon]);
-  };
-
-  return (
-    <Card className="mb-3">
-      <Card.Body>
-        <h5>Add-Ons</h5>
-        {availableAddOns.map((addon, i) => (
-          <Form.Check
-            key={i}
-            type="checkbox"
-            label={`${addon.name} (+₹${addon.price})`}
-            checked={selected.some((a) => a.name === addon.name)}
-            onChange={() => toggleAddOn(addon)}
-          />
-        ))}
-      </Card.Body>
-    </Card>
-  );
-};
-
-const ReferralCodeInput = ({ value, onChange }) => (
-  <Card className="mb-3">
-    <Card.Body>
-      <h5>Referral Code</h5>
-      <InputGroup>
-        <Form.Control
-          placeholder="Enter code"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
-        <Button variant="secondary">Verify</Button>
-      </InputGroup>
-    </Card.Body>
-  </Card>
-);
-
-const WalletUseToggle = ({ useWallet, amount, onToggle, onAmountChange }) => (
-  <Card className="mb-3">
-    <Card.Body>
-      <h5>Use Wallet</h5>
-      <Form.Check
-        type="switch"
-        label="Use wallet balance"
-        checked={useWallet}
-        onChange={(e) => onToggle(e.target.checked)}
-      />
-      {useWallet && (
-        <Form.Range
-          min={0}
-          max={500}
-          value={amount}
-          onChange={(e) => onAmountChange(parseInt(e.target.value))}
-        />
-      )}
-    </Card.Body>
-  </Card>
-);
-
-const FamilyBundleSelector = ({ members, onChange }) => {
-  const addMember = () => onChange([...members, { name: "", age: "", gender: "" }]);
-  const updateMember = (index, key, value) => {
-    const updated = [...members];
-    updated[index][key] = value;
-    onChange(updated);
-  };
-  const removeMember = (index) => {
-    const updated = [...members];
-    updated.splice(index, 1);
-    onChange(updated);
-  };
-
-  return (
-    <Card className="mb-3">
-      <Card.Body>
-        <h5>Family Members</h5>
-        {members.map((m, i) => (
-          <Row key={i} className="mb-2">
-            <Col><Form.Control placeholder="Name" value={m.name} onChange={(e) => updateMember(i, "name", e.target.value)} /></Col>
-            <Col><Form.Control placeholder="Age" value={m.age} onChange={(e) => updateMember(i, "age", e.target.value)} /></Col>
-            <Col><Form.Control placeholder="Gender" value={m.gender} onChange={(e) => updateMember(i, "gender", e.target.value)} /></Col>
-            <Col><Button variant="danger" onClick={() => removeMember(i)}>Remove</Button></Col>
-          </Row>
-        ))}
-        <Button onClick={addMember}>Add Member</Button>
-      </Card.Body>
-    </Card>
-  );
-};
-
-const TotalPriceCalculator = ({ plan, addOns, walletAmount }) => {
-  const addOnTotal = addOns.reduce((sum, a) => sum + a.price, 0);
-  const total = plan.price + addOnTotal - walletAmount;
-
-  return (
-    <Card className="mb-3">
-      <Card.Body>
-        <h5>Total Price</h5>
-        <p>Base Plan: ₹{plan.price}</p>
-        <p>Add-Ons: ₹{addOnTotal}</p>
-        <p>Wallet Used: -₹{walletAmount}</p>
-        <h6>Final Total: ₹{total}</h6>
-      </Card.Body>
-    </Card>
-  );
-};
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useLocation } from "react-router-dom";
+import PlanTermsModal from "../components/HealthAccess/PlanTermsModal"; // ✅ Add your modal import
+import { useNavigate, Link } from "react-router-dom";
 
 const BuyPlanPage = () => {
-  const { planId } = useParams();
-  const navigate = useNavigate();
-  const [plan, setPlan] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [addOns, setAddOns] = useState([]);
+    const navigate = useNavigate();
+
+  const location = useLocation();
+  const selectedPlan = location.state?.plan || null;
+
+  const [addons, setAddons] = useState([]);
   const [referralCode, setReferralCode] = useState("");
-  const [walletUse, setWalletUse] = useState(false);
-  const [walletAmount, setWalletAmount] = useState(0);
-  const [familyMembers, setFamilyMembers] = useState([]);
-  const [accepted, setAccepted] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("upi");
-  const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState("");
+  const [wallet, setWallet] = useState(0);
+  const [useWallet, setUseWallet] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("wallet");
+  const [loading, setLoading] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false); // ✅ State for modal
+  const [acceptedMetadata, setAcceptedMetadata] = useState(null); // ✅ Metadata storage
+
+  const termsText = `By accepting this plan, you agree to the BBSCART Health Access terms and conditions...`; // 🔁 Can be loaded via API later
 
   useEffect(() => {
-    const fetchPlan = async () => {
-      try {
-        const data = await getHealthPlans();
-        const found = data.plans.find((p) => p._id === planId);
-        setPlan(found);
-      } catch {
-        setMessage("Failed to load plan");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPlan();
-  }, [planId]);
+ const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+ const token = bbsUserData?.token;    axios
+      .get("http://localhost:5000/api/user/wallet", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setWallet(res.data.balance))
+      .catch((err) => console.warn("Wallet fetch failed", err));
+  }, []);
 
-  const handlePurchase = async () => {
-    if (!accepted || !paymentMethod || !planId) return;
-    setSubmitting(true);
+  const toggleAddon = (name) => {
+    setAddons((prev) =>
+      prev.includes(name) ? prev.filter((a) => a !== name) : [...prev, name]
+    );
+  };
+
+  // ✅ Actual purchase API call AFTER accepting terms
+  const handleFinalPurchase = async (metadata) => {
+    setLoading(true);
     try {
-      const res = await purchasePlan(planId, {
-        addOns, referralCode, walletAmount: walletUse ? walletAmount : 0, paymentMethod, familyMembers,
-      });
-      if (res.success) {
-        setMessage("✅ Plan purchased!");
-        setTimeout(() => navigate("/health-access/my-plan"), 2000);
-      } else {
-        setMessage("❌ Purchase failed.");
-      }
-    } catch {
-      setMessage("❌ Server error.");
+ const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+ const token = bbsUserData?.token;
+       const res = await axios.post(
+        "http://localhost:5000/api/user/purchase",
+        {
+          planId: selectedPlan._id,
+          selectedAddons: addons,
+          paymentMethod,
+          usedWalletAmount: useWallet ? wallet : 0,
+          referralCode,
+          termsMetadata: metadata, // ✅ Send terms signature + meta
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+navigate("/health-access/purchase-summary", {
+  state: {
+    plan: selectedPlan,
+    addons,
+    usedWalletAmount: useWallet ? wallet : 0,
+    paymentMethod,
+    referralCode,
+  },
+});
+    } catch (err) {
+      console.error("Purchase error", err);
+      alert("Purchase failed");
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
-  if (loading) return <Spinner animation="border" className="d-block mx-auto mt-5" />;
-  if (!plan) return <Alert variant="danger">Plan not found</Alert>;
+  const handleBuy = () => {
+    setShowTermsModal(true); // ✅ Show terms before buying
+  };
+
+  if (!selectedPlan) return <p>No plan selected</p>;
 
   return (
-    <Container className="py-4">
-      <h3 className="mb-3 text-center">Buy Plan: {plan.name}</h3>
-      {message && <Alert variant="info">{message}</Alert>}
-      <Card className="mb-4">
-        <Card.Body>
-          <h5>{plan.name}</h5>
-          <p>{plan.description}</p>
-          <ul>{plan.features.map((f, i) => <li key={i}>{f}</li>)}</ul>
-          <strong>Base Price:</strong> ₹{plan.price}
-        </Card.Body>
-      </Card>
-      <AddOnSelector selected={addOns} onChange={setAddOns} />
-      <ReferralCodeInput value={referralCode} onChange={setReferralCode} />
-      <WalletUseToggle useWallet={walletUse} amount={walletAmount} onToggle={setWalletUse} onAmountChange={setWalletAmount} />
-      <FamilyBundleSelector members={familyMembers} onChange={setFamilyMembers} />
-      <TotalPriceCalculator plan={plan} addOns={addOns} walletAmount={walletUse ? walletAmount : 0} />
-      <Form className="mt-3">
-        <Form.Label>Select Payment Method</Form.Label>
-        <Form.Check type="radio" label="UPI" name="paymentMethod" value="upi" checked={paymentMethod === "upi"} onChange={(e) => setPaymentMethod(e.target.value)} />
-        <Form.Check type="radio" label="Card" name="paymentMethod" value="card" checked={paymentMethod === "card"} onChange={(e) => setPaymentMethod(e.target.value)} />
-        <Form.Check type="radio" label="Wallet (Coming Soon)" disabled />
-        <Form.Check type="checkbox" className="mt-3" label="I accept the Terms & Conditions" checked={accepted} onChange={(e) => setAccepted(e.target.checked)} />
-        <Button className="mt-3" variant="success" onClick={handlePurchase} disabled={!accepted || submitting}>
-          {submitting ? "Processing..." : "Confirm Purchase"}
-        </Button>
-      </Form>
-    </Container>
+    <div className="container my-4">
+      <h3>Checkout: {selectedPlan.name}</h3>
+      <p>₹ {selectedPlan.price}</p>
+
+      <h5>Add-ons:</h5>
+      {selectedPlan.addons?.map((addon, i) => (
+        <div key={i}>
+          <label>
+            <input
+              type="checkbox"
+              onChange={() => toggleAddon(addon.name)}
+              checked={addons.includes(addon.name)}
+            />{" "}
+            {addon.name} (+₹{addon.price})
+          </label>
+        </div>
+      ))}
+
+      <div className="mt-3">
+        <label>Referral Code:</label>
+        <input
+          className="form-control"
+          value={referralCode}
+          onChange={(e) => setReferralCode(e.target.value)}
+        />
+      </div>
+
+      <div className="form-check mt-3">
+        <input
+          type="checkbox"
+          className="form-check-input"
+          checked={useWallet}
+          onChange={(e) => setUseWallet(e.target.checked)}
+        />
+        <label className="form-check-label">
+          Use Wallet Balance (₹{wallet})
+        </label>
+      </div>
+
+      <div className="mt-3">
+        <label>Payment Method:</label>
+        <select
+          className="form-select"
+          value={paymentMethod}
+          onChange={(e) => setPaymentMethod(e.target.value)}
+        >
+          <option value="wallet">Wallet</option>
+          <option value="razorpay">Razorpay</option>
+          <option value="upi">UPI</option>
+        </select>
+      </div>
+
+      <button
+        className="btn btn-success mt-4"
+        onClick={handleBuy}
+        disabled={loading}
+      >
+        {loading ? "Processing..." : "Confirm & Pay"}
+      </button>
+
+      {/* ✅ PlanTermsModal Integration */}
+      <PlanTermsModal
+        show={showTermsModal}
+        onClose={() => setShowTermsModal(false)}
+        onAccept={(metadata) => {
+          setAcceptedMetadata(metadata);
+          setShowTermsModal(false);
+          handleFinalPurchase(metadata);
+        }}
+        termsText={termsText}
+        version="v1"
+        planId={selectedPlan._id} // ✅ Add this line
+      />
+    </div>
   );
 };
 

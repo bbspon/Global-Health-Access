@@ -56,13 +56,5 @@ export const getHealthPlans = async () => {
     });
     return res.json();
   };
-  export const getMyActivePlan = async () => {
-    const token = localStorage.getItem("token");
-    const res = await fetch("/api/user/my-plan", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return res.json();
-  };
+
   

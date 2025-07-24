@@ -1,81 +1,94 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import axios from 'axios';
-
-const ProgressBar = ({ used, total }) => {
-  const percent = (used / total) * 100;
-  return (
-    <View style={styles.progressOuter}>
-      <View style={[styles.progressInner, { width: `${percent}%` }]} />
-      <Text style={styles.progressLabel}>{`${used}/${total}`}</Text>
-    </View>
-  );
-};
+import React, { useEffect, useState } from "react";
+import { View, Text, ScrollView, Button, Alert, StyleSheet } from "react-native";
+import axios from "axios";
 
 const PlanUsageScreen = () => {
-  const [plans, setPlans] = useState([]);
+  const [data, setData] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    axios
-      .get('https://yourdomain.com/api/user-plan/plan-usage')
-      .then(res => setPlans(res.data));
+    fetchUsageData();
   }, []);
+
+  const fetchUsageData = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/user/plan-usage", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      setData(res.data);
+    } catch (error) {
+      console.error("Failed to load usage data", error);
+    }
+  };
+
+  const handleReset = async () => {
+    try {
+      await axios.post("http://localhost:5000/api/user/plan-usage/reset", {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      Alert.alert("Reset Success", "Plan usage has been reset.");
+      fetchUsageData();
+    } catch (error) {
+      Alert.alert("Reset Failed", "Something went wrong while resetting usage.");
+    }
+  };
 
   return (
     <ScrollView style={styles.container}>
-      {plans.map(plan => (
-        <View key={plan._id} style={styles.card}>
-          <Text style={styles.title}>{plan.title}</Text>
-          <Text style={styles.date}>
-            Started: {new Date(plan.createdAt).toLocaleDateString()}
-          </Text>
+      <Text style={styles.heading}>Plan Usage Dashboard</Text>
 
-          <Text style={styles.label}>OPD Visits</Text>
-          <ProgressBar used={plan.usage.opdVisitsUsed} total={plan.opdLimit} />
+      {data.map((user, idx) => (
+        <View key={idx} style={styles.card}>
+          <Text style={styles.name}>{user?.name}</Text>
+          <Text style={styles.subtext}>{user?.plan} Plan</Text>
 
-          <Text style={styles.label}>Lab Tests</Text>
-          <ProgressBar used={plan.usage.labTestsUsed} total={plan.labLimit} />
+          <Text>OPD Usage: {user.opdUsed}/{user.opdCap}</Text>
+          <Text>IPD Usage: {user.ipdUsed}/{user.ipdCap}</Text>
+          <Text>LAB Usage: {user.labUsed}/{user.labCap}</Text>
+          <Text>Mental Health Usage: {user.mentalHealthUsed}/{user.mentalHealthCap}</Text>
 
-          <Text style={styles.label}>Video Consultations</Text>
-          <ProgressBar
-            used={plan.usage.videoConsultsUsed}
-            total={plan.videoLimit}
-          />
+          <View style={styles.btnGroup}>
+            <Button title="Download PDF" onPress={() => Alert.alert("Not yet implemented")} />
+            <Button title="Manual Reset" onPress={handleReset} color="#c0392b" />
+          </View>
         </View>
       ))}
     </ScrollView>
   );
 };
 
+export default PlanUsageScreen;
+
 const styles = StyleSheet.create({
-  container: { padding: 15 },
+  container: {
+    padding: 16,
+    backgroundColor: "#fff",
+  },
+  heading: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 12,
+    textAlign: "center",
+  },
   card: {
-    backgroundColor: '#f2f2f2',
-    marginBottom: 15,
-    padding: 15,
+    backgroundColor: "#f7f7f7",
+    padding: 16,
+    marginBottom: 12,
     borderRadius: 8,
+    elevation: 2,
   },
-  title: { fontSize: 16, fontWeight: 'bold' },
-  date: { marginBottom: 10 },
-  label: { marginTop: 10, marginBottom: 4 },
-  progressOuter: {
-    backgroundColor: '#ccc',
-    height: 20,
-    borderRadius: 10,
-    overflow: 'hidden',
-    marginBottom: 10,
-    justifyContent: 'center',
+  name: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
-  progressInner: {
-    height: 20,
-    backgroundColor: '#4caf50',
+  subtext: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 8,
   },
-  progressLabel: {
-    position: 'absolute',
-    alignSelf: 'center',
-    fontSize: 12,
-    color: '#000',
+  btnGroup: {
+    marginTop: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });
-
-export default PlanUsageScreen;

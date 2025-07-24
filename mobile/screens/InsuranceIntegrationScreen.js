@@ -4,23 +4,10 @@ import {
 } from 'react-native';
 import {
   Text, Button, Card, Checkbox, Dialog, Portal, Paragraph, Switch,
-  DataTable, Title, Badge, IconButton, Menu
+  DataTable, Title, Badge, IconButton, Menu, ActivityIndicator
 } from 'react-native-paper';
 import * as WebBrowser from 'expo-web-browser';
-
-const fetchPlans = () => Promise.resolve([
-  { insurer: 'Daman', plan: 'Enhanced', price: 120, currency: 'AED', benefits: 'Maternity, chronic diseases', region: 'UAE' },
-  { insurer: 'Sukoon', plan: 'HealthPlus', price: 95, currency: 'AED', benefits: 'UAE-wide network', region: 'UAE' },
-  { insurer: 'Star Health', plan: 'Family Optima', price: 299, currency: 'INR', benefits: 'India IPD + surgeries', region: 'India' },
-]);
-
-const fetchUserPolicy = () => Promise.resolve({
-  insurer: 'Sukoon', plan: 'HealthPlus', expiry: '2026-02-15',
-  sumInsured: 'AED 200,000', claimStatus: 'Pending', claimAmount: 'AED 8,500', claimDate: '2025-07-01',
-  pdfUrl: 'https://example.com/policies/sukoon-healthplus.pdf',
-  autoRenew: true,
-  corporate: { name: 'ABC Corp', plan: true },
-});
+import axios from 'axios';
 
 export default function InsuranceIntegrationScreen() {
   const [plans, setPlans] = useState([]);
@@ -31,11 +18,36 @@ export default function InsuranceIntegrationScreen() {
   const [visible, setVisible] = useState(false);
   const [dialogType, setDialogType] = useState('help');
   const [menuVisible, setMenuVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchPlans().then(setPlans);
-    fetchUserPolicy().then(setPolicy);
+    fetchInsuranceData();
   }, []);
+
+  const fetchInsuranceData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get('http://localhost:5000/api/insurance', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const insuranceData = res.data?.data || [];
+
+      // Set the first item as current policy, rest as available plans
+      if (insuranceData.length > 0) {
+        const { currentPolicy, availablePlans } = insuranceData[0];
+        setPolicy(currentPolicy);
+        setPlans(availablePlans);
+      }
+    } catch (err) {
+      console.error('❌ Insurance fetch error:', err);
+      Alert.alert("Error", "Unable to load insurance data.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleBuy = (plan) => {
     if (!consent) {
@@ -50,6 +62,10 @@ export default function InsuranceIntegrationScreen() {
   const handleDownload = async (url) => {
     await WebBrowser.openBrowserAsync(url);
   };
+
+  if (loading) {
+    return <ActivityIndicator style={{ marginTop: 50 }} />;
+  }
 
   return (
     <ScrollView style={{ padding: 16 }}>
@@ -120,7 +136,7 @@ export default function InsuranceIntegrationScreen() {
                 }
               />
             </View>
-            {policy.corporate.plan && <Badge>{lang === 'en' ? 'Corporate Plan' : 'خطة شركة'}</Badge>}
+            {policy.corporate?.plan && <Badge>{lang === 'en' ? 'Corporate Plan' : 'خطة شركة'}</Badge>}
           </Card.Content>
         </Card>
       )}
@@ -133,7 +149,9 @@ export default function InsuranceIntegrationScreen() {
               <Card.Content>
                 <Title>{plan.insurer} — {plan.plan}</Title>
                 <Paragraph>{plan.benefits}</Paragraph>
-                <Paragraph><Text style={{ fontWeight: 'bold' }}>{plan.price} {plan.currency}/mo</Text></Paragraph>
+                <Paragraph>
+                  <Text style={{ fontWeight: 'bold' }}>{plan.price} {plan.currency}/mo</Text>
+                </Paragraph>
                 <Button mode="contained" onPress={() => handleBuy(plan)}>
                   {lang === 'en' ? 'Buy Now' : 'اشتر الآن'}
                 </Button>

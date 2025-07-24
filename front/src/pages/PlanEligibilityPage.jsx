@@ -1,37 +1,53 @@
+// Web → src/pages/PlanEligibilityPage.jsx
 import React, { useState } from "react";
-import { Form, Button, Alert } from "react-bootstrap";
+import { Container, Form, Button, Alert, Card } from "react-bootstrap";
 import axios from "axios";
 
 const PlanEligibilityPage = () => {
-  const [form, setForm] = useState({ age: "", city: "", income: "" });
+  const [age, setAge] = useState("");
+  const [city, setCity] = useState("");
+  const [planType, setPlanType] = useState("basic");
   const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleInput = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
-
-  const checkEligibility = () => {
-    setLoading(true);
-    axios
-      .post("/api/health-plans/check-eligibility", form)
-      .then((res) => setResult(res.data))
-      .catch(() =>
-        setResult({ eligible: false, reason: "Something went wrong" })
-      )
-      .finally(() => setLoading(false));
+  const handleCheckEligibility = async () => {
+    const token = JSON.parse(localStorage.getItem("bbsUser"))?.token;
+    setError("");
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/plan/check-eligibility",
+        { age, city, planType },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setResult(res.data);
+    } catch (err) {
+      setResult(null);
+      setError(
+        "❌ " + (err.response?.data?.message || "Something went wrong.")
+      );
+    }
   };
 
   return (
-    <div className="container py-4">
-      <h4>Check Plan Eligibility</h4>
+    <Container style={{ maxWidth: 600 }} className="mt-5">
+      <h3>🔍 Check Plan Eligibility</h3>
+
+      {error && <Alert variant="danger">{error}</Alert>}
+      {result && (
+        <Alert variant={result.eligible ? "success" : "warning"}>
+          {result.message}
+        </Alert>
+      )}
+
       <Form>
         <Form.Group className="mb-3">
           <Form.Label>Age</Form.Label>
           <Form.Control
             type="number"
-            name="age"
-            value={form.age}
-            onChange={handleInput}
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
           />
         </Form.Group>
 
@@ -39,38 +55,34 @@ const PlanEligibilityPage = () => {
           <Form.Label>City</Form.Label>
           <Form.Control
             type="text"
-            name="city"
-            value={form.city}
-            onChange={handleInput}
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
           />
         </Form.Group>
 
         <Form.Group className="mb-3">
-          <Form.Label>Monthly Income</Form.Label>
-          <Form.Control
-            type="number"
-            name="income"
-            value={form.income}
-            onChange={handleInput}
-          />
+          <Form.Label>Plan Type</Form.Label>
+          <Form.Select
+            value={planType}
+            onChange={(e) => setPlanType(e.target.value)}
+          >
+            <option value="basic">Basic</option>
+            <option value="prime">Prime</option>
+            <option value="elite">Elite</option>
+          </Form.Select>
         </Form.Group>
 
-        <Button onClick={checkEligibility} disabled={loading}>
-          {loading ? "Checking..." : "Check Eligibility"}
-        </Button>
+        <Button onClick={handleCheckEligibility}>Check Eligibility</Button>
       </Form>
 
-      {result && (
-        <Alert
-          variant={result.eligible ? "success" : "danger"}
-          className="mt-3"
-        >
-          {result.eligible
-            ? "✅ You're eligible for this plan!"
-            : `❌ Not eligible. Reason: ${result.reason}`}
-        </Alert>
+      {result?.eligible && (
+        <Card className="mt-4 p-3">
+          <h5>🎯 You're eligible!</h5>
+          <p>Next Step: Go to Buy Plan Page</p>
+          <Button href="/health-access/buy-plan">Buy a Plan</Button>
+        </Card>
       )}
-    </div>
+    </Container>
   );
 };
 

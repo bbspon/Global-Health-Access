@@ -1,53 +1,51 @@
+// WalletTopupPage.jsx
 import React, { useState } from "react";
-import axios from "axios";
+import { Container, Form, Button, Alert } from "react-bootstrap";
+import { topupWallet } from "../services/walletAPI";
 
 const WalletTopupPage = () => {
   const [amount, setAmount] = useState("");
+  const [status, setStatus] = useState("");
 
-  const loadRazorpay = () => {
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.async = true;
-    document.body.appendChild(script);
-  };
-
-  const handleTopup = async () => {
-    const { data } = await axios.post("/api/wallet/topup-order", { amount });
-
-    const options = {
-      key: process.env.REACT_APP_RAZORPAY_KEY,
-      amount: data.order.amount,
-      currency: "INR",
-      name: "BBSCART Wallet",
-      description: "Wallet Top-Up",
-      order_id: data.order.id,
-      handler: async (response) => {
-        await axios.post("/api/wallet/topup-confirm", {
-          amount: parseInt(amount),
-          razorpayPaymentId: response.razorpay_payment_id,
-        });
-        alert("Wallet credited!");
-      },
-    };
-
-    const rzp = new window.Razorpay(options);
-    rzp.open();
+  const handleTopup = async (e) => {
+    e.preventDefault();
+    const token = JSON.parse(localStorage.getItem("bbsUser"))?.token;
+    try {
+      await topupWallet({
+        amount,
+        method: "UPI", // static for now
+        referenceId: "TXN" + Date.now(),
+        token,
+      });
+      setStatus("✅ Wallet Top-up Successful");
+    } catch {
+      setStatus("❌ Failed to top-up");
+    }
   };
 
   return (
-    <div className="container py-4">
-      <h4>Top-Up Wallet</h4>
-      <input
-        type="number"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        className="form-control my-3"
-        placeholder="Enter amount"
-      />
-      <button className="btn btn-primary" onClick={handleTopup}>
-        Top-Up Now
-      </button>
-    </div>
+    <Container className="my-5">
+      <h2>💰 Wallet Top-up</h2>
+      {status && (
+        <Alert variant={status.includes("✅") ? "success" : "danger"}>
+          {status}
+        </Alert>
+      )}
+      <Form onSubmit={handleTopup}>
+        <Form.Group>
+          <Form.Label>Amount (₹)</Form.Label>
+          <Form.Control
+            type="number"
+            required
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+        </Form.Group>
+        <Button className="mt-3" type="submit">
+          Add Money
+        </Button>
+      </Form>
+    </Container>
   );
 };
 

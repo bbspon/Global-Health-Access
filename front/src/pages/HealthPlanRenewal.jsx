@@ -26,6 +26,47 @@ const HealthPlanRenewal = () => {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [language, setLanguage] = useState("English");
   const [callRequested, setCallRequested] = useState(false);
+const renewPlan = async () => {
+  try {
+    const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+    console.log("📦 bbsUserData:", bbsUserData);
+
+    const token = bbsUserData?.token;
+    const userId = bbsUserData?.user?.id; // ✅ use `id`, not `_id`
+
+    console.log("👤 Sending userId:", userId); // Should now print real ID
+
+    const res = await fetch("http://localhost:5000/api/plan/renew", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        userId,
+        selectedPlan: plan,
+        selectedAddOns,
+        paymentMethod,
+        coupon,
+        autoRenew,
+        totalAmount: calculateTotal(),
+      }),
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert(
+        `✅ Plan Renewed Successfully!\nPlan: ${plan}\nTotal: ₹${calculateTotal()}`
+      );
+    } else {
+      alert(`❌ Renewal Failed: ${data?.error || "Unknown error"}`);
+    }
+  } catch (err) {
+    console.error("Error during renewal:", err);
+    alert("❌ Something went wrong");
+  }
+};
+
 
   const toggleAddOn = (addOn) => {
     if (selectedAddOns.includes(addOn)) {
@@ -44,16 +85,21 @@ const HealthPlanRenewal = () => {
     return base + addOnTotal;
   };
 
-  const renewPlan = () => {
-    alert(`✅ Plan Renewed Successfully!\nPlan: ${plan}\nTotal: ₹${calculateTotal()}`);
-  };
 
   return (
     <div className="container my-4">
       <Row className="mb-3">
-        <Col><h4>🛡️ Plan Expiry Management</h4></Col>
+        <Col>
+          <h4>🛡️ Plan Expiry Management</h4>
+        </Col>
         <Col className="text-end">
-          🌐 <Form.Select size="sm" style={{ width: 140 }} value={language} onChange={(e) => setLanguage(e.target.value)}>
+          🌐{" "}
+          <Form.Select
+            size="sm"
+            style={{ width: 140 }}
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+          >
             <option>English</option>
             <option>हिंदी</option>
             <option>العربية</option>
@@ -62,7 +108,9 @@ const HealthPlanRenewal = () => {
       </Row>
 
       <Alert variant="danger">
-        Your <strong>{plan}</strong> plan expires in <strong>{daysLeft} days</strong>. Grace period starts in: <strong>{daysLeft === 0 ? "Now" : `${daysLeft} days`}</strong>
+        Your <strong>{plan}</strong> plan expires in{" "}
+        <strong>{daysLeft} days</strong>. Grace period starts in:{" "}
+        <strong>{daysLeft === 0 ? "Now" : `${daysLeft} days`}</strong>
       </Alert>
 
       <Card className="mb-4">
@@ -71,24 +119,38 @@ const HealthPlanRenewal = () => {
           <Form>
             <Form.Group>
               <Form.Label>Choose Plan</Form.Label>
-              <Form.Select value={plan} onChange={(e) => setPlan(e.target.value)}>
-                {planOptions.map((p) => <option key={p.name}>{p.name}</option>)}
+              <Form.Select
+                value={plan}
+                onChange={(e) => setPlan(e.target.value)}
+              >
+                {planOptions.map((p) => (
+                  <option key={p.name}>{p.name}</option>
+                ))}
               </Form.Select>
             </Form.Group>
 
             <Form.Group className="mt-3">
               <Form.Label>Add-ons</Form.Label>
               {addOns.map((addon) => (
-                <Form.Check key={addon.name} type="checkbox" label={`${addon.name} (₹${addon.price})`}
+                <Form.Check
+                  key={addon.name}
+                  type="checkbox"
+                  label={`${addon.name} (₹${addon.price})`}
                   checked={selectedAddOns.includes(addon.name)}
-                  onChange={() => toggleAddOn(addon.name)} />
+                  onChange={() => toggleAddOn(addon.name)}
+                />
               ))}
             </Form.Group>
 
             <Form.Group className="mt-3">
               <Form.Label>Payment Method</Form.Label>
-              <Form.Select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-                {paymentMethods.map((method) => <option key={method}>{method}</option>)}
+              <Form.Select
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              >
+                {paymentMethods.map((method) => (
+                  <option key={method}>{method}</option>
+                ))}
               </Form.Select>
             </Form.Group>
 
@@ -102,12 +164,24 @@ const HealthPlanRenewal = () => {
 
             <Form.Group className="mt-3">
               <Form.Label>Coupon Code</Form.Label>
-              <Form.Control type="text" value={coupon} onChange={(e) => setCoupon(e.target.value)} />
+              <Form.Control
+                type="text"
+                value={coupon}
+                onChange={(e) => setCoupon(e.target.value)}
+              />
             </Form.Group>
 
             <div className="mt-3">
-              <Button variant="success" onClick={renewPlan}>Renew Plan (₹{calculateTotal()})</Button>
-              <Button variant="outline-secondary" className="ms-3" onClick={() => window.print()}>🧾 Download Invoice</Button>
+              <Button variant="success" onClick={renewPlan}>
+                Renew Plan (₹{calculateTotal()})
+              </Button>
+              <Button
+                variant="outline-secondary"
+                className="ms-3"
+                onClick={() => window.print()}
+              >
+                🧾 Download Invoice
+              </Button>
             </div>
           </Form>
         </Card.Body>
@@ -116,8 +190,13 @@ const HealthPlanRenewal = () => {
       <Card className="mb-4">
         <Card.Body>
           <Card.Title>📈 AI-Based Suggestion</Card.Title>
-          <p>Based on your past 4 lab visits and family members, we recommend <strong>Super Premium Plan</strong> for more coverage.</p>
-          <Button variant="primary" onClick={() => setShowUpgrade(true)}>Compare & Upgrade</Button>
+          <p>
+            Based on your past 4 lab visits and family members, we recommend{" "}
+            <strong>Super Premium Plan</strong> for more coverage.
+          </p>
+          <Button variant="primary" onClick={() => setShowUpgrade(true)}>
+            Compare & Upgrade
+          </Button>
         </Card.Body>
       </Card>
 
@@ -125,25 +204,40 @@ const HealthPlanRenewal = () => {
         <Card.Body>
           <Card.Title>📞 Need Help?</Card.Title>
           {!callRequested ? (
-            <Button variant="dark" onClick={() => {
-              setCallRequested(true);
-              alert("📲 Advisor call scheduled in 24h");
-            }}>Schedule Call With Advisor</Button>
-          ) : <Badge bg="info">Advisor Call Scheduled</Badge>}
+            <Button
+              variant="dark"
+              onClick={() => {
+                setCallRequested(true);
+                alert("📲 Advisor call scheduled in 24h");
+              }}
+            >
+              Schedule Call With Advisor
+            </Button>
+          ) : (
+            <Badge bg="info">Advisor Call Scheduled</Badge>
+          )}
         </Card.Body>
       </Card>
 
       <Modal show={showUpgrade} onHide={() => setShowUpgrade(false)}>
-        <Modal.Header closeButton><Modal.Title>🔄 Compare Plans</Modal.Title></Modal.Header>
+        <Modal.Header closeButton>
+          <Modal.Title>🔄 Compare Plans</Modal.Title>
+        </Modal.Header>
         <Modal.Body>
           <ul>
             <li>🟢 Basic – ₹999 – OPD only</li>
             <li>🟡 Premium – ₹1499 – OPD + IPD + Labs</li>
             <li>🔴 Super Premium – ₹1999 – Full + Wellness + Dental</li>
           </ul>
-          <Button variant="danger" onClick={() => alert("Upgraded to Super Premium")}>Upgrade Now</Button>
+          <Button
+            variant="danger"
+            onClick={() => alert("Upgraded to Super Premium")}
+          >
+            Upgrade Now
+          </Button>
         </Modal.Body>
       </Modal>
+
     </div>
   );
 };

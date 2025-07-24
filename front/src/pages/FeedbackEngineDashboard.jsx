@@ -1,41 +1,45 @@
 // Filename: PatientFeedbackEngine.jsx
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Row,
   Col,
-  Card,
   Button,
   Form,
   Table,
   Modal,
-  Badge,
   Alert,
 } from "react-bootstrap";
 import { Mic, CameraVideo, StarFill } from "react-bootstrap-icons";
-
-const feedbackTags = [
-  "Long Wait",
-  "Friendly Staff",
-  "Clean Facility",
-  "No Female Doctor",
-  "Quick Service",
-  "Delay in Report",
-];
+import { fetchAllFeedback, submitFeedback } from "../services/feedbackAPI";
 
 const PatientFeedbackEngine = () => {
   const [showModal, setShowModal] = useState(false);
   const [feedbacks, setFeedbacks] = useState([]);
   const [newFeedback, setNewFeedback] = useState({
     type: "",
-    rating: 0,
+    rating: "",
     tags: [],
     text: "",
   });
   const [errors, setErrors] = useState({});
   const [voiceTranscribing, setVoiceTranscribing] = useState(false);
   const [imageFile, setImageFile] = useState(null);
+
+  // ✅ Fetch existing feedbacks on page load
+  useEffect(() => {
+    const loadFeedbacks = async () => {
+      try {
+        const data = await fetchAllFeedback();
+        setFeedbacks(data);
+      } catch (error) {
+        console.error("Fetch feedback error:", error);
+      }
+    };
+
+    loadFeedbacks();
+  }, []);
 
   const handleInputChange = (field, value) => {
     setNewFeedback({ ...newFeedback, [field]: value });
@@ -52,7 +56,8 @@ const PatientFeedbackEngine = () => {
   };
 
   const handleVoiceInput = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       alert("Speech recognition not supported in this browser.");
       return;
@@ -63,7 +68,10 @@ const PatientFeedbackEngine = () => {
 
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
-      setNewFeedback((prev) => ({ ...prev, text: prev.text + " " + transcript }));
+      setNewFeedback((prev) => ({
+        ...prev,
+        text: prev.text + " " + transcript,
+      }));
       setVoiceTranscribing(false);
     };
 
@@ -80,25 +88,29 @@ const PatientFeedbackEngine = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) return;
 
-    const newEntry = {
-      id: `FB${feedbacks.length + 1}`,
-      hospital: "Dynamic Hospital",
-      sentiment: newFeedback.rating >= 4 ? "Positive" : "Negative",
-      status: newFeedback.rating < 3 ? "Escalated" : "Closed",
-      impact: newFeedback.rating < 3
-        ? "Flagged to hospital compliance"
-        : "Added to hospital NPS",
-      ...newFeedback,
-      image: imageFile || null,
+    const payload = {
+      type: newFeedback.type,
+      rating: parseInt(newFeedback.rating),
+      tags: newFeedback.tags,
+      comment: newFeedback.text,
+      image: imageFile,
+      submittedAt: new Date(),
     };
-    setFeedbacks([newEntry, ...feedbacks]);
-    setShowModal(false);
-    setNewFeedback({ type: "", rating: 0, tags: [], text: "" });
-    setErrors({});
-    setImageFile(null);
+
+    try {
+      const res = await submitFeedback(payload);
+      setFeedbacks([res.data, ...feedbacks]); // ✅ Correctly append new feedback
+      setShowModal(false);
+      setNewFeedback({ type: "", rating: "", tags: [], text: "" });
+      setErrors({});
+      setImageFile(null);
+    } catch (err) {
+      console.error("Feedback submission failed:", err);
+      alert("Error submitting feedback.");
+    }
   };
 
   return (
@@ -115,39 +127,27 @@ const PatientFeedbackEngine = () => {
       <Table striped bordered hover responsive>
         <thead>
           <tr>
-            <th>ID</th>
             <th>Type</th>
-            <th>Hospital</th>
             <th>Rating</th>
             <th>Tags</th>
             <th>Text</th>
-            <th>Sentiment</th>
-            <th>Status</th>
-            <th>Impact</th>
             <th>Image</th>
           </tr>
         </thead>
         <tbody>
-          {feedbacks.map((fb) => (
-            <tr key={fb.id}>
-              <td>{fb.id}</td>
+          {feedbacks.map((fb, index) => (
+            <tr key={index}>
               <td>{fb.type}</td>
-              <td>{fb.hospital}</td>
               <td>
-                {[...Array(fb.rating)].map((_, i) => (
+                {[...Array(fb.rating || 0)].map((_, i) => (
                   <StarFill key={i} color="gold" />
                 ))}
               </td>
-              <td>{fb.tags.join(", ")}</td>
-              <td>{fb.text}</td>
+              <td>{fb.tags?.join(", ")}</td>
+              <td>{fb.comment}</td>
               <td>
-                <Badge bg={fb.sentiment === "Positive" ? "success" : "danger"}>
-                  {fb.sentiment}
-                </Badge>
+                {fb.image && <img src={fb.image} alt="upload" height={40} />}
               </td>
-              <td>{fb.status}</td>
-              <td>{fb.impact}</td>
-              <td>{fb.image && <img src={fb.image} alt="upload" height={40} />}</td>
             </tr>
           ))}
         </tbody>
@@ -167,11 +167,11 @@ const PatientFeedbackEngine = () => {
                 onChange={(e) => handleInputChange("type", e.target.value)}
               >
                 <option value="">Select...</option>
-                <option>OPD Visit</option>
-                <option>Doctor Appointment</option>
-                <option>Lab Test</option>
-                <option>Pharmacy</option>
-                <option>App Experience</option>
+                <option value="opd">OPD Visit</option>
+                <option value="doctor">Doctor Appointment</option>
+                <option value="lab">Lab Test</option>
+                <option value="pharmacy">Pharmacy</option>
+                <option value="app">App Experience</option>
               </Form.Control>
               {errors.type && <Alert variant="danger">{errors.type}</Alert>}
             </Form.Group>
@@ -183,7 +183,12 @@ const PatientFeedbackEngine = () => {
                 min={1}
                 max={5}
                 value={newFeedback.rating}
-                onChange={(e) => handleInputChange("rating", parseInt(e.target.value))}
+                onChange={(e) =>
+                  handleInputChange(
+                    "rating",
+                    e.target.value === "" ? "" : parseInt(e.target.value)
+                  )
+                }
               />
               {errors.rating && <Alert variant="danger">{errors.rating}</Alert>}
             </Form.Group>
@@ -193,7 +198,12 @@ const PatientFeedbackEngine = () => {
               <Form.Control
                 type="text"
                 placeholder="E.g., Clean, Delay, Staff"
-                onChange={(e) => handleInputChange("tags", e.target.value.split(","))}
+                onChange={(e) =>
+                  handleInputChange(
+                    "tags",
+                    e.target.value.split(",").map((tag) => tag.trim())
+                  )
+                }
               />
             </Form.Group>
 
@@ -214,24 +224,35 @@ const PatientFeedbackEngine = () => {
                 onClick={handleVoiceInput}
               >
                 <Mic /> {voiceTranscribing ? "Listening..." : "Voice Input"}
-              </Button>{' '}
+              </Button>{" "}
               <Form.Label className="btn btn-outline-primary mb-0">
                 <CameraVideo /> Upload Image
-                <Form.Control type="file" accept="image/*" hidden onChange={handleImageUpload} />
+                <Form.Control
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={handleImageUpload}
+                />
               </Form.Label>
             </Form.Group>
 
             {imageFile && (
               <div className="mt-3">
                 <strong>Preview:</strong>
-                <img src={imageFile} alt="Feedback Upload" className="img-fluid mt-2 rounded shadow" style={{ maxHeight: '200px' }} />
+                <img
+                  src={imageFile}
+                  alt="Feedback Upload"
+                  className="img-fluid mt-2 rounded shadow"
+                  style={{ maxHeight: "200px" }}
+                />
               </div>
             )}
-
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="success" onClick={handleSubmit}>Submit</Button>
+          <Button variant="success" onClick={handleSubmit}>
+            Submit
+          </Button>
         </Modal.Footer>
       </Modal>
     </Container>

@@ -1,60 +1,37 @@
-import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  Button,
-  Linking,
-  StyleSheet,
-} from 'react-native';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import { View, Text, ScrollView } from "react-native";
+import axios from "axios";
 
 const PurchaseSummaryScreen = () => {
-  const [plans, setPlans] = useState([]);
+  const [summary, setSummary] = useState(null);
 
   useEffect(() => {
-    axios
-      .get('https://yourdomain.com/api/user/my-plans')
-      .then(res => setPlans(res.data));
+    const fetchData = async () => {
+      const token = await AsyncStorage.getItem("token");
+      const res = await axios.get("http://localhost:5000/api/user/summary", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setSummary(res.data);
+    };
+    fetchData();
   }, []);
 
-  const downloadInvoice = id => {
-    const url = `https://yourdomain.com/api/invoice/${id}`;
-    Linking.openURL(url);
-  };
+  if (!summary) return <Text>Loading...</Text>;
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={plans}
-        keyExtractor={item => item._id}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.title}>{item.planId.title}</Text>
-            <Text>
-              ₹{item.pricePaid} | {item.paymentMethod}
-            </Text>
-            <Text>{new Date(item.createdAt).toLocaleDateString()}</Text>
-            <Button
-              title="Download Invoice"
-              onPress={() => downloadInvoice(item._id)}
-            />
-          </View>
-        )}
-      />
-    </View>
+    <ScrollView contentContainerStyle={{ padding: 16 }}>
+      <Text style={{ fontWeight: "bold", fontSize: 18 }}>Purchase Summary</Text>
+      <Text>Plan: {summary.planId.name}</Text>
+      <Text>Price: ₹{summary.amountPaid}</Text>
+      <Text>Payment: {summary.paymentMethod}</Text>
+      {summary.addons?.length > 0 && summary.addons.map((a, i) => (
+        <Text key={i}>Addon: {a.name} (+₹{a.price})</Text>
+      ))}
+      <Text>Signature: {summary.signatureMetadata?.signature}</Text>
+      <Text>Version: {summary.signatureMetadata?.version}</Text>
+      <Text>Device: {summary.signatureMetadata?.device}</Text>
+    </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { padding: 20 },
-  card: {
-    padding: 15,
-    marginBottom: 15,
-    backgroundColor: '#eee',
-    borderRadius: 8,
-  },
-  title: { fontWeight: 'bold', fontSize: 16, marginBottom: 5 },
-});
 
 export default PurchaseSummaryScreen;

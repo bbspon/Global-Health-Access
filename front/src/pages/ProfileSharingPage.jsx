@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Alert } from "react-bootstrap";
 
 const ProfileSharingPage = () => {
   const [settings, setSettings] = useState({
@@ -10,18 +10,57 @@ const ProfileSharingPage = () => {
     showAppointments: false,
   });
 
-  const userId = localStorage.getItem("userId");
+  const [message, setMessage] = useState(null);
+  const [error, setError] = useState(null);
+
+  const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+  console.log("📦 bbsUserData:", bbsUserData);
+
+  const userId = bbsUserData?.user?.id; // ✅ use `id`, not `_id`
   const shareLink = `${window.location.origin}/shared-profile/${userId}`;
 
   useEffect(() => {
-    axios.get("/api/public-profile/settings").then((res) => {
-      if (res.data) setSettings(res.data);
-    });
+    const fetchSettings = async () => {
+      try {
+        const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+        const token = bbsUserData?.token;
+        const res = await axios.get(
+          "http://localhost:5000/api/public-profile/settings",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (res.data) setSettings(res.data);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load your sharing settings.");
+      }
+    };
+    fetchSettings();
   }, []);
 
   const handleSave = async () => {
-    await axios.post("/api/public-profile/settings", settings);
-    alert("Sharing settings saved");
+    try {
+      const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+      const token = bbsUserData?.token;
+      const res = await axios.post(
+        "http://localhost:5000/api/public-profile/settings",
+        settings,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setMessage("Sharing settings saved successfully.");
+      setError(null);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to save settings.");
+      setMessage(null);
+    }
   };
 
   const shareOnWhatsApp = () => {
@@ -34,6 +73,9 @@ const ProfileSharingPage = () => {
   return (
     <div className="container py-4">
       <h4>Control What You Share</h4>
+
+      {message && <Alert variant="success">{message}</Alert>}
+      {error && <Alert variant="danger">{error}</Alert>}
 
       <Form>
         <Form.Check

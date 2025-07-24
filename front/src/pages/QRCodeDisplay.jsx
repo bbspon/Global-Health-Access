@@ -1,50 +1,43 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Alert } from "react-bootstrap";
-import QRCode from "qrcode.react";
 import axios from "axios";
 
 const QRCodeDisplay = () => {
-  const [qrData, setQrData] = useState("");
+  const [qrUrl, setQrUrl] = useState(null);
+  const [planInfo, setPlanInfo] = useState(null);
 
   useEffect(() => {
-    // Simulate or replace with actual API
+   const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+   const token = bbsUserData?.token;
+   console.log(token, "token");
     axios
-      .get("/api/user-qr")
-      .then((res) => setQrData(res.data.qrCode))
-      .catch(() => {});
+      .get("http://localhost:5000/api/user/qr", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        setQrUrl(res.data.qr);
+        setPlanInfo(res.data.info);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch QR code", err);
+      });
   }, []);
 
-  const handleDownload = () => {
-    const canvas = document.getElementById("user-qr");
-    const pngUrl = canvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.download = "health-card-qr.png";
-    link.href = pngUrl;
-    link.click();
-  };
+  if (!qrUrl) return <p>Loading your health card...</p>;
 
   return (
-    <div className="container py-4">
-      <h3>Your Health QR Code</h3>
-      {qrData ? (
-        <Card className="p-4 text-center shadow-sm">
-          <QRCode id="user-qr" value={qrData} size={180} />
-          <p className="mt-3 text-muted">
-            Show this QR at partnered hospitals, labs, and pharmacy.
-          </p>
-          <div className="d-flex justify-content-center gap-3 mt-3">
-            <Button variant="primary" onClick={handleDownload}>
-              Download QR
-            </Button>
-            <Button variant="secondary">Share</Button>
-            <Button variant="outline-danger">Refresh</Button>
-          </div>
-        </Card>
-      ) : (
-        <Alert variant="warning">
-          QR not available. Please activate your plan.
-        </Alert>
-      )}
+    <div className="text-center">
+      <h5>Your Digital Health Access Card</h5>
+      <img src={qrUrl} alt="Health QR" style={{ width: "200px" }} />
+      <p>
+        <strong>Plan:</strong> {planInfo.planName}
+      </p>
+      <p>
+        <strong>Valid Until:</strong>{" "}
+        {new Date(planInfo.endDate).toDateString()}
+      </p>
+      <p>
+        <strong>Txn ID:</strong> {planInfo.transactionId}
+      </p>
     </div>
   );
 };

@@ -1,48 +1,50 @@
-import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
-import axios from 'axios';
+// WalletTopupScreen.js
+import React, { useState } from "react";
+import { View, Text, TextInput, Button, Alert, StyleSheet } from "react-native";
+import { topupWallet } from "../services/walletAPI";
 
 const WalletTopupScreen = () => {
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState("");
 
   const handleTopup = async () => {
-    const { data } = await axios.post(
-      'https://yourdomain.com/api/wallet/topup-order',
-      { amount },
-    );
-
-    const html = `
-      <html><body>
-      <script src="https://checkout.razorpay.com/v1/checkout.js"
-      data-key="RAZORPAY_KEY_HERE"
-      data-amount="${data.order.amount}"
-      data-currency="INR"
-      data-order_id="${data.order.id}"
-      data-name="BBSCART Wallet"
-      data-description="Top-Up"
-      ></script></body></html>`;
-
-    const uri = `data:text/html,${encodeURIComponent(html)}`;
-    navigation.navigate('WebViewScreen', { uri });
+    const token = JSON.parse(localStorage.getItem("bbsUser"))?.token;
+    try {
+      await topupWallet({
+        amount,
+        method: "UPI",
+        referenceId: "TXN" + Date.now(),
+        token,
+      });
+      Alert.alert("Success", "Wallet Top-up Successful");
+    } catch {
+      Alert.alert("Error", "Top-up failed");
+    }
   };
 
   return (
     <View style={styles.container}>
+      <Text style={styles.label}>Enter Amount (₹)</Text>
       <TextInput
-        placeholder="Enter amount"
+        style={styles.input}
         keyboardType="numeric"
         value={amount}
-        onChangeText={val => setAmount(val)}
-        style={styles.input}
+        onChangeText={setAmount}
       />
-      <Button title="Top-Up Now" onPress={handleTopup} disabled={!amount} />
+      <Button title="Add Money" onPress={handleTopup} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 20 },
-  input: { borderBottomWidth: 1, marginBottom: 20, padding: 10 },
+  container: { padding: 20, marginTop: 40 },
+  label: { fontSize: 18, marginBottom: 10 },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 12,
+    marginBottom: 20,
+    borderRadius: 6,
+  },
 });
 
 export default WalletTopupScreen;

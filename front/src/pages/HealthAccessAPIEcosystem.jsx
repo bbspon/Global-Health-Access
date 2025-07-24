@@ -47,18 +47,24 @@ const HealthAccessAPIEcosystem = () => {
     { name: 'NGO Onboarding API', desc: 'Bulk upload CSV for mass plan distribution' },
   ];
 
-  const handleSendRequest = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setApiResponse({
-        status: 200,
-        message: "Patient is eligible for BBSCART Platinum Plan",
-        plan: "Platinum",
-        validTill: "2025-12-31",
-      });
-      setLoading(false);
-    }, 1500);
-  };
+const handleSendRequest = async () => {
+  setLoading(true);
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/health-access/check-eligibility",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: "123", hospitalId: "ABC" }),
+      }
+    );
+    const data = await res.json();
+    setApiResponse(data);
+  } catch (err) {
+    console.error("Eligibility API Error", err);
+  }
+  setLoading(false);
+};
 
   const handleWhiteLabelGenerate = () => {
     alert("✅ Branded app successfully generated and deployed!");

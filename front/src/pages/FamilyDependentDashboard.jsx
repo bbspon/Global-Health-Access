@@ -1,6 +1,6 @@
 // File: FamilyDependentDashboard.jsx
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Row,
@@ -13,33 +13,16 @@ import {
   InputGroup,
   Spinner,
 } from "react-bootstrap";
-import { PeopleFill, PersonBadge, ShieldLock, StarFill } from "react-bootstrap-icons";
-
-const dummyFamily = [
-  {
-    id: 1,
-    name: "Aryan Sharma",
-    role: "Son",
-    age: 10,
-    tier: "Basic",
-    permissions: ["book", "alerts"],
-    healthSummary: "Mild anemia detected. Dietary changes suggested.",
-    features: ["Vaccination Tracker", "Pediatric Logs", "Growth Tracking"],
-  },
-  {
-    id: 2,
-    name: "Sita Sharma",
-    role: "Mother",
-    age: 68,
-    tier: "Premium",
-    permissions: ["book", "view", "reminders"],
-    healthSummary: "Stable sugar levels, cardiac review due in 1 month.",
-    features: ["Geriatric Tools", "Fall Risk", "Vitals Reminder"],
-  },
-];
+import {
+  PeopleFill,
+  PersonBadge,
+  ShieldLock,
+  StarFill,
+} from "react-bootstrap-icons";
+import axios from "axios";
 
 export default function FamilyDependentDashboard() {
-  const [members, setMembers] = useState(dummyFamily);
+  const [members, setMembers] = useState([]);
   const [selected, setSelected] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -61,6 +44,34 @@ export default function FamilyDependentDashboard() {
       alert("Appointment booked successfully!");
     }, 1500);
   };
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+        const token = bbsUserData?.token;
+
+        // ✅ Fallback for different key names: 'id' or '_id'
+        const userId = bbsUserData?.user?.id || bbsUserData?.user?._id;
+
+        console.log("Fetched userId:", userId);
+
+        if (!userId) {
+          console.warn("userId is missing in bbsUser object");
+          return;
+        }
+
+        const res = await axios.get(
+          `http://localhost:5000/api/family-dashboard?userId=${userId}`
+        );
+
+        setMembers(res.data.data || []);
+      } catch (err) {
+        console.error("Error loading family dashboard", err);
+      }
+    };
+
+    fetchMembers();
+  }, []);
 
   return (
     <Container className="py-4">
@@ -68,35 +79,40 @@ export default function FamilyDependentDashboard() {
         <PeopleFill className="me-2" /> Family & Dependents
       </h3>
       <Row>
-        {members.map((m) => (
-          <Col md={6} lg={4} className="mb-4" key={m.id}>
-            <Card className="shadow rounded-4">
-              <Card.Body>
-                <Card.Title>{m.name}</Card.Title>
-                <p>
-                  <PersonBadge className="me-2" /> Role: {m.role} | Age: {m.age}
-                </p>
-                <Badge bg="info" className="me-2">
-                  Plan: {m.tier}
-                </Badge>
-                <Badge bg="warning" className="me-2">
-                  {m.permissions.length} Permissions
-                </Badge>
-                <p className="mt-2">
-                  <strong>Summary:</strong>
-                  <br /> {m.healthSummary}
-                </p>
-                <Button
-                  variant="primary"
-                  className="w-100 mt-3"
-                  onClick={() => openModal(m)}
-                >
-                  View Profile
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
+        {members.length === 0 ? (
+          <p>No members found or still loading...</p>
+        ) : (
+          members.map((m) => (
+            <Col md={6} lg={4} className="mb-4" key={m.id}>
+              <Card className="shadow rounded-4">
+                <Card.Body>
+                  <Card.Title>{m.memberName}</Card.Title> // ✅
+                  <p>
+                    <PersonBadge className="me-2" /> Role: {m.role} | Age:{" "}
+                    {m.age}
+                  </p>
+                  <Badge bg="info" className="me-2">
+                    Plan: {m.tier}
+                  </Badge>
+                  <Badge bg="warning" className="me-2">
+                    {m.permissions.length} Permissions
+                  </Badge>
+                  <p className="mt-2">
+                    <strong>Summary:</strong>
+                    <br /> {m.healthSummary}
+                  </p>
+                  <Button
+                    variant="primary"
+                    className="w-100 mt-3"
+                    onClick={() => openModal(m)}
+                  >
+                    View Profile
+                  </Button>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))
+        )}
       </Row>
 
       <Modal show={showModal} onHide={closeModal} centered size="lg">
@@ -130,7 +146,8 @@ export default function FamilyDependentDashboard() {
         <Modal.Footer>
           {loading ? (
             <Button variant="success" disabled>
-              <Spinner size="sm" animation="border" className="me-2" /> Booking...
+              <Spinner size="sm" animation="border" className="me-2" />{" "}
+              Booking...
             </Button>
           ) : (
             <Button variant="success" onClick={handleBook}>

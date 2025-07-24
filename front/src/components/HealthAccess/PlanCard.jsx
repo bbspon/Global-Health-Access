@@ -1,7 +1,10 @@
 import React from "react";
 import { Card, Button, Badge } from "react-bootstrap";
+import { useNavigate, Link } from "react-router-dom";
 
-const PlanCard = ({ plan, onBuyClick }) => {
+const PlanCard = ({ plan }) => {
+  const navigate = useNavigate();
+
   const getBadgeColor = (tier) => {
     switch (tier) {
       case "basic":
@@ -13,6 +16,11 @@ const PlanCard = ({ plan, onBuyClick }) => {
       default:
         return "dark";
     }
+  };
+
+  const handleBuyClick = () => {
+    localStorage.setItem("selectedPlan", JSON.stringify(plan)); // ✅ Save selected plan
+    navigate("/health-access/buy-plan", { state: { plan } }); // ✅ Navigate with state
   };
 
   return (
@@ -39,9 +47,12 @@ const PlanCard = ({ plan, onBuyClick }) => {
           <Button variant="outline-primary" size="sm" disabled>
             Compare
           </Button>
-          <Button variant="success" size="sm" onClick={() => onBuyClick(plan)}>
+          <Button variant="success" size="sm" onClick={handleBuyClick}>
             Buy Now
           </Button>
+          <Link to={`/health-access/plan/${plan._id}`}>
+            <Button variant="info">View Details</Button>
+          </Link>
         </div>
       </Card.Body>
     </Card>

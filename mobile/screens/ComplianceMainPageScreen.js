@@ -11,33 +11,7 @@ import {
 } from 'react-native';
 import { Button, Card, Badge, ActivityIndicator } from 'react-native-paper';
 import { WebView } from 'react-native-webview';
-
-// Mock Partner Data
-const getMockPartners = async () => [
-  {
-    id: 'p1',
-    name: 'City Hospital',
-    type: 'Hospital',
-    kyc: 'Complete',
-    verified: true,
-    risk: 'Low',
-    syncStatus: 'Healthy',
-    docs: [
-      { name: 'License.pdf', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' },
-      { name: 'TaxCert.pdf', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' },
-    ],
-  },
-  {
-    id: 'p2',
-    name: 'LabX Diagnostics',
-    type: 'Lab',
-    kyc: 'Pending',
-    verified: false,
-    risk: 'High',
-    syncStatus: 'Offline',
-    docs: [],
-  },
-];
+import axios from 'axios';
 
 const getRiskColor = (risk) => {
   if (risk === 'High') return 'red';
@@ -45,19 +19,32 @@ const getRiskColor = (risk) => {
   return 'green';
 };
 
-export default function ComplianceDashboardScreen() {
+export default function ComplianceMainPageScreen() {
   const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [previewDoc, setPreviewDoc] = useState(null);
 
   useEffect(() => {
-    (async () => {
-      const data = await getMockPartners();
-      setPartners(data);
-      setLoading(false);
-    })();
+    fetchCompliancePartners();
   }, []);
+
+  const fetchCompliancePartners = async () => {
+    try {
+      const res = await axios.get('http://localhost:5000/api/compliance/main', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+        console.log("✅ Partner data:", res.data);
+
+      setPartners(res.data.data || []);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const renderPartner = ({ item }) => (
     <Card style={styles.card}>
@@ -66,8 +53,8 @@ export default function ComplianceDashboardScreen() {
         <Text>KYC: {item.kyc}</Text>
         <Text>Verified: {item.verified ? '✅' : '❌'}</Text>
         <Text style={{ color: getRiskColor(item.risk) }}>Risk: {item.risk}</Text>
-        <Text>Docs: {item.docs.length}</Text>
-        <Text>Sync: {item.syncStatus}</Text>
+        <Text>Docs: {item.docs?.length || 0}</Text>
+        <Text>Sync: {item.syncStatus || 'Unknown'}</Text>
       </Card.Content>
       <Card.Actions>
         <Button onPress={() => {
@@ -82,7 +69,7 @@ export default function ComplianceDashboardScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>🛡️ Compliance Dashboard (React Native)</Text>
+      <Text style={styles.header}>🛡️ Compliance Dashboard</Text>
 
       {loading ? (
         <ActivityIndicator />
@@ -90,11 +77,10 @@ export default function ComplianceDashboardScreen() {
         <FlatList
           data={partners}
           renderItem={renderPartner}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, index) => item._id || `partner-${index}`}
         />
       )}
 
-      {/* Partner Modal */}
       <Modal
         visible={!!selected}
         animationType="slide"
@@ -115,7 +101,7 @@ export default function ComplianceDashboardScreen() {
               <Text>Sync Status: {selected.syncStatus}</Text>
 
               <Text style={styles.label}>📄 Documents:</Text>
-              {selected.docs.length > 0 ? (
+              {selected.docs?.length > 0 ? (
                 selected.docs.map((doc, index) => (
                   <TouchableOpacity
                     key={index}

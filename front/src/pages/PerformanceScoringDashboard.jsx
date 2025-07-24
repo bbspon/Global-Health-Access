@@ -1,6 +1,4 @@
-// PerformanceScoringDashboard.jsx
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Row,
@@ -12,62 +10,7 @@ import {
   Table,
   Carousel,
 } from "react-bootstrap";
-
-const doctorsSample = [
-  {
-    id: 1,
-    name: "Dr. Asha Kumar",
-    specialty: "Pediatrics",
-    rating: 4.7,
-    empathyScore: 4.8,
-    consultationTimeliness: "On time",
-    prescriptionAccuracy: 99,
-    outcomeScore: 4.5,
-    followUpCompliance: 90,
-    communicationClarity: 4.7,
-  },
-  {
-    id: 2,
-    name: "Dr. Rajesh Mehta",
-    specialty: "Cardiology",
-    rating: 4.3,
-    empathyScore: 4.0,
-    consultationTimeliness: "Delayed 10 min",
-    prescriptionAccuracy: 95,
-    outcomeScore: 4.2,
-    followUpCompliance: 85,
-    communicationClarity: 4.4,
-  },
-  // Add more doctors as needed
-];
-
-const hospitalsSample = [
-  {
-    id: 1,
-    name: "ABC City Hospital",
-    bedAvailability: 85,
-    hygieneRating: 4.5,
-    equipmentReadiness: 97,
-    staffBehavior: 4.6,
-    queueManagement: "Excellent",
-    billingTransparency: "Clear",
-    emergencyResponseTime: "5 mins",
-    patientSafetyIndex: 98,
-  },
-  {
-    id: 2,
-    name: "Sunrise Medical Center",
-    bedAvailability: 65,
-    hygieneRating: 4.0,
-    equipmentReadiness: 90,
-    staffBehavior: 4.2,
-    queueManagement: "Good",
-    billingTransparency: "Mostly Clear",
-    emergencyResponseTime: "7 mins",
-    patientSafetyIndex: 95,
-  },
-  // Add more hospitals as needed
-];
+import axios from "axios";
 
 export default function PerformanceScoringDashboard() {
   const [selectedDoctor, setSelectedDoctor] = useState(null);
@@ -75,7 +18,29 @@ export default function PerformanceScoringDashboard() {
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [compareHospitals, setCompareHospitals] = useState([]);
   const [userSymptoms, setUserSymptoms] = useState("");
+  const [doctorList, setDoctorList] = useState([]);
+  const [hospitalList, setHospitalList] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
+
+  const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+  const token = bbsUserData?.token;
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/api/performance-scores", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        const doctors = res.data.data.filter((item) => item.role === "doctor");
+        const hospitals = res.data.data.filter(
+          (item) => item.role === "hospital"
+        );
+
+        setDoctorList(doctors);
+        setHospitalList(hospitals);
+        setSearchResults(doctors); // default view
+      })
+      .catch((err) => console.error("API Error:", err));
+  }, []);
 
   const openDoctorModal = (doctor) => {
     setSelectedDoctor(doctor);
@@ -92,17 +57,19 @@ export default function PerformanceScoringDashboard() {
 
   const handleSymptomSearch = () => {
     const keywords = userSymptoms.toLowerCase().split(" ");
-    const filtered = doctorsSample.filter((doc) =>
-      keywords.some((kw) => doc.specialty.toLowerCase().includes(kw))
+    const filtered = doctorList.filter((doc) =>
+      keywords.some((kw) => doc.specialty?.toLowerCase().includes(kw))
     );
-    setSearchResults(filtered.length ? filtered : doctorsSample);
+    setSearchResults(filtered.length ? filtered : doctorList);
   };
 
   const toggleCompareHospital = (hospital) => {
-    if (compareHospitals.some((h) => h.id === hospital.id)) {
-      setCompareHospitals(compareHospitals.filter((h) => h.id !== hospital.id));
+    if (compareHospitals.some((h) => h._id === hospital._id)) {
+      setCompareHospitals(
+        compareHospitals.filter((h) => h._id !== hospital._id)
+      );
     } else {
-      setCompareHospitals([...compareHospitals, hospital].slice(0, 3)); // max 3
+      setCompareHospitals([...compareHospitals, hospital].slice(0, 3)); // Max 3
     }
   };
 
@@ -112,7 +79,7 @@ export default function PerformanceScoringDashboard() {
         Hospital & Doctor Performance Scoring Engine
       </h2>
 
-      {/* Symptom Input & Search */}
+      {/* Symptom Input */}
       <Card className="mb-4">
         <Card.Body>
           <Form
@@ -138,89 +105,91 @@ export default function PerformanceScoringDashboard() {
         </Card.Body>
       </Card>
 
-      {/* Search Results */}
+      {/* Doctor Matches */}
       <h4>Doctor Matches</h4>
-      {searchResults.length === 0 && (
-        <p>No matches yet. Enter symptoms above and search.</p>
+      {searchResults.length === 0 ? (
+        <p>No doctor matches found.</p>
+      ) : (
+        <Row>
+          {searchResults.map((doc) => (
+            <Col md={4} key={doc._id} className="mb-3">
+              <Card>
+                <Card.Body>
+                  <Card.Title>{doc.name}</Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    {doc.specialty}
+                  </Card.Subtitle>
+                  <Card.Text>
+                    <strong>Rating:</strong> {doc.rating} ⭐ <br />
+                    <strong>Empathy Score:</strong> {doc.empathyScore} <br />
+                    <strong>Consultation Timeliness:</strong>{" "}
+                    {doc.consultationTimeliness} <br />
+                    <strong>Outcome Score:</strong> {doc.outcomeScore} <br />
+                  </Card.Text>
+                  <Button
+                    variant="info"
+                    size="sm"
+                    onClick={() => openDoctorModal(doc)}
+                  >
+                    View Details
+                  </Button>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
       )}
-      <Row>
-        {searchResults.map((doc) => (
-          <Col md={4} key={doc.id} className="mb-3">
-            <Card>
-              <Card.Body>
-                <Card.Title>{doc.name}</Card.Title>
-                <Card.Subtitle className="mb-2 text-muted">
-                  {doc.specialty}
-                </Card.Subtitle>
-                <Card.Text>
-                  <strong>Rating:</strong> {doc.rating} ⭐ <br />
-                  <strong>Empathy Score:</strong> {doc.empathyScore} <br />
-                  <strong>Consultation Timeliness:</strong>{" "}
-                  {doc.consultationTimeliness} <br />
-                  <strong>Outcome Score:</strong> {doc.outcomeScore} <br />
-                </Card.Text>
-                <Button variant="info" size="sm" onClick={() => openDoctorModal(doc)}>
-                  View Details
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
 
       {/* Doctor Detail Modal */}
-      <Modal show={showDoctorModal} onHide={closeDoctorModal} size="lg" centered>
+      <Modal
+        show={showDoctorModal}
+        onHide={closeDoctorModal}
+        size="lg"
+        centered
+      >
         <Modal.Header closeButton>
-          <Modal.Title>{selectedDoctor?.name} - Performance Details</Modal.Title>
+          <Modal.Title>
+            {selectedDoctor?.name} - Performance Details
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedDoctor && (
-            <>
-              <Table bordered striped>
-                <tbody>
-                  <tr>
-                    <td>Specialty</td>
-                    <td>{selectedDoctor.specialty}</td>
-                  </tr>
-                  <tr>
-                    <td>Patient Rating Avg.</td>
-                    <td>{selectedDoctor.rating} ⭐</td>
-                  </tr>
-                  <tr>
-                    <td>Empathy Score</td>
-                    <td>{selectedDoctor.empathyScore}</td>
-                  </tr>
-                  <tr>
-                    <td>Consultation Timeliness</td>
-                    <td>{selectedDoctor.consultationTimeliness}</td>
-                  </tr>
-                  <tr>
-                    <td>Prescription Accuracy (%)</td>
-                    <td>{selectedDoctor.prescriptionAccuracy}%</td>
-                  </tr>
-                  <tr>
-                    <td>Outcome-Based Score</td>
-                    <td>{selectedDoctor.outcomeScore}</td>
-                  </tr>
-                  <tr>
-                    <td>Follow-Up Compliance (%)</td>
-                    <td>{selectedDoctor.followUpCompliance}%</td>
-                  </tr>
-                  <tr>
-                    <td>Communication Clarity</td>
-                    <td>{selectedDoctor.communicationClarity}</td>
-                  </tr>
-                </tbody>
-              </Table>
-
-              {/* Coming Soon / Disabled Buttons */}
-              <Button variant="secondary" className="me-2" disabled>
-                Voice Feedback (Coming Soon)
-              </Button>
-              <Button variant="secondary" disabled>
-                Download Performance Report (Coming Soon)
-              </Button>
-            </>
+            <Table bordered striped>
+              <tbody>
+                <tr>
+                  <td>Specialty</td>
+                  <td>{selectedDoctor.specialty}</td>
+                </tr>
+                <tr>
+                  <td>Rating</td>
+                  <td>{selectedDoctor.rating} ⭐</td>
+                </tr>
+                <tr>
+                  <td>Empathy</td>
+                  <td>{selectedDoctor.empathyScore}</td>
+                </tr>
+                <tr>
+                  <td>Timeliness</td>
+                  <td>{selectedDoctor.consultationTimeliness}</td>
+                </tr>
+                <tr>
+                  <td>Prescription Accuracy</td>
+                  <td>{selectedDoctor.prescriptionAccuracy}%</td>
+                </tr>
+                <tr>
+                  <td>Outcome</td>
+                  <td>{selectedDoctor.outcomeScore}</td>
+                </tr>
+                <tr>
+                  <td>Follow-Up</td>
+                  <td>{selectedDoctor.followUpCompliance}%</td>
+                </tr>
+                <tr>
+                  <td>Communication</td>
+                  <td>{selectedDoctor.communicationClarity}</td>
+                </tr>
+              </tbody>
+            </Table>
           )}
         </Modal.Body>
         <Modal.Footer>
@@ -233,33 +202,35 @@ export default function PerformanceScoringDashboard() {
       {/* Hospitals Section */}
       <h4 className="mt-5">Hospitals & Facilities</h4>
       <Row>
-        {hospitalsSample.map((hosp) => (
-          <Col md={4} key={hosp.id} className="mb-3">
+        {hospitalList.map((hosp) => (
+          <Col md={4} key={hosp._id} className="mb-3">
             <Card>
               <Card.Body>
                 <Card.Title>{hosp.name}</Card.Title>
                 <Card.Text>
-                  <strong>Bed Availability:</strong> {hosp.bedAvailability}% <br />
-                  <strong>Hygiene Rating:</strong> {hosp.hygieneRating} ⭐ <br />
-                  <strong>Equipment Readiness:</strong> {hosp.equipmentReadiness}% <br />
-                  <strong>Staff Behavior:</strong> {hosp.staffBehavior} ⭐ <br />
-                  <strong>Queue Management:</strong> {hosp.queueManagement} <br />
-                  <strong>Billing Transparency:</strong> {hosp.billingTransparency} <br />
-                  <strong>Emergency Response Time:</strong> {hosp.emergencyResponseTime}{" "}
+                  <strong>Bed Availability:</strong> {hosp.bedAvailability}%{" "}
                   <br />
-                  <strong>Patient Safety Index:</strong> {hosp.patientSafetyIndex}%
+                  <strong>Hygiene:</strong> {hosp.hygieneRating} ⭐ <br />
+                  <strong>Equipment:</strong> {hosp.equipmentReadiness}% <br />
+                  <strong>Staff:</strong> {hosp.staffBehavior} ⭐ <br />
+                  <strong>Queue:</strong> {hosp.queueManagement} <br />
+                  <strong>Billing:</strong> {hosp.billingTransparency} <br />
+                  <strong>Response Time:</strong> {hosp.emergencyResponseTime}{" "}
+                  <br />
+                  <strong>Safety:</strong> {hosp.patientSafetyIndex}%
                 </Card.Text>
                 <Form.Check
                   type="checkbox"
                   label="Select to Compare"
                   onChange={() => toggleCompareHospital(hosp)}
-                  checked={compareHospitals.some((h) => h.id === hosp.id)}
+                  checked={compareHospitals.some((h) => h._id === hosp._id)}
                 />
               </Card.Body>
             </Card>
           </Col>
         ))}
       </Row>
+
       <Button
         variant="primary"
         onClick={openCompareModal}
@@ -268,8 +239,13 @@ export default function PerformanceScoringDashboard() {
         Compare Selected Hospitals
       </Button>
 
-      {/* Compare Hospitals Modal */}
-      <Modal show={showCompareModal} onHide={closeCompareModal} size="xl" centered>
+      {/* Comparison Modal */}
+      <Modal
+        show={showCompareModal}
+        onHide={closeCompareModal}
+        size="xl"
+        centered
+      >
         <Modal.Header closeButton>
           <Modal.Title>Hospital Comparison</Modal.Title>
         </Modal.Header>
@@ -279,50 +255,26 @@ export default function PerformanceScoringDashboard() {
               <tr>
                 <th>Metric</th>
                 {compareHospitals.map((h) => (
-                  <th key={h.id}>{h.name}</th>
+                  <th key={h._id}>{h.name}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {[
-                "Bed Availability",
-                "Hygiene Rating",
-                "Equipment Readiness",
-                "Staff Behavior",
-                "Queue Management",
-                "Billing Transparency",
-                "Emergency Response Time",
-                "Patient Safety Index",
+                "bedAvailability",
+                "hygieneRating",
+                "equipmentReadiness",
+                "staffBehavior",
+                "queueManagement",
+                "billingTransparency",
+                "emergencyResponseTime",
+                "patientSafetyIndex",
               ].map((metric) => (
                 <tr key={metric}>
-                  <td>{metric}</td>
-                  {compareHospitals.map((h) => {
-                    if (metric === "Emergency Response Time") {
-                      return <td key={h.id}>{h.emergencyResponseTime}</td>;
-                    }
-                    if (metric === "Queue Management") {
-                      return <td key={h.id}>{h.queueManagement}</td>;
-                    }
-                    if (metric === "Billing Transparency") {
-                      return <td key={h.id}>{h.billingTransparency}</td>;
-                    }
-                    switch (metric) {
-                      case "Bed Availability":
-                        return <td key={h.id}>{h.bedAvailability}%</td>;
-                      case "Hygiene Rating":
-                        return (
-                          <td key={h.id}>{h.hygieneRating} ⭐</td>
-                        );
-                      case "Equipment Readiness":
-                        return <td key={h.id}>{h.equipmentReadiness}%</td>;
-                      case "Staff Behavior":
-                        return <td key={h.id}>{h.staffBehavior} ⭐</td>;
-                      case "Patient Safety Index":
-                        return <td key={h.id}>{h.patientSafetyIndex}%</td>;
-                      default:
-                        return <td key={h.id}>N/A</td>;
-                    }
-                  })}
+                  <td>{metric.replace(/([A-Z])/g, " $1")}</td>
+                  {compareHospitals.map((h) => (
+                    <td key={h._id}>{h[metric]}</td>
+                  ))}
                 </tr>
               ))}
             </tbody>
@@ -334,55 +286,6 @@ export default function PerformanceScoringDashboard() {
           </Button>
         </Modal.Footer>
       </Modal>
-
-      {/* Public Transparency: Top Rated Doctors Carousel */}
-      <h4 className="mt-5">Top Rated Doctors</h4>
-      <Carousel>
-        {doctorsSample.map((doc) => (
-          <Carousel.Item key={doc.id}>
-            <Card className="text-center p-3 bg-light">
-              <Card.Body>
-                <Card.Title>{doc.name}</Card.Title>
-                <Card.Subtitle className="mb-2 text-muted">
-                  {doc.specialty}
-                </Card.Subtitle>
-                <Card.Text>
-                  ⭐ Rating: {doc.rating} <br />
-                  Empathy Score: {doc.empathyScore}
-                </Card.Text>
-                <Button variant="outline-primary" onClick={() => openDoctorModal(doc)}>
-                  View Profile
-                </Button>
-              </Card.Body>
-            </Card>
-          </Carousel.Item>
-        ))}
-      </Carousel>
-
-      {/* Admin Compliance Dashboard (Simplified) */}
-      <h4 className="mt-5">Admin & Compliance Monitoring</h4>
-      <Card>
-        <Card.Body>
-          <p>
-            <strong>Feedback Review Board:</strong> Review flagged reviews,
-            moderate content.
-          </p>
-          <p>
-            <strong>Risk Hospitals List:</strong> Hospitals flagged for audit/intervention.
-          </p>
-          <p>
-            <strong>AI Score Override Tool:</strong> Manually adjust scores if AI
-            misclassifies.
-          </p>
-          <p>
-            <strong>Escalation Routing:</strong> Auto-route complaints to
-            authorities.
-          </p>
-          <Button variant="secondary" disabled>
-            Open Admin Panel (Coming Soon)
-          </Button>
-        </Card.Body>
-      </Card>
     </Container>
   );
 }

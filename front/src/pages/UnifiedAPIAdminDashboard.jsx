@@ -1,6 +1,6 @@
 // UnifiedAPIAdminDashboard.jsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Table,
@@ -9,38 +9,38 @@ import {
   Alert,
   Spinner,
   Badge,
-} from 'react-bootstrap';
+} from "react-bootstrap";
 
 const mockPartners = [
   {
     id: 1,
-    name: 'Apollo Hospitals',
-    type: 'Hospital',
-    status: 'Live',
-    lastCall: '5 mins ago',
-    country: 'India',
-    version: 'v1.2',
-    endpoint: '/api/hospital/v1',
+    name: "Apollo Hospitals",
+    type: "Hospital",
+    status: "Live",
+    lastCall: "5 mins ago",
+    country: "India",
+    version: "v1.2",
+    endpoint: "/api/hospital/v1",
   },
   {
     id: 2,
-    name: 'SRL Diagnostics',
-    type: 'Lab',
-    status: 'Pending',
-    lastCall: 'N/A',
-    country: 'India',
-    version: 'v1.0',
-    endpoint: '/api/lab/v1',
+    name: "SRL Diagnostics",
+    type: "Lab",
+    status: "Pending",
+    lastCall: "N/A",
+    country: "India",
+    version: "v1.0",
+    endpoint: "/api/lab/v1",
   },
   {
     id: 3,
-    name: '1mg Pharmacy',
-    type: 'Pharmacy',
-    status: 'Live',
-    lastCall: '2 mins ago',
-    country: 'UAE',
-    version: 'v1.1',
-    endpoint: '/api/pharmacy/v1',
+    name: "1mg Pharmacy",
+    type: "Pharmacy",
+    status: "Live",
+    lastCall: "2 mins ago",
+    country: "UAE",
+    version: "v1.1",
+    endpoint: "/api/pharmacy/v1",
   },
 ];
 
@@ -50,13 +50,19 @@ export default function UnifiedAPIAdminDashboard() {
   const [showModal, setShowModal] = useState(false);
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
-    // Simulate API fetch
-    setTimeout(() => {
-      setPartners(mockPartners);
-      setLoading(false);
-    }, 1000);
+    const fetchPartners = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/unified-api");
+        const data = await res.json();
+        setPartners(data);
+      } catch (err) {
+        setAlert({ type: "danger", message: "Failed to load API partners." });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPartners();
   }, []);
 
   const handleView = (partner) => {
@@ -64,16 +70,27 @@ export default function UnifiedAPIAdminDashboard() {
     setShowModal(true);
   };
 
-  const handleApprove = () => {
-    if (!selectedPartner) return;
-    const updated = partners.map((p) =>
-      p.id === selectedPartner.id
-        ? { ...p, status: 'Live', lastCall: 'Just now' }
-        : p
-    );
-    setPartners(updated);
-    setAlert({ type: 'success', message: `${selectedPartner.name} activated.` });
-    setShowModal(false);
+  const handleApprove = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/unified-api/activate/${selectedPartner._id}`,
+        {
+          method: "PUT",
+        }
+      );
+      const updatedPartner = await res.json();
+      const updated = partners.map((p) =>
+        p._id === updatedPartner._id ? updatedPartner : p
+      );
+      setPartners(updated);
+      setAlert({
+        type: "success",
+        message: `${updatedPartner.name} activated.`,
+      });
+      setShowModal(false);
+    } catch (err) {
+      setAlert({ type: "danger", message: "Activation failed." });
+    }
   };
 
   return (
@@ -100,22 +117,32 @@ export default function UnifiedAPIAdminDashboard() {
           </thead>
           <tbody>
             {partners.map((partner) => (
-              <tr key={partner.id}>
+              <tr key={partner._id || partner.id}>
                 <td>{partner.name}</td>
                 <td>{partner.type}</td>
                 <td>
-                  <Badge bg={partner.status === 'Live' ? 'success' : 'secondary'}>
+                  <span
+                    className={`badge ${
+                      partner.status === "Live" ? "bg-success" : "bg-secondary"
+                    }`}
+                  >
                     {partner.status}
-                  </Badge>
+                  </span>
                 </td>
                 <td>{partner.lastCall}</td>
                 <td>{partner.country}</td>
                 <td>{partner.version}</td>
                 <td>{partner.endpoint}</td>
                 <td>
-                  <Button size="sm" variant="info" onClick={() => handleView(partner)}>
+                  <button
+                    className="btn btn-info btn-sm"
+                    onClick={() => {
+                      setSelectedPartner(partner);
+                      setShowModal(true);
+                    }}
+                  >
                     View / Manage
-                  </Button>
+                  </button>
                 </td>
               </tr>
             ))}
@@ -131,14 +158,28 @@ export default function UnifiedAPIAdminDashboard() {
         <Modal.Body>
           {selectedPartner && (
             <>
-              <p><strong>Name:</strong> {selectedPartner.name}</p>
-              <p><strong>Type:</strong> {selectedPartner.type}</p>
-              <p><strong>Status:</strong> {selectedPartner.status}</p>
-              <p><strong>Last API Call:</strong> {selectedPartner.lastCall}</p>
-              <p><strong>Country:</strong> {selectedPartner.country}</p>
-              <p><strong>API Version:</strong> {selectedPartner.version}</p>
-              <p><strong>Endpoint:</strong> {selectedPartner.endpoint}</p>
-              {selectedPartner.status !== 'Live' && (
+              <p>
+                <strong>Name:</strong> {selectedPartner.name}
+              </p>
+              <p>
+                <strong>Type:</strong> {selectedPartner.type}
+              </p>
+              <p>
+                <strong>Status:</strong> {selectedPartner.status}
+              </p>
+              <p>
+                <strong>Last API Call:</strong> {selectedPartner.lastCall}
+              </p>
+              <p>
+                <strong>Country:</strong> {selectedPartner.country}
+              </p>
+              <p>
+                <strong>API Version:</strong> {selectedPartner.version}
+              </p>
+              <p>
+                <strong>Endpoint:</strong> {selectedPartner.endpoint}
+              </p>
+              {selectedPartner.status !== "Live" && (
                 <Button variant="success" onClick={handleApprove}>
                   Approve & Activate
                 </Button>

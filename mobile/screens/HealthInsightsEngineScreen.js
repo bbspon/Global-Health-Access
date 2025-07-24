@@ -10,6 +10,8 @@ import {
   Platform,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const regions = ["All India", "Delhi", "Maharashtra", "Tamil Nadu", "UAE"];
 const diseases = [
@@ -60,15 +62,17 @@ export default function HealthInsightsEngine() {
   const [showImpactModal, setShowImpactModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
-  useEffect(() => {
-    setLoading(true);
-    simulateFetchData({ region: selectedRegion, disease: selectedDisease }).then(
-      (res) => {
-        setData(res);
-        setLoading(false);
-      }
-    );
-  }, [selectedRegion, selectedDisease]);
+useEffect(() => {
+  setLoading(true);
+  fetchHealthInsights({
+    region: selectedRegion,
+    disease: selectedDisease,
+  }).then((res) => {
+    setData(res);
+    setLoading(false);
+  });
+}, [selectedRegion, selectedDisease]);
+
 
   function resetFilters() {
     setSelectedRegion("All India");

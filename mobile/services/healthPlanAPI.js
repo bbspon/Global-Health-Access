@@ -23,10 +23,3 @@ export const purchasePlan = async (planId, paymentMethod) => {
   });
   return res.json();
 };
-export const getMyActivePlan = async () => {
-  const token = await AsyncStorage.getItem('token');
-  const res = await fetch('https://your-api.com/api/user/my-plan', {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return res.json();
-};

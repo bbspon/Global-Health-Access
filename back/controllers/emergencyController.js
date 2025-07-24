@@ -13,7 +13,7 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
   return R * c;
 };
 
-const triggerSOS = async (req, res) => {
+exports.triggerSOS = async (req, res) => {
   const { lat, lng, address } = req.body;
   const userId = req.user._id;
 
@@ -49,5 +49,11 @@ const triggerSOS = async (req, res) => {
 
   res.json({ message: "SOS triggered", hospital: nearest });
 };
-
-module.exports = { triggerSOS };
+exports.getLogs = async (req, res) => {
+  try {
+    const logs = await EmergencyLog.find().sort({ createdAt: -1 });
+    res.json(logs);
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Container,
   Row,
@@ -35,43 +36,71 @@ const InteropGovHealthSystem = () => {
   const [csvFile, setCsvFile] = useState(null);
   const [syncHistory, setSyncHistory] = useState([]);
 
-  const checkEligibility = () => {
+  // Load sync history on page load
+useEffect(() => {
+  axios
+    .get("http://localhost:5000/api/interop-gov") // ✅ This is what works in Postman
+    .then((res) => {
+      console.log("✅ Fetched sync history:", res.data);
+      const messages = res.data.data.map(
+        (entry) =>
+          `${entry.message} at ${new Date(entry.timestamp).toLocaleString()}`
+      );
+      setSyncHistory(messages);
+    })
+    .catch((err) => {
+      console.error("❌ Error loading sync history", err);
+    });
+}, []);
+
+
+  // Generic log sync action
+const logSync = async (type, message) => {
+  const payload = {
+    actionType: type,
+    message,
+    country: "India", // ✅ dummy or actual value
+    complianceLevel: "Full", // ✅ dummy or actual value
+  };
+
+  console.log("📤 Sending log sync: ", payload);
+
+  try {
+    await axios.post("http://localhost:5000/api/interop-gov", payload);
+    setSyncHistory((prev) => [
+      `${message} at ${new Date().toLocaleString()}`,
+      ...prev,
+    ]);
+  } catch (error) {
+    console.error("❌ Failed to log sync action", error);
+  }
+};
+
+  const checkEligibility = async () => {
     const result = {
       eligibleFor: "ESI + Ayushman Bharat",
       suggestions: ["Link ABHA ID", "Enable DigiLocker Sync"],
     };
     setEligibilityResult(result);
     setAiSuggestion("Your ESI does not cover OPD. Consider BBSCART Premium+.");
-    setSyncHistory((prev) => [
-      ...prev,
-      `Eligibility checked at ${new Date().toLocaleString()}`,
-    ]);
+    await logSync("eligibility", "Eligibility checked");
   };
 
-  const handleConsentToggle = () => {
-    setConsentGiven(!consentGiven);
+  const handleConsentToggle = async () => {
     const action = !consentGiven ? "Granted" : "Revoked";
-    setSyncHistory((prev) => [
-      ...prev,
-      `${action} consent at ${new Date().toLocaleString()}`,
-    ]);
+    setConsentGiven(!consentGiven);
+    await logSync("consent", `${action} consent`);
   };
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     setCsvFile(file);
-    setSyncHistory((prev) => [
-      ...prev,
-      `Uploaded NGO CSV file: ${file.name} at ${new Date().toLocaleString()}`,
-    ]);
+    await logSync("upload", `Uploaded NGO CSV file: ${file.name}`);
   };
 
-  const simulateDisasterZone = () => {
+  const simulateDisasterZone = async () => {
     setDisasterZone(true);
-    setSyncHistory((prev) => [
-      ...prev,
-      `Disaster alert simulated at ${new Date().toLocaleString()}`,
-    ]);
+    await logSync("disaster", "Disaster alert simulated");
   };
 
   return (
@@ -276,9 +305,16 @@ const InteropGovHealthSystem = () => {
           <Modal.Title>Linked Plan Overview</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p><strong>🟢 Government Plan:</strong> Ayushman Bharat</p>
-          <p><strong>🟡 BBSCART Plan:</strong> Basic Plan (OPD + Diagnostics)</p>
-          <p><strong>🔁 Suggestion:</strong> Upgrade to Premium+ to cover surgeries & emergencies</p>
+          <p>
+            <strong>🟢 Government Plan:</strong> Ayushman Bharat
+          </p>
+          <p>
+            <strong>🟡 BBSCART Plan:</strong> Basic Plan (OPD + Diagnostics)
+          </p>
+          <p>
+            <strong>🔁 Suggestion:</strong> Upgrade to Premium+ to cover
+            surgeries & emergencies
+          </p>
         </Modal.Body>
       </Modal>
     </Container>

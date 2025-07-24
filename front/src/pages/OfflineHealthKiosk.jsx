@@ -63,37 +63,52 @@ export default function OfflineAccessKiosk() {
   const [patientData, setPatientData] = useState(null);
   const [uploadFiles, setUploadFiles] = useState([]);
 
-  const handleFetchPatient = () => {
+  // This function should now fetch real patient data from MongoDB
+  const handleFetchPatient = async () => {
     if (!patientID.trim()) {
       alert(t.enterIdAlert);
       return;
     }
-    setPatientData({
-      name: "Ravi Kumar",
-      plan: "Rural Basic Care Plan",
-      history: [
-        "Visit: 2025-05-10 - Cold & Flu",
-        "Prescription: Paracetamol 500mg",
-        "Lab Test: Blood Sugar - Normal",
-      ],
-    });
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/kiosk/patient/${patientID}`
+      );
+      const data = await response.json();
+      setPatientData(data);
+    } catch (err) {
+      alert("Patient not found or server error");
+    }
   };
 
   const handleFileChange = (e) => {
     setUploadFiles(Array.from(e.target.files));
   };
 
-  const handleQueueSync = () => {
+  // This function should now send the uploaded prescriptions to backend
+  const handleQueueSync = async () => {
     if (uploadFiles.length === 0) {
       alert(t.noFilesAlert);
       return;
     }
-    alert(
-      `Queued ${uploadFiles.length} file(s) and data for Patient ID: ${patientID}`
-    );
-    setPatientID("");
-    setPatientData(null);
-    setUploadFiles([]);
+
+    const formData = new FormData();
+    formData.append("patientId", patientID);
+    uploadFiles.forEach((file) => formData.append("files", file));
+
+    try {
+      await fetch("http://localhost:5000/api/kiosk/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      alert("Upload successful. Data queued for sync.");
+      setPatientID("");
+      setPatientData(null);
+      setUploadFiles([]);
+    } catch (err) {
+      alert("Upload failed");
+    }
   };
 
   return (
@@ -157,9 +172,17 @@ export default function OfflineAccessKiosk() {
                   <strong>{t.medicalHistory}:</strong>
                 </p>
                 <ul>
-                  {patientData.history.map((entry, idx) => (
-                    <li key={idx}>{entry}</li>
-                  ))}
+                  {patientData &&
+                  patientData.history &&
+                  patientData.history.length > 0 ? (
+                    <ul>
+                      {patientData.history.map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>No patient history found.</p>
+                  )}
                 </ul>
 
                 {/* Document Upload */}

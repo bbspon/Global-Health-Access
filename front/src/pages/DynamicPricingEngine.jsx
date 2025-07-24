@@ -10,7 +10,9 @@ import {
   Modal,
   Alert,
   Badge,
+  Spinner,
 } from "react-bootstrap";
+import { calculateDynamicPrice } from "../services/dynamicPricingAPI";
 
 const basePlans = [
   {
@@ -40,17 +42,9 @@ export default function DynamicPricingEngine() {
   const [walletPoints, setWalletPoints] = useState(100);
   const [showModal, setShowModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [calculatedPrices, setCalculatedPrices] = useState({});
+  const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-
-  const calculatePrice = (plan) => {
-    let price = plan.basePrice;
-    if (userType === "ngo") price -= 1000;
-    else if (userType === "corporate") price -= 500;
-    if (location === "rural") price -= 200;
-    if (promo === "FEST500") price -= 500;
-    price -= walletPoints > 0 ? 100 : 0;
-    return price < 0 ? 0 : price;
-  };
 
   const handleBuyNow = (plan) => {
     setSelectedPlan(plan);
@@ -60,6 +54,34 @@ export default function DynamicPricingEngine() {
 
   const handleAddWallet = () => {
     setWalletPoints(walletPoints + 100);
+  };
+
+  const fetchDynamicPrices = async () => {
+    setLoading(true);
+    const token = JSON.parse(localStorage.getItem("bbsUser"))?.token;
+    const newPrices = {};
+
+    for (const plan of basePlans) {
+      const payload = {
+        planId: plan.id,
+        basePrice: plan.basePrice,
+        userType,
+        location,
+        promoCode: promo,
+        walletPoints,
+      };
+
+      try {
+        const result = await calculateDynamicPrice(payload, token);
+        newPrices[plan.id] = result.finalPrice;
+      } catch (error) {
+        console.error("Dynamic price error:", error);
+        newPrices[plan.id] = plan.basePrice; // fallback
+      }
+    }
+
+    setCalculatedPrices(newPrices);
+    setLoading(false);
   };
 
   return (
@@ -75,13 +97,6 @@ export default function DynamicPricingEngine() {
         <strong>{location.toUpperCase()}</strong> area. Promo Code:{" "}
         <strong>{promo || "None"}</strong>
       </Alert>
-
-      {showSuccess && selectedPlan && (
-        <Alert variant="success">
-          ✅ You have selected <strong>{selectedPlan.name}</strong> at{" "}
-          ₹{calculatePrice(selectedPlan)}. Payment flow coming soon!
-        </Alert>
-      )}
 
       <Row className="mb-3">
         <Col>
@@ -118,10 +133,31 @@ export default function DynamicPricingEngine() {
 
       <div className="d-flex justify-content-between align-items-center mb-2">
         <h5>Available Plans</h5>
-        <Button variant="outline-info" onClick={() => setShowModal(true)}>
-          Wallet: ₹{walletPoints}
-        </Button>
+        <div>
+          <Button
+            variant="outline-primary"
+            onClick={fetchDynamicPrices}
+            disabled={loading}
+          >
+            {loading ? (
+              <Spinner animation="border" size="sm" />
+            ) : (
+              "💡 Recalculate"
+            )}
+          </Button>{" "}
+          <Button variant="outline-info" onClick={() => setShowModal(true)}>
+            Wallet: ₹{walletPoints}
+          </Button>
+        </div>
       </div>
+
+      {showSuccess && selectedPlan && (
+        <Alert variant="success">
+          ✅ You have selected <strong>{selectedPlan.name}</strong> at ₹
+          {calculatedPrices[selectedPlan.id] ?? selectedPlan.basePrice}. Payment
+          flow coming soon!
+        </Alert>
+      )}
 
       {basePlans.map((plan) => (
         <Card className="mb-3 shadow-sm" key={plan.id}>
@@ -137,9 +173,15 @@ export default function DynamicPricingEngine() {
               </Col>
               <Col md={4} className="text-end">
                 <h6>
-                  <Badge bg="success">₹{calculatePrice(plan)}</Badge>
+                  <Badge bg="success">
+                    ₹{calculatedPrices[plan.id] ?? plan.basePrice}
+                  </Badge>
                 </h6>
-                <Button variant="primary" onClick={() => handleBuyNow(plan)}>
+                <Button
+                  variant="primary"
+                  onClick={() => handleBuyNow(plan)}
+                  disabled={loading}
+                >
                   Buy Now
                 </Button>
               </Col>
@@ -154,7 +196,7 @@ export default function DynamicPricingEngine() {
           <Modal.Title>💰 Wallet Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>You have ₹{walletPoints} in your Golldex Wallet.</p>
+          <p>You have ₹{walletPoints} in your Golddex Wallet.</p>
           <Button variant="outline-primary" onClick={handleAddWallet}>
             + Add ₹100
           </Button>
