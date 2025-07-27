@@ -20,6 +20,8 @@ import {
   InfoCircle,
 } from "react-bootstrap-icons";
 import HomeDashboard from "./HomeDashboard";
+import thia from '../assets/thia.png'
+import bbscart from '../assets/bbscart.png'
 
 const HealthObjectivePage = () => {
   const [content, setContent] = useState(null);
@@ -32,8 +34,40 @@ const HealthObjectivePage = () => {
   }, []);
 
   return (
-    <Container fluid className="my-4 p-5">
+    <Container fluid className="my-2 p-5">
       {/* 🔥 Header Section with Carousel Background */}
+      <Row className="mb-3">
+        <Col className="d-flex justify-content-center gap-3">
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            style={{ color: "black" }}
+
+            onClick={() => (window.location.href = "https://thiaworld.bbscart.com/")}
+          >
+            <img
+              src={thia}
+              alt="Thiaworld"
+              style={{ height: "40px", objectFit: "contain" }}
+            />Thiaworld Jewellery
+          </Button>
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            style={{ color: "black" }}
+
+            onClick={() => (window.location.href = "https://bbscart.com/")}
+          >
+            <img
+              src={bbscart}
+              alt="BBSCart"
+              style={{ height: "40px", objectFit: "contain" }}
+            /> BBSCart Online Shopping
+          </Button>
+        </Col>
+      </Row>
+
+
       <Card
         className="text-center mb-4 shadow-sm border-0 text-white position-relative overflow-hidden"
         style={{ height: "400px" }}
