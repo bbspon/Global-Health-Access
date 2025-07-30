@@ -1,7 +1,23 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Table, Button } from "react-bootstrap";
+import axios from "axios";
 
 const StaffManager = () => {
+  const [staffList, setStaffList] = useState([]);
+
+  useEffect(() => {
+    fetchStaff();
+  }, []);
+
+  const fetchStaff = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/staff");
+      setStaffList(res.data);
+    } catch (error) {
+      console.error("Error fetching staff:", error);
+    }
+  };
+
   return (
     <Container className="py-4">
       <h4>👥 Staff Access Manager</h4>
@@ -15,12 +31,16 @@ const StaffManager = () => {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Dr. Meera</td>
-            <td>Admin</td>
-            <td>Active</td>
-            <td><Button size="sm">Edit</Button></td>
-          </tr>
+          {staffList.map((staff) => (
+            <tr key={staff._id}>
+              <td>{staff.name}</td>
+              <td>{staff.role}</td>
+              <td>{staff.status}</td>
+              <td>
+                <Button size="sm">Edit</Button>
+              </td>
+            </tr>
+          ))}
         </tbody>
       </Table>
     </Container>

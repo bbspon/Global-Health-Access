@@ -7,21 +7,27 @@ const healthPlanSchema = new mongoose.Schema({
     enum: ["basic", "premium", "super_premium"],
     required: true,
   },
+  country: { type: String, required: true },
+  city: { type: String, required: true },
+
   description: String,
   features: [String],
+
   price: {
-    INR: Number,
-    AED: Number,
-    USD: Number,
+    INR: { type: Number, default: 0 },
+    AED: { type: Number, default: 0 },
+    USD: { type: Number, default: 0 },
   },
+
   addons: [
     {
-      name: { type: String },
-      description: { type: String },
-      price: { type: Number },
+      name: String,
+      description: String,
+      price: Number,
       included: { type: Boolean, default: false },
     },
   ],
+
   validityInDays: { type: Number, default: 365 },
   isActive: { type: Boolean, default: true },
   isRecommended: { type: Boolean, default: false },

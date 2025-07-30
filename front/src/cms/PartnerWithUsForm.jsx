@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Form, Button, Card } from 'react-bootstrap';
+import React, { useState } from "react";
+import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
+import axios from "axios";
 
 const partnerTypes = ["Hospital", "Lab", "Franchisee", "Agent"];
 
@@ -12,6 +13,10 @@ const initialForm = {
   organization: "",
   message: "",
   file: null,
+  accreditation: "",
+  license: "",
+  budget: "",
+  experience: "",
 };
 
 const PartnerWithUsForm = () => {
@@ -26,49 +31,92 @@ const PartnerWithUsForm = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submitted:', formData);
-    setSubmitted(true);
+    const formPayload = new FormData();
+
+    formPayload.append("partnerType", formData.type);
+    formPayload.append("fullName", formData.name);
+    formPayload.append("email", formData.email);
+    formPayload.append("phone", formData.phone);
+    formPayload.append("city", formData.city);
+    formPayload.append("organization", formData.organization);
+    formPayload.append("message", formData.message);
+    if (formData.file) formPayload.append("file", formData.file);
+
+    // Dynamic Fields
+    if (formData.type === "Hospital") {
+      formPayload.append("accreditation", formData.accreditation);
+    } else if (formData.type === "Lab") {
+      formPayload.append("licenseNumber", formData.license);
+    } else if (formData.type === "Franchisee") {
+      formPayload.append("investmentBudget", formData.budget);
+    } else if (formData.type === "Agent") {
+      formPayload.append("yearsOfExperience", formData.experience);
+    }
+
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/partner-inquiry/submit",
+        formPayload
+      );
+      console.log("✅ Submitted:", res.data);
+      setSubmitted(true);
+    } catch (err) {
+      console.error("❌ Failed:", err);
+      alert("Submission failed. Please try again.");
+    }
   };
 
   const dynamicFields = () => {
     switch (formData.type) {
-      case 'Hospital':
+      case "Hospital":
         return (
-          <>
-            <Form.Group className="mb-3">
-              <Form.Label>Accreditation (e.g., NABH)</Form.Label>
-              <Form.Control type="text" name="accreditation" onChange={handleChange} />
-            </Form.Group>
-          </>
+          <Form.Group className="mb-3">
+            <Form.Label>Accreditation (e.g., NABH)</Form.Label>
+            <Form.Control
+              type="text"
+              name="accreditation"
+              value={formData.accreditation}
+              onChange={handleChange}
+            />
+          </Form.Group>
         );
-      case 'Lab':
+      case "Lab":
         return (
-          <>
-            <Form.Group className="mb-3">
-              <Form.Label>License Number</Form.Label>
-              <Form.Control type="text" name="license" onChange={handleChange} />
-            </Form.Group>
-          </>
+          <Form.Group className="mb-3">
+            <Form.Label>License Number</Form.Label>
+            <Form.Control
+              type="text"
+              name="license"
+              value={formData.license}
+              onChange={handleChange}
+            />
+          </Form.Group>
         );
-      case 'Franchisee':
+      case "Franchisee":
         return (
-          <>
-            <Form.Group className="mb-3">
-              <Form.Label>Investment Budget (INR)</Form.Label>
-              <Form.Control type="number" name="budget" onChange={handleChange} />
-            </Form.Group>
-          </>
+          <Form.Group className="mb-3">
+            <Form.Label>Investment Budget (INR)</Form.Label>
+            <Form.Control
+              type="number"
+              name="budget"
+              value={formData.budget}
+              onChange={handleChange}
+            />
+          </Form.Group>
         );
-      case 'Agent':
+      case "Agent":
         return (
-          <>
-            <Form.Group className="mb-3">
-              <Form.Label>Experience (in years)</Form.Label>
-              <Form.Control type="number" name="experience" onChange={handleChange} />
-            </Form.Group>
-          </>
+          <Form.Group className="mb-3">
+            <Form.Label>Experience (in years)</Form.Label>
+            <Form.Control
+              type="number"
+              name="experience"
+              value={formData.experience}
+              onChange={handleChange}
+            />
+          </Form.Group>
         );
       default:
         return null;
@@ -89,9 +137,15 @@ const PartnerWithUsForm = () => {
               <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3">
                   <Form.Label>Partner Type</Form.Label>
-                  <Form.Select name="type" value={formData.type} onChange={handleChange}>
+                  <Form.Select
+                    name="type"
+                    value={formData.type}
+                    onChange={handleChange}
+                  >
                     {partnerTypes.map((type) => (
-                      <option key={type} value={type}>{type}</option>
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
                     ))}
                   </Form.Select>
                 </Form.Group>
@@ -100,33 +154,74 @@ const PartnerWithUsForm = () => {
 
                 <Form.Group className="mb-3">
                   <Form.Label>Full Name</Form.Label>
-                  <Form.Control type="text" name="name" required onChange={handleChange} />
+                  <Form.Control
+                    type="text"
+                    name="name"
+                    required
+                    value={formData.name}
+                    onChange={handleChange}
+                  />
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>Email</Form.Label>
-                  <Form.Control type="email" name="email" required onChange={handleChange} />
+                  <Form.Control
+                    type="email"
+                    name="email"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>Phone</Form.Label>
-                  <Form.Control type="text" name="phone" required onChange={handleChange} />
+                  <Form.Control
+                    type="text"
+                    name="phone"
+                    required
+                    value={formData.phone}
+                    onChange={handleChange}
+                  />
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>City</Form.Label>
-                  <Form.Control type="text" name="city" required onChange={handleChange} />
+                  <Form.Control
+                    type="text"
+                    name="city"
+                    required
+                    value={formData.city}
+                    onChange={handleChange}
+                  />
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>Organization Name</Form.Label>
-                  <Form.Control type="text" name="organization" onChange={handleChange} />
+                  <Form.Control
+                    type="text"
+                    name="organization"
+                    value={formData.organization}
+                    onChange={handleChange}
+                  />
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>Message</Form.Label>
-                  <Form.Control as="textarea" name="message" rows={3} onChange={handleChange} />
+                  <Form.Control
+                    as="textarea"
+                    name="message"
+                    rows={3}
+                    value={formData.message}
+                    onChange={handleChange}
+                  />
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>Upload Document (Optional)</Form.Label>
-                  <Form.Control type="file" name="file" onChange={handleChange} />
+                  <Form.Control
+                    type="file"
+                    name="file"
+                    onChange={handleChange}
+                  />
                 </Form.Group>
-                <Button type="submit" variant="primary">Submit Inquiry</Button>
+                <Button type="submit" variant="primary">
+                  Submit Inquiry
+                </Button>
               </Form>
             )}
           </Card>

@@ -10,6 +10,7 @@ import {
   Alert,
   Table,
 } from "react-bootstrap";
+import axios from "axios";
 
 const CoverageStatusDashboard = () => {
   const [userId, setUserId] = useState("");
@@ -19,66 +20,39 @@ const CoverageStatusDashboard = () => {
   const [simService, setSimService] = useState("");
   const [simResult, setSimResult] = useState(null);
 
-  // MOCK: Replace with real API call
-  const mockCoverageCheck = () => {
-    setCoverageResult({
-      user: "Fatima Sheikh",
-      plan: "Super Premium",
-      service: "OPD Consultation",
-      status: "Partially Covered",
-      copay: "₹300",
-      visitsUsed: 5,
-      visitsAllowed: 6,
-      amountLeft: "₹500",
-      nextEligibility: "12 Aug 2025",
-    });
+  // ✅ Real API: Check User Eligibility
+  const checkUserCoverage = async () => {
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/api/coverage/check?userId=${userId}`
+      );
+      setCoverageResult(res.data);
+    } catch (err) {
+      console.error("Coverage check error:", err);
+      alert("Unable to fetch coverage data");
+    }
   };
 
-  const handleSimulate = () => {
+  // ✅ Real API: Admin Plan Simulation
+  const handleSimulate = async () => {
     if (!simPlan || !simService) {
       alert("Please select a plan and enter a service type");
       return;
     }
 
-    let simulated = {
-      status: "Not Covered",
-      copay: "₹0",
-      visitsAllowed: 0,
-      visitsUsed: 0,
-      amountLeft: "₹0",
-    };
-
-    if (simPlan === "Super Premium") {
-      simulated = {
-        status: "✅ Fully Covered",
-        copay: "₹0",
-        visitsAllowed: 6,
-        visitsUsed: 2,
-        amountLeft: "₹4200",
-      };
-    } else if (simPlan === "Premium") {
-      simulated = {
-        status: "⚠️ Partially Covered",
-        copay: "₹250",
-        visitsAllowed: 4,
-        visitsUsed: 3,
-        amountLeft: "₹1200",
-      };
-    } else if (simPlan === "Basic") {
-      simulated = {
-        status: "❌ Not Covered",
-        copay: "₹500",
-        visitsAllowed: 2,
-        visitsUsed: 2,
-        amountLeft: "₹0",
-      };
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/coverage/simulate",
+        {
+          plan: simPlan,
+          service: simService,
+        }
+      );
+      setSimResult(res.data);
+    } catch (err) {
+      console.error("Simulation error:", err);
+      alert("Simulation failed");
     }
-
-    setSimResult({
-      plan: simPlan,
-      service: simService,
-      ...simulated,
-    });
   };
 
   return (
@@ -99,7 +73,7 @@ const CoverageStatusDashboard = () => {
               />
             </Col>
             <Col>
-              <Button onClick={mockCoverageCheck}>Check Eligibility</Button>
+              <Button onClick={checkUserCoverage}>Check Eligibility</Button>
             </Col>
           </Row>
         </Card.Body>

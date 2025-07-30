@@ -24,7 +24,7 @@ const healthIntelligenceRoutes = require("./routes/healthIntelligenceRoutes");
 const performanceRoutes = require("./routes/performanceScoreRoutes");
 const complianceRoutes = require("./routes/complianceRoutes");
 const complianceMainRoutes = require("./routes/complianceMainRoutes");
-const insuranceRoutes = require('./routes/insuranceRoutes'); // ✅ adjust the path if needed
+const insuranceRoutes = require("./routes/insuranceRoutes"); // ✅ adjust the path if needed
 const interopGovRoutes = require("./routes/interopGovRoutes");
 const unifiedAPIRoutes = require("./routes/unifiedAPIRoutes");
 const familyMemberRoutes = require("./routes/familyMemberRoutes");
@@ -52,10 +52,20 @@ const qrHealthpassRoutes = require("./routes/qrHealthPassRoutes");
 const profileShareRoutes = require("./routes/profileShareRoutes");
 const ecosystemRoutes = require("./routes/ecosystemRoutes");
 const healthAccessAPIRoutes = require("./routes/healthAccessAPI");
+const serviceAvailabilityRoutes = require("./routes/serviceAvailabilityRoutes");
+const supportTicketRoutes = require("./routes/supportTicketRoutes");
+const staffRoutes = require("./routes/staffRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
+const planComparisonRoutes = require("./routes/planComparisonRoutes");
+const partnerInquiryRoutes = require("./routes/partnerInquiryRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const coverageRoutes = require("./routes/coverageRoutes");
+const carePassRoutes = require("./routes/carePassRoutes");
+const regionRoutes = require("./routes/regionRoutes");
+
 const app = express();
 app.use(cors());
 app.use(express.json());
-const regionPlanRoutes = require("./routes/regionPlanRoutes");
 
 mongoose
   .connect(process.env.MONGO_URI, {
@@ -93,7 +103,7 @@ app.use("/api/health", healthIntelligenceRoutes);
 app.use("/api/performance-scores", performanceRoutes);
 app.use("/api/compliance", complianceRoutes);
 app.use("/api/compliance", complianceMainRoutes);
-app.use('/api/insurance', insuranceRoutes);            // ✅ mounts the router at /api/insurance
+app.use("/api/insurance", insuranceRoutes); // ✅ mounts the router at /api/insurance
 app.use("/api/interop-gov", interopGovRoutes);
 app.use("/api/unified-api", unifiedAPIRoutes);
 app.use("/api", familyMemberRoutes);
@@ -125,8 +135,17 @@ app.use("/api/public-profile", profileShareRoutes);
 app.use("/api/ecosystem", ecosystemRoutes);
 app.use("/api/health-plans", healthPlanRoutes);
 app.use("/api/health-access", healthAccessAPIRoutes);
-app.use("/api/plans", regionPlanRoutes);
+app.use("/api/service-availability", serviceAvailabilityRoutes);
+app.use("/api", supportTicketRoutes);
+app.use("/api/staff", staffRoutes);
+app.use("/api/analytics", analyticsRoutes);
+app.use("/api/plancomparison", planComparisonRoutes);
+app.use("/api/partner-inquiry", partnerInquiryRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/coverage", coverageRoutes);
+app.use("/api/carepass", carePassRoutes);
+app.use("/api/region", regionRoutes);
 
-app.listen(process.env.PORT || 5000, () =>  
+app.listen(process.env.PORT || 5000, () =>
   console.log(`Server running on port ${process.env.PORT || 5000}`)
 );

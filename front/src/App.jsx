@@ -129,6 +129,8 @@ import WellnessTrackerWidgets from "./cms/WellnessTracker";
 import WellnessTrackerPage from "./pages/WellnessTrackerPage";
 import HealthIDCard from "./pages/HealthIDCard";
 import ProfileSharingPage from "./pages/ProfileSharingPage";
+import PlanComparisonEditor from "./cms/PlanComparisonEditor";
+import PartnerWithUsForm from "./cms/PartnerWithUsForm";
 function App() {
   return (
     <AuthProvider>
@@ -154,11 +156,15 @@ function App() {
           path="/hospital/availability"
           element={<ServiceAvailability />}
         />
+        <Route
+          path="/hospital/plancomparison-editor"
+          element={<PlanComparisonEditor />}
+        />
         <Route path="/hospital/carepass-scan" element={<CarePassScanner />} />
-        <Route path="//hospital/staff" element={<HospitalBilling />} />
-        <Route path="/hospital/billing" element={<AnalyticsPage />} />
-        <Route path="/hospital/analytics" element={<SupportPage />} />
-        <Route path="/hospital/support" element={<StaffManager />} />
+        <Route path="/hospital/staff" element={<HospitalBilling />} />
+        <Route path="/hospital/analytics" element={<AnalyticsPage />} />
+        <Route path="/hospital/support" element={<SupportPage />} />
+        <Route path="/hospital/staff-manager" element={<StaffManager />} />
         <Route path="/hospital/notifications" element={<NotificationsPage />} />
         <Route
           path="/health-access/plan/:id/records"
@@ -344,11 +350,11 @@ function App() {
           path="/health-access/plan-eligibility"
           element={<PlanEligibilityPage />}
         />
+        <Route path="/health-access/partner" element={<PartnerWithUsForm />} />
         <Route path="/health-access/pay-plan" element={<PlanPaymentPage />} />
         <Route path="/admin" element={<HealthAccessCMS />}>
           <Route path="plan" element={<PlanBuilder />} />
           <Route path="hospital-cms" element={<HospitalCMS />} />
-
           <Route path="lab-cms" element={<LabCMS />} />
         </Route>
       </Routes>
