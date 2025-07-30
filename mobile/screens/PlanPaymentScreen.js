@@ -16,7 +16,7 @@ const PlanPaymentScreen = () => {
     setLoading(true);
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/plan/pay/initiate",
+        `${import.meta.env.VITE_API_URI}/plan/pay/initiate`,
         { planId, amount, method },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -34,7 +34,7 @@ const PlanPaymentScreen = () => {
     try {
       const paymentRef = "MOBILE_TXN_" + new Date().getTime();
       await axios.post(
-        "http://localhost:5000/api/plan/pay/confirm",
+        `${import.meta.env.VITE_API_URI}/plan/pay/confirm`,
         { txnId, paymentRef },
         { headers: { Authorization: `Bearer ${token}` } }
       );

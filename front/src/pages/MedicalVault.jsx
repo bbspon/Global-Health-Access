@@ -19,7 +19,7 @@ const token = bbsUserData?.token;
   // 🔁 Fetch Records
   const fetchRecords = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/medical-vault", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URI}/medical-vault`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRecords(res.data);
@@ -48,7 +48,7 @@ const token = bbsUserData?.token;
     try {
       setUploading(true);
       await axios.post(
-        "http://localhost:5000/api/medical-vault/upload",
+        `${import.meta.env.VITE_API_URI}/medical-vault/upload`,
         formData,
         {
           headers: {

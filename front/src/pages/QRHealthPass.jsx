@@ -42,7 +42,7 @@ const fetchTokenFromBackend = async () => {
   const token = bbsUserData?.token;
 
   try {
-    const res = await fetch("http://localhost:5000/api/qr/generate", {
+    const res = await fetch(`${import.meta.env.VITE_API_URI}/qr/generate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -71,7 +71,7 @@ const fetchTokenFromBackend = async () => {
      const token = bbsUserData?.token;
 
     try {
-      await fetch("http://localhost:5000/api/qr/scan", {
+      await fetch(`${import.meta.env.VITE_API_URI}/qr/scan`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, location }),

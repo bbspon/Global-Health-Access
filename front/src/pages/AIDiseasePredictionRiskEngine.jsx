@@ -57,7 +57,7 @@ const AIDiseasePredictionRiskEngine = () => {
     try {
       const token = JSON.parse(localStorage.getItem("bbsUser"))?.token;
       const res = await axios.post(
-        "http://localhost:5000/api/ai-risk/predict",
+        `${import.meta.env.VITE_API_URI}/ai-risk/predict`,
         {
           ...form,
           symptoms: form.symptoms.split(",").map((s) => s.trim()),

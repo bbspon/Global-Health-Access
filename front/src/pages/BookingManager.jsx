@@ -23,7 +23,7 @@ const BookingManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/appointments", form);
+      await axios.post(`${import.meta.env.VITE_API_URI}/appointments`, form);
       alert("Appointment Booked Successfully!");
       setShow(false);
       setForm({

@@ -10,7 +10,7 @@ const SupportPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/support/raise", {
+      const res = await axios.post(`${import.meta.env.VITE_API_URI}/support/raise`, {
         issueCategory,
         issueDescription,
       });

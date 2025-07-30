@@ -50,7 +50,7 @@ const HealthInsightsTrendsAI = () => {
       const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
       const token = bbsUserData?.token;
       const res = await axios.get(
-        "http://localhost:5000/api/health-insights-trends/me",
+        `${import.meta.env.VITE_API_URI}/health-insights-trends/me`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

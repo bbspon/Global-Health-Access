@@ -49,7 +49,7 @@ const HealthAccessEcosystem = () => {
 
       const userId = bbsUserData?.user?.id; // ✅ use `id`, not `_id`
       const res = await axios.post(
-        "http://localhost:5000/api/ecosystem/book-appointment",
+        `${import.meta.env.VITE_API_URI}/ecosystem/book-appointment`,
         {
           userId,
         }
@@ -75,7 +75,7 @@ const HealthAccessEcosystem = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/ecosystem/ai-health-coach",
+        `${import.meta.env.VITE_API_URI}/ecosystem/ai-health-coach`,
         {
           question: coachQuery,
         }

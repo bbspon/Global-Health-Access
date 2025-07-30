@@ -10,7 +10,7 @@ const PlanComparison = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/plans")
+      .get(`${import.meta.env.VITE_API_URI}/plans`)
       .then((res) => {
         setPlans(res.data);
         setLoading(false);

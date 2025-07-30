@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:5000/api/medical-vault";
+const API_BASE = `${import.meta.env.VITE_API_URI}/medical-vault`;
 
 export const fetchMedicalRecords = async () => {
       const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));

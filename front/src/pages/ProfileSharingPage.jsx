@@ -25,7 +25,7 @@ const ProfileSharingPage = () => {
         const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
         const token = bbsUserData?.token;
         const res = await axios.get(
-          "http://localhost:5000/api/public-profile/settings",
+          `${import.meta.env.VITE_API_URI}/public-profile/settings`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -46,7 +46,7 @@ const ProfileSharingPage = () => {
       const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
       const token = bbsUserData?.token;
       const res = await axios.post(
-        "http://localhost:5000/api/public-profile/settings",
+        `${import.meta.env.VITE_API_URI}/public-profile/settings`,
         settings,
         {
           headers: {

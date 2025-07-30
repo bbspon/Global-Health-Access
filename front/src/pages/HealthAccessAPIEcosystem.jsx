@@ -51,7 +51,7 @@ const handleSendRequest = async () => {
   setLoading(true);
   try {
     const res = await fetch(
-      "http://localhost:5000/api/health-access/check-eligibility",
+      `${import.meta.env.VITE_API_URI}/health-access/check-eligibility`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -86,7 +86,7 @@ const PlanComparisonEditor = () => {
 
   const handleSave = () => {
     axios
-      .post("http://localhost:5000/api/plancomparison", {
+      .post(`${import.meta.env.VITE_API_URI}/plancomparison`, {
         hospitalId,
         plans,
         rows,

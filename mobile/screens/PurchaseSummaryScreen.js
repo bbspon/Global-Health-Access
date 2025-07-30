@@ -8,7 +8,7 @@ const PurchaseSummaryScreen = () => {
   useEffect(() => {
     const fetchData = async () => {
       const token = await AsyncStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/api/user/summary", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URI}/user/summary`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSummary(res.data);

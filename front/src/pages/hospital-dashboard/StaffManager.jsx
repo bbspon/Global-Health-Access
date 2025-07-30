@@ -11,7 +11,7 @@ const StaffManager = () => {
 
   const fetchStaff = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/staff");
+      const res = await axios.get(`${import.meta.env.VITE_API_URI}/staff`);
       setStaffList(res.data);
     } catch (error) {
       console.error("Error fetching staff:", error);

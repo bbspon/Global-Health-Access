@@ -10,7 +10,7 @@ const HealthPlanRenewalScreen = () => {
   useEffect(() => {
     const fetchEligibility = async () => {
       const token = JSON.parse(await AsyncStorage.getItem("bbsUser"))?.token;
-      const res = await axios.get("http://localhost:5000/api/plan/check-renewal", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URI}/plan/check-renewal`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setInfo(res.data);
@@ -21,7 +21,7 @@ const HealthPlanRenewalScreen = () => {
 
   const handleRenew = async () => {
     const token = JSON.parse(await AsyncStorage.getItem("bbsUser"))?.token;
-    const res = await axios.post("http://localhost:5000/api/plan/renew", {}, {
+    const res = await axios.post(`${import.meta.env.VITE_API_URI}/plan/renew`, {}, {
       headers: { Authorization: `Bearer ${token}` },
     });
     setMsg(res.data.message);

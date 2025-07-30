@@ -55,7 +55,7 @@ export default function GrievanceResolutionSystem() {
 
    try {
      const res = await axios.post(
-       "http://localhost:5000/api/grievance/submit",
+       `${import.meta.env.VITE_API_URI}/grievance/submit`,
        formData,
        {
          headers: {

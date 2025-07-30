@@ -4,7 +4,7 @@ export const calculatePlanValue = async (payload) => {
   const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
   const token = bbsUserData?.token;
   const res = await axios.post(
-    "http://localhost:5000/api/plan-value/calculate",
+    `${import.meta.env.VITE_API_URI}/plan-value/calculate`,
     payload,
     { headers: { Authorization: `Bearer ${token}` } }
   );
@@ -14,7 +14,7 @@ export const calculatePlanValue = async (payload) => {
 export const getPlanValuePresets = async () => {
   const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
   const token = bbsUserData?.token;
-  const res = await axios.get("http://localhost:5000/api/plan-value/presets", {
+  const res = await axios.get(`${import.meta.env.VITE_API_URI}/plan-value/presets`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.data;

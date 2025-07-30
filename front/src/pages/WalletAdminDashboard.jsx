@@ -28,7 +28,7 @@ const WalletAdminDashboard = () => {
   // ✅ Load admin summary data
   const loadDashboardData = () => {
     setLoading(true);
-    fetch("http://localhost:5000/api/admin/wallet/summary")
+    fetch(`${import.meta.env.VITE_API_URI}/admin/wallet/summary`)
       .then((res) => res.json())
       .then((data) => {
         setWalletStats(data);
@@ -48,7 +48,7 @@ const WalletAdminDashboard = () => {
 
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/wallet/admin/wallet-history",
+          `${import.meta.env.VITE_API_URI}/wallet/admin/wallet-history`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -68,7 +68,7 @@ const WalletAdminDashboard = () => {
 
   // ✅ Update config
   const handleUpdateConfig = () => {
-    fetch("http://localhost:5000/api/admin/wallet/config", {
+    fetch(`${import.meta.env.VITE_API_URI}/admin/wallet/config`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -93,7 +93,7 @@ const WalletAdminDashboard = () => {
 
   // ✅ Manual credit
   const handleManualCredit = () => {
-    fetch("http://localhost:5000/api/admin/wallet/manual-credit", {
+    fetch(`${import.meta.env.VITE_API_URI}/admin/wallet/manual-credit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

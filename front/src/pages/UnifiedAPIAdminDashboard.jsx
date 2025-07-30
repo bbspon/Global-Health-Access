@@ -53,7 +53,7 @@ export default function UnifiedAPIAdminDashboard() {
   useEffect(() => {
     const fetchPartners = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/unified-api");
+        const res = await fetch(`${import.meta.env.VITE_API_URI}/unified-api`);
         const data = await res.json();
         setPartners(data);
       } catch (err) {

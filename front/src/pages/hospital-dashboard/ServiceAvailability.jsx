@@ -7,7 +7,7 @@ const ServiceAvailability = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/service-availability")
+      .get(`${import.meta.env.VITE_API_URI}/service-availability`)
       .then((res) => setServices(res.data))
       .catch((err) => console.error("❌ Error fetching data:", err));
   }, []);

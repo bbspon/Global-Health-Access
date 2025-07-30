@@ -26,7 +26,7 @@ export default function PerformanceScoringDashboard() {
   const token = bbsUserData?.token;
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/performance-scores", {
+      .get(`${import.meta.env.VITE_API_URI}/performance-scores`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {

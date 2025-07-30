@@ -10,7 +10,7 @@ const HealthIDCard = () => {
     try {
       const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
       const token = bbsUserData?.token;
-      const res = await axios.get("http://localhost:5000/api/qr/my-health-id", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URI}/qr/my-health-id`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -28,7 +28,7 @@ const HealthIDCard = () => {
       const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
       const token = bbsUserData?.token;
       await axios.post(
-        "http://localhost:5000/api/qr/generate",
+        `${import.meta.env.VITE_API_URI}/qr/generate`,
         { planType: qr?.planType || "Basic" },
         {
           headers: {

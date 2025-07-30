@@ -1,7 +1,7 @@
 // services/dynamicPricingAPI.js
 import axios from "axios";
 
-export const API_URL = "http://localhost:5000/api/plan-dynamic/calculate";
+export const API_URL = `${import.meta.env.VITE_API_URI}/plan-dynamic/calculate`;
 
 export const calculateDynamicPrice = async (data) => {
     const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));

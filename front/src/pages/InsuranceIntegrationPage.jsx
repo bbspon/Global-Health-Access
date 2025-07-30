@@ -29,7 +29,7 @@ export default function InsuranceIntegrationPage() {
 
   const fetchPlans = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/insurance/plans");
+      const res = await axios.get(`${import.meta.env.VITE_API_URI}/insurance/plans`);
       setPlans(res.data || []);
     } catch (err) {
       setError("❌ Failed to fetch insurance plans.");
@@ -41,7 +41,7 @@ export default function InsuranceIntegrationPage() {
        const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
        const token = bbsUserData?.token;
       const res = await axios.get(
-        "http://localhost:5000/api/insurance/user-policy",
+        `${import.meta.env.VITE_API_URI}/insurance/user-policy`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -58,7 +58,7 @@ setPolicy(res.data.policy);
        const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
        const token = bbsUserData?.token;
       const res = await axios.put(
-        "http://localhost:5000/api/insurance/user-policy/auto-renew",
+        `${import.meta.env.VITE_API_URI}/insurance/user-policy/auto-renew`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },

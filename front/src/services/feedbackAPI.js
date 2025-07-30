@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE = "http://localhost:5000/api/feedback";
+const BASE = `${import.meta.env.VITE_API_URI}/feedback`;
 
 // Fetch all feedback (Admin only or if allowed)
 export const fetchAllFeedback = async () => {

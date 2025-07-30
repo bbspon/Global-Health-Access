@@ -57,7 +57,7 @@ const PartnerWithUsForm = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/partner-inquiry/submit",
+        `${import.meta.env.VITE_API_URI}/partner-inquiry/submit`,
         formPayload
       );
       console.log("✅ Submitted:", res.data);

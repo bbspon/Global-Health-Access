@@ -36,7 +36,7 @@ const renewPlan = async () => {
 
     console.log("👤 Sending userId:", userId); // Should now print real ID
 
-    const res = await fetch("http://localhost:5000/api/plan/renew", {
+    const res = await fetch(`${import.meta.env.VITE_API_URI}/plan/renew`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -48,7 +48,7 @@ useEffect(() => {
   const token = bbsUserData?.token;
 
   axios
-    .get("http://localhost:5000/api/emergency/logs", {
+    .get(`${import.meta.env.VITE_API_URI}/emergency/logs`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     .then((res) => {

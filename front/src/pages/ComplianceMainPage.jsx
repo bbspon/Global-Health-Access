@@ -22,7 +22,7 @@ export default function ComplianceMainPage() {
     try {
       const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
       const token = bbsUserData?.token;
-      const res = await axios.get("http://localhost:5000/api/compliance/main", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URI}/compliance/main`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

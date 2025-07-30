@@ -64,7 +64,7 @@ const HealthMembershipPage = () => {
          const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
          const token = bbsUserData?.token;
         const res = await fetch(
-          "http://localhost:5000/api/membership/my-membership",
+          `${import.meta.env.VITE_API_URI}/membership/my-membership`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -87,7 +87,7 @@ const HealthMembershipPage = () => {
     try {
         const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
         const token = bbsUserData?.token;
-      const res = await fetch("http://localhost:5000/api/membership/update", {
+      const res = await fetch(`${import.meta.env.VITE_API_URI}/membership/update`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -109,7 +109,7 @@ const HealthMembershipPage = () => {
         const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
         const token = bbsUserData?.token;
       const res = await fetch(
-        "http://localhost:5000/api/membership/toggle-renew",
+        `${import.meta.env.VITE_API_URI}/membership/toggle-renew`,
         {
           method: "PUT",
           headers: {

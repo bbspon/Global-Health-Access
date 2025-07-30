@@ -23,7 +23,7 @@ const HomeVisitBooking = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/home-visits",
+        `${import.meta.env.VITE_API_URI}/home-visits`,
         {
           serviceType,
           slot,

@@ -9,7 +9,7 @@ const AppointmentOtpPage = () => {
 
   const sendOtp = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/otp/send-otp", {
+      const res = await axios.post(`${import.meta.env.VITE_API_URI}/otp/send-otp`, {
         phoneNumber,
       });
       setMessage(res.data.message);
@@ -21,7 +21,7 @@ const AppointmentOtpPage = () => {
 
   const verifyOtp = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/otp/verify-otp", {
+      const res = await axios.post(`${import.meta.env.VITE_API_URI}/otp/verify-otp`, {
         phoneNumber,
         otpCode,
       });

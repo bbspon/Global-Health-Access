@@ -24,7 +24,7 @@ const BuyPlanPage = () => {
   useEffect(() => {
  const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
  const token = bbsUserData?.token;    axios
-      .get("http://localhost:5000/api/user/wallet", {
+      .get(`${import.meta.env.VITE_API_URI}/user/wallet`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setWallet(res.data.balance))
@@ -44,7 +44,7 @@ const BuyPlanPage = () => {
  const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
  const token = bbsUserData?.token;
        const res = await axios.post(
-        "http://localhost:5000/api/user/purchase",
+        `${import.meta.env.VITE_API_URI}/user/purchase`,
         {
           planId: selectedPlan._id,
           selectedAddons: addons,

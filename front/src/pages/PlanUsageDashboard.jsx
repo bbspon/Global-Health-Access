@@ -33,10 +33,10 @@ const PlanUsageDashboard = () => {
 
       try {
         const [usageRes, plansRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/user/plan-usage", {
+          axios.get(`${import.meta.env.VITE_API_URI}/user/plan-usage`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get("http://localhost:5000/api/plans", {
+          axios.get(`${import.meta.env.VITE_API_URI}/plans`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -78,7 +78,7 @@ const PlanUsageDashboard = () => {
       const token = bbsUserData?.token;
 
       await axios.post(
-        "http://localhost:5000/api/user/plan-usage/reset",
+        `${import.meta.env.VITE_API_URI}/user/plan-usage/reset`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },

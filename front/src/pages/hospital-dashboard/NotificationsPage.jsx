@@ -9,7 +9,7 @@ const NotificationsPage = () => {
   const fetchNotifications = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/api/notifications?role=hospital"
+        `${import.meta.env.VITE_API_URI}/notifications?role=hospital`
       );
       setNotifications(res.data.data || res.data || []);
     } catch (err) {

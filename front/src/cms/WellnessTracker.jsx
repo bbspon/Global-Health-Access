@@ -20,7 +20,7 @@ const WellnessTracker = () => {
 
   const fetchWellnessData = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/wellness");
+      const res = await axios.get(`${import.meta.env.VITE_API_URI}/wellness`);
       const data = res.data;
       setSteps(data.steps);
       setMealsLogged(data.mealsLogged);
@@ -32,7 +32,7 @@ const WellnessTracker = () => {
 
   const updateSteps = async (newSteps) => {
     try {
-      await axios.post("http://localhost:5000/api/wellness/steps", {
+      await axios.post(`${import.meta.env.VITE_API_URI}/wellness/steps`, {
         steps: newSteps,
       });
       setSteps(newSteps);
@@ -43,7 +43,7 @@ const WellnessTracker = () => {
 
   const logMeal = async () => {
     try {
-      await axios.post("http://localhost:5000/api/wellness/meal");
+      await axios.post(`${import.meta.env.VITE_API_URI}/wellness/meal`);
       setMealsLogged((prev) => prev + 1);
     } catch (err) {
       setError("Failed to log meal");

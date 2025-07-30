@@ -40,7 +40,7 @@ const RazorpayCheckoutPage = () => {
       order_id: data.order.id,
       handler: async (response) => {
         await axios.post(
-          "http://localhost:5000/api/razorpay/verify-payment",
+          `${import.meta.env.VITE_API_URI}/razorpay/verify-payment`,
           response
         );
         alert("Payment successful!");

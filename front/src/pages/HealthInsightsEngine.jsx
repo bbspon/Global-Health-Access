@@ -45,7 +45,7 @@ export default function HealthInsightsEngine() {
         const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
         const token = bbsUserData?.token;
         const res = await axios.get(
-          "http://localhost:5000/api/health-insights/me",
+          `${import.meta.env.VITE_API_URI}/health-insights/me`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

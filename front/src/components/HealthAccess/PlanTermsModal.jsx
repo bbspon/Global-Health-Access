@@ -41,7 +41,7 @@ const PlanTermsModal = ({ show, onClose, onAccept, version, planId }) => {
       try {
          const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
          const token = bbsUserData?.token;
-        await axios.post("http://localhost:5000/api/terms/accept", metadata, {
+        await axios.post(`${import.meta.env.VITE_API_URI}/terms/accept`, metadata, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

@@ -8,7 +8,7 @@ const RazorpayCheckoutScreen = () => {
     try {
       const bbsUser = JSON.parse(await AsyncStorage.getItem("bbsUser"));
 
-      const { data } = await axios.post("http://localhost:5000/api/razorpay/create-order", {
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URI}/razorpay/create-order`, {
         userId: bbsUser.userId,
         amount: 499,
       });
@@ -31,7 +31,7 @@ const RazorpayCheckoutScreen = () => {
 
       RazorpayCheckout.open(options)
         .then((response) => {
-          axios.post("http://localhost:5000/api/razorpay/verify-payment", response);
+          axios.post(`${import.meta.env.VITE_API_URI}/razorpay/verify-payment`, response);
           Alert.alert("Success", "Payment completed");
         })
         .catch(() => {

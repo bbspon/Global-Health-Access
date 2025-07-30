@@ -97,7 +97,7 @@ export default function OfflineAccessKiosk() {
     uploadFiles.forEach((file) => formData.append("files", file));
 
     try {
-      await fetch("http://localhost:5000/api/kiosk/upload", {
+      await fetch(`${import.meta.env.VITE_API_URI}/kiosk/upload`, {
         method: "POST",
         body: formData,
       });

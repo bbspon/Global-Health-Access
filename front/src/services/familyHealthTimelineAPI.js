@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:5000/api/family-health-timeline"; // Change on deploy
+const API_BASE = `${import.meta.env.VITE_API_URI}/family-health-timeline`; // Change on deploy
 
 const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
 const token = bbsUserData?.token;

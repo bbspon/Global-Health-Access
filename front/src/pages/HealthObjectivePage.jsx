@@ -28,7 +28,7 @@ const HealthObjectivePage = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/health-objective")
+      .get(`${import.meta.env.VITE_API_URI}/health-objective`)
       .then((res) => setContent(res.data))
       .catch((err) => console.error("Failed to load health content", err));
   }, []);

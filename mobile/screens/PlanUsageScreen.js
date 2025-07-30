@@ -12,7 +12,7 @@ const PlanUsageScreen = () => {
 
   const fetchUsageData = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/user/plan-usage", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URI}/user/plan-usage`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setData(res.data);
@@ -23,7 +23,7 @@ const PlanUsageScreen = () => {
 
   const handleReset = async () => {
     try {
-      await axios.post("http://localhost:5000/api/user/plan-usage/reset", {}, {
+      await axios.post(`${import.meta.env.VITE_API_URI}/user/plan-usage/reset`, {}, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       Alert.alert("Reset Success", "Plan usage has been reset.");

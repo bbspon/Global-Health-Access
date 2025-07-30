@@ -1,7 +1,8 @@
 // healthInsightsAPI.js
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000/api/health-insights";
+const BASE_URL = `${import.meta.env.VITE_API_URI}/health-insights`;
+console.log("ENV:", import.meta.env.VITE_API_URI);
 
 export const fetchHealthInsights = async (token) => {
   const res = await axios.get(`${BASE_URL}/me`, {

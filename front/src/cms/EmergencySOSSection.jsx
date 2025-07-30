@@ -64,7 +64,7 @@ const triggerPanic = async () => {
     }
 
     const response = await axios.post(
-      "http://localhost:5000/api/emergency/trigger",
+      `${import.meta.env.VITE_API_URI}/emergency/trigger`,
       {
         location,
         guardianContact,

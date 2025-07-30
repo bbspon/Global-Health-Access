@@ -42,7 +42,7 @@ const CoverageStatusDashboard = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/coverage/simulate",
+        `${import.meta.env.VITE_API_URI}/coverage/simulate`,
         {
           plan: simPlan,
           service: simService,

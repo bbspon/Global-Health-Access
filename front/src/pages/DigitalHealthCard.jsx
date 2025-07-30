@@ -28,7 +28,7 @@ const DigitalHealthCard = () => {
         const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
         const token = bbsUserData?.token;
         const res = await axios.get(
-          "http://localhost:5000/api/card/digital-card",
+          `${import.meta.env.VITE_API_URI}/card/digital-card`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -50,7 +50,7 @@ const DigitalHealthCard = () => {
       const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
       const token = bbsUserData?.token;
       const res = await axios.put(
-        "http://localhost:5000/api/card/digital-card/refresh",
+        `${import.meta.env.VITE_API_URI}/card/digital-card/refresh`,
         {},
         {
           headers: {

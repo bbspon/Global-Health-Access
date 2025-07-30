@@ -20,7 +20,7 @@ const ComplianceDashboard = () => {
     const token = bbsUserData?.token;
 
     axios
-      .get("http://localhost:5000/api/compliance", {
+      .get(`${import.meta.env.VITE_API_URI}/compliance`, {
         headers: {
           Authorization: `Bearer ${token}`, // send the token here
         },

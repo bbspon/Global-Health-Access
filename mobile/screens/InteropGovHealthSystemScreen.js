@@ -15,7 +15,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { Picker } from '@react-native-picker/picker';
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000/api/govhealth"; // 🔁 Replace with actual API base
+const BASE_URL = `${import.meta.env.VITE_API_URI}/govhealth`; // 🔁 Replace with actual API base
 
 const InteropGovHealthSystemMobile = () => {
   const [consentGiven, setConsentGiven] = useState(false);

@@ -10,7 +10,7 @@ const CarePassScanner = () => {
     setLoading(true);
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/carepass/simulate",
+        `${import.meta.env.VITE_API_URI}/carepass/simulate`,
         {
           userId: "USER987654", // placeholder; QR logic later
           scannedBy: "DemoHospital",

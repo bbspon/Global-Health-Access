@@ -39,7 +39,7 @@ const InteropGovHealthSystem = () => {
   // Load sync history on page load
 useEffect(() => {
   axios
-    .get("http://localhost:5000/api/interop-gov") // ✅ This is what works in Postman
+    .get(`${import.meta.env.VITE_API_URI}/interop-gov`) // ✅ This is what works in Postman
     .then((res) => {
       console.log("✅ Fetched sync history:", res.data);
       const messages = res.data.data.map(
@@ -66,7 +66,7 @@ const logSync = async (type, message) => {
   console.log("📤 Sending log sync: ", payload);
 
   try {
-    await axios.post("http://localhost:5000/api/interop-gov", payload);
+    await axios.post(`${import.meta.env.VITE_API_URI}/interop-gov`, payload);
     setSyncHistory((prev) => [
       `${message} at ${new Date().toLocaleString()}`,
       ...prev,

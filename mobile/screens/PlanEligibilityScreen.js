@@ -20,7 +20,7 @@ const PlanEligibilityScreen = ({ navigation }) => {
   const checkEligibility = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/plan/check-eligibility",
+        `${import.meta.env.VITE_API_URI}/plan/check-eligibility`,
         { age, city, planType },
         {
           headers: { Authorization: `Bearer ${token}` },

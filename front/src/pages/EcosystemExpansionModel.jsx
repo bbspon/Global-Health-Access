@@ -27,11 +27,11 @@ export default function EcosystemExpansionModel() {
     const fetchData = async () => {
       try {
         const [ngoRes, schoolRes, csrRes, ruralRes, lbRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/ecosystem/ngos"),
-          axios.get("http://localhost:5000/api/ecosystem/schools"),
-          axios.get("http://localhost:5000/api/ecosystem/csr"),
-          axios.get("http://localhost:5000/api/ecosystem/rurals"),
-          axios.get("http://localhost:5000/api/ecosystem/leaderboard"),
+          axios.get(`${import.meta.env.VITE_API_URI}/ecosystem/ngos`),
+          axios.get(`${import.meta.env.VITE_API_URI}/ecosystem/schools`),
+          axios.get(`${import.meta.env.VITE_API_URI}/ecosystem/csr`),
+          axios.get(`${import.meta.env.VITE_API_URI}/ecosystem/rurals`),
+          axios.get(`${import.meta.env.VITE_API_URI}/ecosystem/leaderboard`),
         ]);
         console.log("NGO response:", ngoRes.data);
 

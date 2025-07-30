@@ -10,7 +10,7 @@ const HealthAccessPage = () => {
   const userId = bbsUserData?.user?.id;
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/health-plans/list")
+      .get(`${import.meta.env.VITE_API_URI}/health-plans/list`)
       .then((res) => {
         setPlans(res.data || []);
       })
@@ -22,7 +22,7 @@ const HealthAccessPage = () => {
   const handleJoin = async (planTier) => {
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/health-plans/enroll",
+        `${import.meta.env.VITE_API_URI}/health-plans/enroll`,
         {
           userId,
           selectedPlan: planTier,

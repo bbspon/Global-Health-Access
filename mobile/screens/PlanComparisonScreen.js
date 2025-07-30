@@ -267,7 +267,7 @@ const PlanComparison = () => {
   const [plans, setPlans] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/plans")
+    axios.get(`${import.meta.env.VITE_API_URI}/plans`)
       .then((res) => setPlans(res.data))
       .catch((err) => console.error("Failed to fetch plans", err));
   }, []);

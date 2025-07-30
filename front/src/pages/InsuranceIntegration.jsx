@@ -29,7 +29,7 @@ const InsuranceIntegration = () => {
 
   const fetchPolicies = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/insurance");
+      const res = await axios.get(`${import.meta.env.VITE_API_URI}/insurance`);
       console.log("✅ Insurance data:", res.data);
       setPolicies(res.data.data || []);
     } catch (error) {

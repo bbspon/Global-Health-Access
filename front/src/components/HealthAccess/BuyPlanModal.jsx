@@ -30,7 +30,7 @@ const BuyPlanModal = ({ show, onClose, plan, onConfirm }) => {
       const token = localStorage.getItem("token");
 
       const res = await axios.post(
-        "http://localhost:5000/api/user/purchase",
+        `${import.meta.env.VITE_API_URI}/user/purchase`,
         {
           planId: plan._id,
           selectedAddons: [], // since we're not showing them now

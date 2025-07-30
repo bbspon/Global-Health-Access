@@ -51,7 +51,7 @@ const ConsultRoom = () => {
       };
 
       const res = await axios.post(
-        "http://localhost:5000/api/consultation/save",
+        `${import.meta.env.VITE_API_URI}/consultation/save`,
         payload
       );
       if (res.data.success) {

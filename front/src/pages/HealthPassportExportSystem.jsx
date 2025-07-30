@@ -49,22 +49,22 @@ export default function HealthPassportExportSystem() {
       switch (type) {
         case "PDF":
           res = await axios.post(
-            "http://localhost:5000/api/health-passport/export/pdf"
+            `${import.meta.env.VITE_API_URI}/health-passport/export/pdf`
           );
           break;
         case "FHIR":
           res = await axios.post(
-            "http://localhost:5000/api/health-passport/export/fhir"
+            `${import.meta.env.VITE_API_URI}/health-passport/export/fhir`
           );
           break;
         case "ZIP":
           res = await axios.post(
-            "http://localhost:5000/api/health-passport/export/zip"
+            `${import.meta.env.VITE_API_URI}/health-passport/export/zip`
           );
           break;
         case "Link":
           res = await axios.post(
-            "http://localhost:5000/api/health-passport/export/secure-link"
+            `${import.meta.env.VITE_API_URI}/health-passport/export/secure-link`
           );
           break;
         default:

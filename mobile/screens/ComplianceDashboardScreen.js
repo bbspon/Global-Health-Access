@@ -9,7 +9,7 @@ export default function ComplianceDashboardScreen() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/compliance/data")
+      .get(`${import.meta.env.VITE_API_URI}/compliance/data`)
       .then((res) => {
         setComplianceData(res.data);
         setLoading(false);

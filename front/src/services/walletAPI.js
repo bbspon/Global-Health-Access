@@ -28,7 +28,7 @@ export const topupWallet = async ({ amount, method, referenceId }) => {
     const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
     const token = bbsUserData?.token;
   const res = await axios.post(
-    "http://localhost:5000/api/wallet/topup",
+    `${import.meta.env.VITE_API_URI}/wallet/topup`,
     { amount, method, referenceId },
     {
       headers: {

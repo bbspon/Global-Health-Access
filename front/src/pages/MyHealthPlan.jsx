@@ -18,7 +18,7 @@ const MyHealthPlan = () => {
       setUserId(userIdFromStorage);
 
       try {
-        const res = await axios.get("http://localhost:5000/api/user/my-plan", {
+        const res = await axios.get(`${import.meta.env.VITE_API_URI}/user/my-plan`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setPlan(res.data);

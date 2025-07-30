@@ -87,7 +87,7 @@ const OfflineDeploymentDashboard = () => {
   const fetchDeployments = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/api/offline-deployment/all",
+        `${import.meta.env.VITE_API_URI}/offline-deployment/all`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -101,7 +101,7 @@ const OfflineDeploymentDashboard = () => {
   const handleSubmit = async () => {
     try {
       await axios.post(
-        "http://localhost:5000/api/offline-deployment/create",
+        `${import.meta.env.VITE_API_URI}/offline-deployment/create`,
         form,
         {
           headers: { Authorization: `Bearer ${token}` },

@@ -22,7 +22,7 @@ const BookAppointmentPage = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/appointments/book",
+        `${import.meta.env.VITE_API_URI}/appointments/book`,
         form,
         {
           headers: {

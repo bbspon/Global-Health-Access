@@ -16,7 +16,7 @@ const HealthPlansLandingPage = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/plans")
+      .get(`${import.meta.env.VITE_API_URI}/plans`)
       .then((res) => {
         setPlans(res.data);
         setFilteredPlans(res.data); // Default: all plans
