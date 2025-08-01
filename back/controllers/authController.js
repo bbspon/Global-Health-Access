@@ -1,81 +1,75 @@
 const User = require("../models/User");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-// 🔐 Generate JWT Token
-const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
-  };
-  exports.registerUser = async (req, res) => {
+
+const generateToken = (user) => {
+  return jwt.sign(
+    {
+      _id: user._id,
+      email: user.email,
+      roleTags: user.roleTags,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
+};
+
+exports.register = async (req, res) => {
   try {
-    const { name, email, phone, password, role } = req.body;
-    console.log("Signup request:", { name, email, phone, role });
+    const { name, email, phone, password, createdFrom } = req.body;
 
-    const existingUser = await User.findOne({ email });
-    console.log("Existing user check:", existingUser ? "Found" : "Not Found");
+    const userExists = await User.findOne({ email });
+    if (userExists)
+      return res.status(400).json({ message: "User already exists" });
 
-    if (existingUser) {
-      return res.status(400).json({ success: false, message: "User already exists" });
-    }
-
-    const user = new User({ name, email, phone, password, role });
-    const savedUser = await user.save();
-
-    console.log("Saved user ID:", savedUser._id);
-
-    const token = generateToken(user._id);
-
-    res.status(201).json({
-      success: true,
-      message: "Signup successful",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-      token,
+    const newUser = await User.create({
+      name,
+      email,
+      phone,
+      password,
+      createdFrom,
     });
-  } catch (error) {
-    console.error("Signup Error:", error);
-    res.status(500).json({ success: false, message: "Signup failed", error: error.message });
+    res.status(201).json({
+      message: "User created",
+      token: generateToken(newUser),
+      user: {
+        name: newUser.name,
+        email: newUser.email,
+        roleTags: newUser.roleTags,
+        createdFrom: newUser.createdFrom,
+      },
+    });
+  } catch (err) {
+    console.error("Register Error:", err);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
-exports.loginUser = async (req, res) => {
-  const { email, password } = req.body;
-  console.log("Login attempt with email:", email);
-
+exports.login = async (req, res) => {
   try {
-    // 1️⃣ Check if user exists
+    const { email, password } = req.body;
+
     const user = await User.findOne({ email });
-    console.log("User found:", user ? user._id : "No user");
+    if (!user)
+      return res.status(400).json({ message: "Invalid email or password" });
 
-    if (!user) {
-      console.log("❌ User not found in DB for email:", email);
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    // 2️⃣ Validate password
     const isMatch = await user.matchPassword(password);
-    console.log("Password match result:", isMatch);
+    if (!isMatch)
+      return res.status(400).json({ message: "Invalid email or password" });
 
-    if (!isMatch) {
-      console.log("❌ Password mismatch for email:", email);
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    // 3️⃣ Generate JWT token
-    const token = generateToken(user._id); 
-    console.log("✅ Login successful, generated token for user:", user._id);
-
-    // 4️⃣ Return response
-    res.status(200).json({ token, user });
-    
+    res.status(200).json({
+      message: "Login success",
+      token: generateToken(user),
+      user: {
+        name: user.name,
+        email: user.email,
+        roleTags: user.roleTags,
+        createdFrom: user.createdFrom,
+      },
+    });
   } catch (err) {
-    console.error("🔥 Login error:", err.message);
-    res.status(500).json({ message: "Server error" });
+    console.error("Login Error:", err);
+    res.status(500).json({ message: "Server Error" });
+>>>>>>> 9b2c0bc68547bea9af984222833490d91e5b30c0
   }
 };
 
