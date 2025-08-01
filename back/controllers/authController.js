@@ -1,102 +1,74 @@
 const User = require("../models/User");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-// 🔐 Generate JWT Token
-const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
-  };
-  
-exports.registerUser = async (req, res) => {
-    try {
-      const { name, email, phone, password, role } = req.body;
 
-      // 1. Check if user already exists
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res
-          .status(400)
-          .json({ success: false, message: "User already exists" });
-      }
-
-      // 2. Create new user instance
-      const user = new User({ name, email, phone, password, role });
-      await user.save(); // ⛏️ Ensures .pre('save') runs and password gets hashed
-
-      // 3. Generate token
-      const token = generateToken(user._id);
-
-      // 4. Respond with user data (excluding password)
-      res.status(201).json({
-        success: true,
-        message: "Signup successful",
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
-        token,
-      });
-    } catch (error) {
-      console.error("Signup Error:", error);
-      res
-        .status(500)
-        .json({
-          success: false,
-          message: "Signup failed",
-          error: error.message,
-        });
-    }
+const generateToken = (user) => {
+  return jwt.sign(
+    {
+      _id: user._id,
+      email: user.email,
+      roleTags: user.roleTags,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
 };
 
-exports.loginUser = async (req, res) => {
-    try {
-      const { email, password } = req.body;
+exports.register = async (req, res) => {
+  try {
+    const { name, email, phone, password, createdFrom } = req.body;
 
-      // 1. Check if user exists
-      const user = await User.findOne({ email });
-      if (!user) {
-        return res
-          .status(401)
-          .json({ success: false, message: "Invalid credentials" });
-      }
+    const userExists = await User.findOne({ email });
+    if (userExists)
+      return res.status(400).json({ message: "User already exists" });
 
-      // 2. Compare password
-      const isMatch = await user.matchPassword(password);
-      if (!isMatch) {
-        return res
-          .status(401)
-          .json({ success: false, message: "Invalid credentials" });
-      }
+    const newUser = await User.create({
+      name,
+      email,
+      phone,
+      password,
+      createdFrom,
+    });
 
-      // 3. Generate token
-      const token = generateToken(user._id);
+    res.status(201).json({
+      message: "User created",
+      token: generateToken(newUser),
+      user: {
+        name: newUser.name,
+        email: newUser.email,
+        roleTags: newUser.roleTags,
+        createdFrom: newUser.createdFrom,
+      },
+    });
+  } catch (err) {
+    console.error("Register Error:", err);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 
-      // 4. Respond with user info
-      res.status(200).json({
-        success: true,
-        message: "Login successful",
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
-        token,
-      });
-      // ✅ 1. Save token & role
-      // localStorage.setItem("accessToken", data.token);
-      // localStorage.setItem("userRole", data.user.role);
-    } catch (error) {
-      console.error("Login Error:", error);
-      res
-        .status(500)
-        .json({
-          success: false,
-          message: "Login failed",
-          error: error.message,
-        });
-    }
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user)
+      return res.status(400).json({ message: "Invalid email or password" });
+
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch)
+      return res.status(400).json({ message: "Invalid email or password" });
+
+    res.status(200).json({
+      message: "Login success",
+      token: generateToken(user),
+      user: {
+        name: user.name,
+        email: user.email,
+        roleTags: user.roleTags,
+        createdFrom: user.createdFrom,
+      },
+    });
+  } catch (err) {
+    console.error("Login Error:", err);
+    res.status(500).json({ message: "Server Error" });
+  }
 };

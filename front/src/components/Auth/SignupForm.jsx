@@ -1,4 +1,3 @@
-// components/Auth/SignupForm.jsx
 import { useState } from "react";
 import { signupUser } from "../../services/authAPI";
 import { useNavigate, Link } from "react-router-dom";
@@ -9,8 +8,10 @@ const SignupForm = () => {
     email: "",
     password: "",
     phone: "",
-    role: "user",
+    role: "user", // dropdown role
+    createdFrom: "healthcare", // auto-tagged
   });
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ const SignupForm = () => {
     }
 
     try {
-      await signupUser(form);
+      await signupUser(form); // POST to /api/auth/register (shared)
       setSuccess("Signup successful! Redirecting to login...");
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
@@ -45,7 +46,10 @@ const SignupForm = () => {
         className="p-5 border rounded shadow"
         style={{ width: "500px", margin: "auto" }}
       >
-        <h3 className="mb-4" style={{ fontStyle: "italic", fontWeight: "bold", fontSize: "30px" }}>
+        <h3
+          className="mb-4"
+          style={{ fontStyle: "italic", fontWeight: "bold", fontSize: "30px" }}
+        >
           Create Your Account
         </h3>
 

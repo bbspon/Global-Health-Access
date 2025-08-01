@@ -68,13 +68,14 @@ app.use(cors());
 app.use(express.json());
 
 mongoose
-  .connect(process.env.MONGO_URI, {
+  .connect(process.env.HEALTHCARE_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB connection failed:", err));
+  .then(() => console.log("✅ Connected to bbshealthcare (Default DB)"))
+  .catch((err) => console.error("❌ Main DB error:", err));
 
+// ✅ Export the healthcare DB for use in models
 app.use("/api/auth", authRoutes);
 
 app.use(healthPlanRoutes);
