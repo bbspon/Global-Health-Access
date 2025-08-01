@@ -66,10 +66,12 @@ const regionRoutes = require("./routes/regionRoutes");
 const app = express();
 app.use(cors());
 app.use(express.json());
+console.log("Mongo URI (for debug):", process.env.MONGO_URI);
 
 mongoose
   .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
+   dbName: "healthcareaccess",
+   useNewUrlParser: true,
     useUnifiedTopology: true,
   })
   .then(() => console.log("✅ MongoDB connected"))
