@@ -19,7 +19,7 @@ const BuyPlanModal = ({ plan }) => {
     const token = await AsyncStorage.getItem('token');
     try {
       const res = await axios.post(
-        'http://localhost:5000/api/user/purchase',
+        `${import.meta.env.VITE_API_URI}/user/purchase`,
         {
           planId: plan._id,
           selectedAddons,

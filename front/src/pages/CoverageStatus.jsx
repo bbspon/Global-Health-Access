@@ -24,7 +24,7 @@ const CoverageStatusDashboard = () => {
   const checkUserCoverage = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/coverage/check?userId=${userId}`
+        `${import.meta.env.VITE_API_URI}/coverage/check?userId=${userId}`
       );
       setCoverageResult(res.data);
     } catch (err) {

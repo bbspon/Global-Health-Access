@@ -61,7 +61,7 @@ export default function FamilyDependentDashboard() {
         }
 
         const res = await axios.get(
-          `http://localhost:5000/api/family-dashboard?userId=${userId}`
+          `${import.meta.env.VITE_API_URI}/family-dashboard?userId=${userId}`
         );
 
         setMembers(res.data.data || []);

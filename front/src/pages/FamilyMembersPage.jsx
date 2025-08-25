@@ -20,7 +20,7 @@ const FamilyMembersPage = () => {
   const fetchMembers = async () => {
     try {
       const { data } = await axios.get(
-        `http://localhost:5000/api/user-plan/${planId}/family`
+        `${import.meta.env.VITE_API_URI}/user-plan/${planId}/family`
       );
       setMembers(data.data || []);
     } catch (err) {
@@ -30,7 +30,7 @@ const FamilyMembersPage = () => {
 
   const addMember = async () => {
     try {
-      await axios.post(`http://localhost:5000/api/user-plan/${planId}/family`, {
+      await axios.post(`${import.meta.env.VITE_API_URI}/user-plan/${planId}/family`, {
         ...form,
       });
       setForm({

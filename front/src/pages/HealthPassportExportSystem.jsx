@@ -32,7 +32,7 @@ export default function HealthPassportExportSystem() {
     const fetchPassport = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/health-passport/${userId}`
+          `${import.meta.env.VITE_API_URI}/health-passport/${userId}`
         );
         setPassport(res.data);
         setDocuments(res.data.documents || []);

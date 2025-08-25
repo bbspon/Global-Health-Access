@@ -26,7 +26,7 @@ const WalletAdminDashboard = () => {
   // Load wallet summary
   useEffect(() => {
     axios
-      .get('http://localhost:5000/api/admin/wallet/summary')
+      .get(`${import.meta.env.VITE_API_URI}/admin/wallet/summary`)
       .then((res) => setWalletStats(res.data))
       .catch(() => Alert.alert('Error', 'Failed to load wallet summary.'));
   }, []);
@@ -39,7 +39,7 @@ const WalletAdminDashboard = () => {
 
       try {
         const res = await axios.get(
-          'http://localhost:5000/api/wallet/admin/wallet-history',
+          `${import.meta.env.VITE_API_URI}/wallet/admin/wallet-history`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -55,7 +55,7 @@ const WalletAdminDashboard = () => {
 
   const handleUpdateConfig = () => {
     axios
-      .post('http://localhost:5000/api/admin/wallet/config', {
+      .post(`${import.meta.env.VITE_API_URI}/admin/wallet/config`, {
         cashbackRate,
         subsidyLimit,
         healthEnabled,
@@ -69,7 +69,7 @@ const WalletAdminDashboard = () => {
 
   const handleManualCredit = () => {
     axios
-      .post('http://localhost:5000/api/admin/wallet/manual-credit', {
+      .post(`${import.meta.env.VITE_API_URI}/admin/wallet/manual-credit`, {
         userId: creditUserId,
         amount: Number(creditAmount),
       })

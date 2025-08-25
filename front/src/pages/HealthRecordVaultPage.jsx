@@ -52,7 +52,7 @@ const HealthRecordVaultPage = () => {
 
       console.log("Fetching for PlanID:", id);
       const res = await axios.get(
-        `http://localhost:5000/api/user-plan/${id}/records`,
+        `${import.meta.env.VITE_API_URI}/user-plan/${id}/records`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -78,7 +78,7 @@ const HealthRecordVaultPage = () => {
       const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
       const token = bbsUserData?.token;
       await axios.post(
-        `http://localhost:5000/api/user-plan/${id}/records`,
+        `${import.meta.env.VITE_API_URI}/user-plan/${id}/records`,
         {
           ...newRecord,
           tags: newRecord.tags.split(",").map((t) => t.trim()),

@@ -72,7 +72,7 @@ export default function OfflineAccessKiosk() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/kiosk/patient/${patientID}`
+        `${import.meta.env.VITE_API_URI}/kiosk/patient/${patientID}`
       );
       const data = await response.json();
       setPatientData(data);

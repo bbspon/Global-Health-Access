@@ -17,7 +17,7 @@ const PrescriptionLoop = () => {
     const fetchData = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/prescription-loop/${userId}`
+          `${import.meta.env.VITE_API_URI}/prescription-loop/${userId}`
         );
         console.log("✅ API Data:", res.data); // ADD THIS LINE
         setData(res.data);

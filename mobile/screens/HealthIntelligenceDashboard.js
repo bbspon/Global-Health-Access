@@ -18,7 +18,7 @@ const HealthIntelligenceDashboard = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:5000/api/health/intelligence/${role}`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_URI}/health/intelligence/${role}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`, // Adjust for secure storage in production
         },

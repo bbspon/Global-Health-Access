@@ -14,7 +14,7 @@ const AnalyticsPage = () => {
       try {
         const hospitalId = "64ffabc0123abc456789de01"; // Replace with actual
         const res = await axios.get(
-          `http://localhost:5000/api/analytics/hospital?hospitalId=${hospitalId}`
+          `${import.meta.env.VITE_API_URI}/analytics/hospital?hospitalId=${hospitalId}`
         );
         setData(res.data);
       } catch (err) {

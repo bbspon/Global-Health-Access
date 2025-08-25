@@ -26,7 +26,7 @@ const HealthAccessEcosystem = () => {
     const fetchData = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/ecosystem/user-plan/${userId}`
+          `${import.meta.env.VITE_API_URI}/ecosystem/user-plan/${userId}`
         );
         if (res.data) {
           setPlan(res.data.planName || "Basic Plan");

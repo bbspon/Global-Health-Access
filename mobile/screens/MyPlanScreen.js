@@ -11,7 +11,7 @@ const MyPlanScreen = () => {
   const fetchPlan = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/user/my-plan', {
+      const response = await axios.get(`${import.meta.env.VITE_API_URI}/user/my-plan`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

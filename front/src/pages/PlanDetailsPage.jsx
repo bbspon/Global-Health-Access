@@ -8,11 +8,10 @@ const PlanDetailsPage = () => {
   const { id } = useParams();
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const fetchPlan = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/plans/${id}`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URI}/plans/${id}`);
         console.log(res, "rwe");
 
         setPlan(res.data);

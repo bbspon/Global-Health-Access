@@ -85,7 +85,7 @@ const fetchTokenFromBackend = async () => {
     try {
       
       const res = await fetch(
-        `http://localhost:5000/api/qr/history/${mockPlan.userId}`
+        `${import.meta.env.VITE_API_URI}/qr/history/${mockPlan.userId}`
       );
       const data = await res.json();
       setScanHistory(data);

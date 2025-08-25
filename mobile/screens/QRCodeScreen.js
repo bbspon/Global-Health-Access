@@ -12,7 +12,7 @@ const QRCodeScreen = () => {
       const token = await AsyncStorage.getItem('token');
 
       axios
-        .get('http://localhost:5000/api/user/qr', {
+        .get(`${import.meta.env.VITE_API_URI}/user/qr`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => {

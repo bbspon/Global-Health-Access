@@ -15,7 +15,7 @@ const PlanUsagePage = () => {
         const token = bbsUserData?.token;
 
         const res = await axios.get(
-          `http://localhost:5000/api/user/plan-usage/details/${id}`,
+          `${import.meta.env.VITE_API_URI}/user/plan-usage/details/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

@@ -73,7 +73,7 @@ export default function UnifiedAPIAdminDashboard() {
   const handleApprove = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/unified-api/activate/${selectedPartner._id}`,
+        `${import.meta.env.VITE_API_URI}/unified-api/activate/${selectedPartner._id}`,
         {
           method: "PUT",
         }

@@ -11,7 +11,7 @@ const PaymentsWalletPage = () => {
       const token = JSON.parse(localStorage.getItem("bbsUser"))?.token;
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/wallet/wallet-history${
+          `${import.meta.env.VITE_API_URI}/wallet/wallet-history${
             typeFilter ? `?type=${typeFilter}` : ""
           }`,
           {

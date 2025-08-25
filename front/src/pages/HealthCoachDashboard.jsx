@@ -26,7 +26,7 @@ const HealthCoachDashboard = () => {
     if (!userID) return;
 
     axios
-      .get(`http://localhost:5000/api/coach-data/${userID}`)
+      .get(`${import.meta.env.VITE_API_URI}/coach-data/${userID}`)
       .then((res) => setCoachData(res.data))
       .catch((err) => console.error("Failed to fetch coach data", err));
   }, [userID]);

@@ -12,7 +12,7 @@ const UserPlanList = () => {
     const fetchPlans = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
-        const res = await axios.get('http://localhost:5000/api/user/plans', {
+        const res = await axios.get(`${import.meta.env.VITE_API_URI}/user/plans`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

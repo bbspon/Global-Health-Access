@@ -59,7 +59,7 @@ const HealthIntelligenceDashboard = () => {
         const token = bbsUserData?.token;
 
         const res = await axios.get(
-          `http://localhost:5000/api/health/intelligence/${role}`,
+          `${import.meta.env.VITE_API_URI}/health/intelligence/${role}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

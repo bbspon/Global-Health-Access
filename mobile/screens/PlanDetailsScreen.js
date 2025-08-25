@@ -12,7 +12,7 @@ const PlanDetails = () => {
   useEffect(() => {
     const fetchPlan = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/plans/${planId}`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URI}/plans/${planId}`);
         setPlan(res.data);
       } catch (err) {
         console.error("Failed to load plan:", err);

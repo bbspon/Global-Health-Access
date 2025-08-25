@@ -27,7 +27,7 @@ const PlanComparisonEditor = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/plancomparison/${hospitalId}`)
+      .get(`${import.meta.env.VITE_API_URI}/plancomparison/${hospitalId}`)
       .then((res) => {
         console.log("API Data:", res.data); // ✅ Debugging
         if (res.data) {

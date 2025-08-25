@@ -33,10 +33,10 @@ const fetchPlansAndHospitals = async (selectedCountry, selectedCity) => {
   setLoading(true);
   try {
     const planRes = await axios.get(
-      `http://localhost:5000/api/region/plans?country=${selectedCountry}&city=${selectedCity}`
+      `${import.meta.env.VITE_API_URI}/region/plans?country=${selectedCountry}&city=${selectedCity}`
     );
     const hospRes = await axios.get(
-      `http://localhost:5000/api/region/hospitals?country=${selectedCountry}&city=${selectedCity}`
+      `${import.meta.env.VITE_API_URI}/region/hospitals?country=${selectedCountry}&city=${selectedCity}`
     );
 
     console.log("✅ Plans API:", planRes.data);

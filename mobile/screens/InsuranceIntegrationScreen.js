@@ -27,7 +27,7 @@ export default function InsuranceIntegrationScreen() {
   const fetchInsuranceData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get('http://localhost:5000/api/insurance', {
+      const res = await axios.get(`${import.meta.env.VITE_API_URI}/insurance`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
