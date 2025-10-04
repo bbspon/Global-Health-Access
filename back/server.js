@@ -147,6 +147,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/coverage", coverageRoutes);
 app.use("/api/carepass", carePassRoutes);
 app.use("/api/region", regionRoutes);
+app.use("/api/auth-debug", require("./routes/authDebug"));
 
 app.listen(process.env.PORT || 5000, () =>
   console.log(`Server running on port ${process.env.PORT || 5000}`)

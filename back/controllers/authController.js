@@ -45,31 +45,23 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const user = await User.findOne({ email });
-    if (!user)
-      return res.status(400).json({ message: "Invalid email or password" });
-
-    const isMatch = await user.matchPassword(password);
-    if (!isMatch)
-      return res.status(400).json({ message: "Invalid email or password" });
-
-    res.status(200).json({
-      message: "Login success",
-      token: generateToken(user),
-      user: {
-        name: user.name,
-        email: user.email,
-        roleTags: user.roleTags,
-        createdFrom: user.createdFrom,
-      },
-    });
-  } catch (err) {
-    console.error("Login Error:", err);
-    res.status(500).json({ message: "Server Error" });
->>>>>>> 9b2c0bc68547bea9af984222833490d91e5b30c0
-  }
+const { email, password, name } = req.body;
+let user = await User.findOne({ email }); // BBSlive lookup
+if (!user) {
+  user = await User.create({
+    email,
+    name,
+    password,
+    createdFrom: "healthcare",
+  });
+}
+const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+  expiresIn: "1d",
+});
+res.json({
+  message: "Login success",
+  token,
+  user: { _id: user._id, email: user.email, name: user.name },
+});
 };
 

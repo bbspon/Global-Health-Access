@@ -30,8 +30,8 @@ const UserSchema = new mongoose.Schema(
       default: ["user"],
     },
     createdFrom: {
-      type: String, // e.g., "healthcare", "thiaworld", "bbscart"
-      required: true,
+      type: String,
+      default: "healthcare",
     },
     referralCode: {
       type: String,
