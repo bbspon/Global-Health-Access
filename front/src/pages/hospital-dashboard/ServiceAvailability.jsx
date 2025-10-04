@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Container, Table, Button } from "react-bootstrap";
 import axios from "axios";
+import { CalendarCheck, ShieldLock } from "react-bootstrap-icons";
+import { Link } from "react-router-dom";
 
 const ServiceAvailability = () => {
   const [services, setServices] = useState([]);
@@ -15,6 +17,21 @@ const ServiceAvailability = () => {
   return (
     <Container className="py-4">
       <h4>🕒 Manage Service Availability</h4>
+      <div className="mb-3 d-flex gap-3">
+        <Link
+          to="/book-appointment"
+          className="btn btn-outline-primary d-flex align-items-center gap-2"
+        >
+          <CalendarCheck size={18} /> Book Appointment
+        </Link>
+        <Link
+          to="/appointment-otp"
+          className="btn btn-outline-success d-flex align-items-center gap-2"
+        >
+          <ShieldLock size={18} /> Appointment OTP
+        </Link>
+      </div>
+
       <Table striped bordered>
         <thead>
           <tr>

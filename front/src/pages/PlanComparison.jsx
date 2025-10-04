@@ -1,6 +1,7 @@
 import React from "react";
-import { Container, Table, Badge } from "react-bootstrap";
-
+import { Container, Table, Badge, Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+ 
 const planData = [
   {
     feature: "OPD Consultations / Mo",
@@ -67,11 +68,24 @@ const planData = [
 const PlanComparison = () => {
   const tiers = ["Basic", "Plus", "Premium", "Super Premium"];
   const badgeColors = ["secondary", "info", "primary", "success"];
+  const navigate = useNavigate();
 
   return (
     <Container className="py-5">
       <h2 className="text-center mb-4">Plan Tier Comparison</h2>
-      <Table bordered responsive hover className="text-center align-middle shadow">
+      <Button
+        className="mt-3"
+        variant="outline-info"
+        onClick={() => navigate("/hospital/plancomparison-editor")}
+      >
+        Plan Comparison Editor
+      </Button>
+      <Table
+        bordered
+        responsive
+        hover
+        className="text-center align-middle shadow"
+      >
         <thead className="table-dark">
           <tr>
             <th>Feature</th>

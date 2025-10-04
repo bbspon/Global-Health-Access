@@ -21,6 +21,10 @@ import {
   Globe,
   MoonStarsFill,
   PersonCircle,
+  QrCode,
+  ExclamationTriangle,
+  BarChartLine,
+  Capsule,
 } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 
@@ -55,8 +59,41 @@ const features = [
     title: "Plan Usage Dashboard",
     path: "/plan-usage",
   },
-  { icon: <CreditCard2Front size={32} />, title: "My Wallet", path: "/wallet" },
-  { icon: <Shop size={32} />, title: "BBSCART Offers", path: "/offers" },
+  {
+    icon: <CreditCard2Front size={32} />,
+    title: "My Wallet",
+    path: "/payments-wallet",
+  },
+  {
+    icon: <Shop size={32} />,
+    title: "BBSCART Offers",
+    path: "/loyalty-reward",
+  },
+  {
+    icon: <QrCode size={32} />,
+    title: "Digital Health Card",
+    path: "/digital-health-card",
+  },
+  {
+    icon: <Capsule size={32} />,
+    title: "Pharmacy & Labs",
+    path: "/pharmacy-integration",
+  },
+  {
+    icon: <BarChartLine size={32} />,
+    title: "Health Insights",
+    path: "/health-insights",
+  },
+  {
+    icon: <ExclamationTriangle size={32} />,
+    title: "AI Risk & Early Warning",
+    path: "/ai-risk-engine",
+  },
+  {
+    icon: <ExclamationTriangle size={32} />,
+    title: "Feedback & Support",
+    path: "/feedback-engine",
+  },
 ];
 
 const HomeDashboard = () => {
@@ -77,7 +114,9 @@ const HomeDashboard = () => {
             <h4 className="text-light ">
               Welcome to <strong>BBSCART Health</strong>
             </h4>
-            <p className="text-secondary ">Futuristic Health Access Dashboard</p>
+            <p className="text-secondary ">
+              Futuristic Health Access Dashboard
+            </p>
           </Col>
           {/* <Col md={6} className="d-flex justify-content-end gap-2 flex-wrap">
             <Dropdown as={ButtonGroup}>
@@ -135,18 +174,46 @@ const HomeDashboard = () => {
           <Col md={{ span: 8, offset: 2 }}>
             <Card className="p-4 text-center quick-actions">
               <h5 className="text-light mb-3">⚡ Quick Actions</h5>
-              <div className="d-flex justify-content-center flex-wrap gap-3">
-                <Button variant="success" onClick={() => handleQuickAction("Switch User")}>
+              <div className="quick-actions d-flex gap-2 mt-3">
+                {/* Switch User stays as an action */}
+                <Button
+                  variant="success"
+                  onClick={() => console.log("Switch User")}
+                >
                   Switch User
                 </Button>
-                <Button variant="danger" onClick={() => handleQuickAction("Emergency Mode")}>
+
+                {/* Emergency → /emergency */}
+                <Button variant="danger" onClick={() => navigate("/emergency")}>
                   Emergency Mode
                 </Button>
-                <Button variant="info" onClick={() => handleQuickAction("Health Tips")}>
+
+                {/* Health Tips → /health-insights */}
+                <Button
+                  variant="info"
+                  onClick={() => navigate("/health-insights")}
+                >
                   Health Tips
                 </Button>
-                <Button variant="dark" onClick={() => handleQuickAction("Profile")}>
+
+                {/* Profile → /my-health/prescription-loop */}
+                <Button
+                  variant="dark"
+                  onClick={() => navigate("/my-health/prescription-loop")}
+                >
                   Profile
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => navigate("/emergencySOSPage")}
+                >
+                  Emergency SOS
+                </Button>
+                <Button
+                  variant="info"
+                  onClick={() => navigate("/emergencySOSSection")}
+                >
+                  Emergency SOS Section
                 </Button>
               </div>
             </Card>

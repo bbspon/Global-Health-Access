@@ -1,121 +1,126 @@
-import React, { useState, useEffect } from "react";
-import { Modal, Button, Form, Spinner } from "react-bootstrap";
-import { toast } from "react-toastify";
-
+// src/pages/PlanTermsModal.jsx
+import React, { useEffect, useState } from "react";
+import { Modal, Button, Spinner } from "react-bootstrap";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-const PlanTermsModal = ({ show, onClose, onAccept, version, planId }) => {
-  console.log(planId, "planID");
 
-  const [signature, setSignature] = useState("");
-  const [accepted, setAccepted] = useState(false);
-  const [termsText, setTermsText] = useState("");
+const PlanTermsModal = ({ show, onClose, onAccept, version }) => {
+  // --- keep existing props; add route params ---
+  const { planId } = useParams();
+  const navigate = useNavigate();
+
+  // --- default to open when used as a page/route ---
+  const isOpen = show ?? true;
+
+  // --- local state (keep your existing fields) ---
   const [loading, setLoading] = useState(false);
+  const [termsText, setTermsText] = useState("");
   const [error, setError] = useState("");
-  useEffect(() => {
-    if (show && planId) {
-      setLoading(true);
-      setError("");
-      axios
-        .get(`/api/plans/terms/${planId}`)
-        .then((res) => {
-          setTermsText(res.data.termsText);
-        })
-        .catch((err) => {
-          console.error("Error loading terms:", err);
-          setError(
-            "Unable to load terms and conditions. Please try again later."
-          );
-        })
-        .finally(() => setLoading(false));
-    }
-  }, [show, planId]);
-  const handleAccept = async () => {
-    if (accepted && signature.trim()) {
-      const metadata = {
-        planId,
-        signature,
-        version,
-        device: navigator.userAgent,
-      };
 
-      try {
-         const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
-         const token = bbsUserData?.token;
-        await axios.post(`${import.meta.env.VITE_API_URI}/terms/accept`, metadata, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        toast.success("Consent submitted!");
-        onAccept(metadata); // optional callback
-      } catch (err) {
-        toast.error("Failed to submit terms");
-        console.error(err);
+  // --- base URL helper (works both local/prod) ---
+  const API_BASE = import.meta?.env?.VITE_API_URI || "/api";
+
+  // --- fetch terms whenever planId changes (route usage) ---
+  useEffect(() => {
+    if (!planId) return;
+    setLoading(true);
+    setError("");
+
+    axios
+      .get(`${API_BASE}/plans/terms/${planId}`)
+      .then((res) => {
+        // Expecting { termsText: string, version?: string }
+        const data = res.data || {};
+        setTermsText(data.termsText || "");
+      })
+      .catch((err) => {
+        console.error("Error loading terms:", err);
+        setError(
+          "Unable to load terms and conditions. Please try again later."
+        );
+      })
+      .finally(() => setLoading(false));
+  }, [planId]);
+
+  // --- close handler (works as modal or route) ---
+  const handleClose = onClose ?? (() => navigate(-1));
+
+  // --- accept handler (preserve existing prop if provided) ---
+  const handleAccept = async () => {
+    try {
+      if (typeof onAccept === "function") {
+        await onAccept(planId, version);
+        return;
       }
+      // default accept flow if onAccept not provided
+      const raw = localStorage.getItem("bbsUser");
+      const token = raw ? JSON.parse(raw).token : null;
+
+      await axios.post(
+        `${API_BASE}/plans/terms/${planId}/accept`,
+        { version: version || "v1" },
+        token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
+      );
+
+      // go back/close after accept
+      handleClose();
+    } catch (e) {
+      console.error("Accept terms failed:", e);
+      setError("Unable to accept terms at the moment. Please try again.");
     }
   };
 
   return (
-    <Modal show={show} onHide={onClose} size="lg" centered scrollable>
-      <Modal.Header closeButton className="bg-light">
-        <Modal.Title className="w-100 text-center">Terms & Consent</Modal.Title>
+    <Modal show={isOpen} onHide={handleClose} size="lg" centered scrollable>
+      <Modal.Header closeButton>
+        <Modal.Title>
+          Plan Terms & Conditions {version ? `(v${version})` : ""} — #{planId}
+        </Modal.Title>
       </Modal.Header>
-      <Modal.Body style={{ maxHeight: "65vh", overflowY: "auto" }}>
-        {loading ? (
-          <div className="text-center py-5">
-            <Spinner animation="border" />
+
+      <Modal.Body>
+        {loading && (
+          <div className="d-flex align-items-center gap-2">
+            <Spinner animation="border" size="sm" /> <span>Loading terms…</span>
           </div>
-        ) : error ? (
-          <div className="text-danger text-center">{error}</div>
-        ) : (
+        )}
+
+        {!loading && error && (
+          <div className="alert alert-danger mb-3">{error}</div>
+        )}
+
+        {!loading && !error && (
           <>
-            <div
-              className="p-2"
-              style={{ whiteSpace: "pre-wrap", fontSize: "0.95rem" }}
-            >
-              {termsText}
-            </div>
-            <Form className="mt-3">
-              <Form.Check
-                type="checkbox"
-                label="I have read and agree to these terms"
-                checked={accepted}
-                onChange={(e) => setAccepted(e.target.checked)}
-              />
-              <Form.Group controlId="signatureInput" className="mt-3">
-                <Form.Label className="fw-semibold">
-                  Type your full name as your signature
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="e.g., John Doe"
-                  value={signature}
-                  onChange={(e) => setSignature(e.target.value)}
-                  autoComplete="name"
-                  required
-                />
-              </Form.Group>
-            </Form>
+            {termsText ? (
+              <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6 }}>
+                {termsText}
+              </div>
+            ) : (
+              <div className="text-muted">
+                No terms found for this plan yet.
+              </div>
+            )}
           </>
         )}
       </Modal.Body>
 
-      <Modal.Footer className="d-flex justify-content-between flex-column flex-md-row">
-        <Button
-          variant="outline-secondary"
-          onClick={onClose}
-          className="w-100 mb-2 mb-md-0 me-md-2"
-        >
-          Cancel
-        </Button>
-        <Button
-          variant="success"
-          onClick={handleAccept}
-          className="w-100"
-          disabled={!accepted || !signature.trim()}
-        >
-          Accept & Proceed
-        </Button>
+      <Modal.Footer className="d-flex justify-content-between">
+        <div className="text-muted small">
+          {/* keep any footer info you had; version shown if provided */}
+          {version ? `Version: ${version}` : null}
+        </div>
+        <div>
+          <Button
+            variant="outline-secondary"
+            onClick={handleClose}
+            className="me-2"
+          >
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleAccept}>
+            I Accept
+          </Button>
+        </div>
       </Modal.Footer>
     </Modal>
   );

@@ -11,6 +11,7 @@ import {
 } from "react-bootstrap";
 import { CameraVideo, ChatDots, ClipboardCheck } from "react-bootstrap-icons";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const ConsultRoom = () => {
   const [showNote, setShowNote] = useState(false);
@@ -66,6 +67,12 @@ const ConsultRoom = () => {
   return (
     <Container fluid className="p-4">
       <h4>👨‍⚕️ Doctor Virtual Consult Room</h4>
+      <Link to={`/home-visit`}>
+        <Button variant="info">Home Visit</Button>
+      </Link>
+      <Link to={`/doctor-referral`}>
+        <Button variant="info">Doctor Referral</Button>
+      </Link>
       <Row>
         <Col md={8}>
           <Card className="mb-3">

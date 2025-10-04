@@ -14,8 +14,12 @@ import {
   GeoAltFill,
   ShieldCheck,
   Calendar2Check,
+  QrCode,
+  UpcScan,
 } from "react-bootstrap-icons";
 import axios from "axios";
+// add with the other imports
+import { Link } from "react-router-dom";
 
 const DigitalHealthCard = () => {
   const [qrData, setQrData] = useState("");
@@ -112,6 +116,20 @@ const DigitalHealthCard = () => {
                 <Button variant="outline-info" onClick={handleRefreshQR}>
                   🔄 Refresh QR
                 </Button>
+              </div>
+              <div className="d-flex gap-3 mt-3">
+                <Link
+                  to="/qr-pass"
+                  className="btn btn-outline-success d-flex align-items-center gap-2"
+                >
+                  <QrCode size={18} /> QR Pass
+                </Link>
+                <Link
+                  to="/qr"
+                  className="btn btn-outline-secondary d-flex align-items-center gap-2"
+                >
+                  <UpcScan size={18} /> Raw QR
+                </Link>
               </div>
             </Col>
           </Row>

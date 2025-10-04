@@ -1,10 +1,20 @@
 import React from "react";
 import { Container, Form, Button, Card } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 const HospitalOnboarding = () => {
+    const navigate = useNavigate();
+
   return (
     <Container className="py-4">
       <h4 className="mb-3">🏥 Hospital Onboarding</h4>
+      <Button
+        variant="outline-info"
+        size="sm"
+        onClick={() => navigate("/hospital-admin")}
+      >
+   Hospital Admin
+      </Button>
       <Card body>
         <Form>
           <Form.Group className="mb-3">

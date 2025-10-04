@@ -11,7 +11,11 @@ import {
   Spinner,
   Tooltip,
   OverlayTrigger,
+
 } from "react-bootstrap";
+import { Nav } from "react-bootstrap";
+import { Link } from "react-router-dom";
+import { BarChartLine, Cpu, Activity } from "react-bootstrap-icons";
 
 const regions = ["All India", "Delhi", "Maharashtra", "Tamil Nadu", "UAE"];
 const diseases = [
@@ -70,6 +74,41 @@ export default function HealthInsightsEngine() {
       <h2 className="mb-4 text-primary">
         National & State-Level Health Insights Engine
       </h2>
+      {/* Section tabs */}
+      <Nav variant="tabs" className="mb-3">
+        <Nav.Item>
+          <Link
+            to="/health-insights"
+            className="nav-link d-flex align-items-center gap-2"
+          >
+            <BarChartLine size={16} /> Overview
+          </Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Link
+            to="/health-insights-trends"
+            className="nav-link d-flex align-items-center gap-2"
+          >
+            <Activity size={16} /> Trends
+          </Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Link
+            to="/health-intelligence"
+            className="nav-link d-flex align-items-center gap-2"
+          >
+            <Cpu size={16} /> Intelligence
+          </Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Link
+            to="/disease-surveillance"
+            className="nav-link d-flex align-items-center gap-2"
+          >
+            <Activity size={16} /> Disease Surveillance
+          </Link>
+        </Nav.Item>
+      </Nav>
 
       <Row className="mb-3">
         <Col md={3}>

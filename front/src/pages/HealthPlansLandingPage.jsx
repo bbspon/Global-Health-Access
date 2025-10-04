@@ -59,6 +59,12 @@ const HealthPlansLandingPage = () => {
         <Button variant="info" as={Link} to="/health-access/plan-eligibility">
           Check Plan Eligibility
         </Button>
+        <Link to="/country-plans" className="btn btn-outline">
+          Country Plans
+        </Link>
+        <Link to="/dynamic-pricing" className="btn btn-outline">
+          Dynamic Pricing
+        </Link>
       </div>
 
       {/* Plan Cards */}

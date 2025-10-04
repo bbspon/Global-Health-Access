@@ -105,6 +105,16 @@ const Header = () => {
                 <NavDropdown.Item as={Link} to="/health-access/remedies">
                   Remedies
                 </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/virtual-health">
+                  Virtual Health
+                </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/book-appointment">
+                  Book Appointment
+                </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/uae-insurance-integration">
+                  Insurance (UAE)
+                </NavDropdown.Item>
+            
               </NavDropdown>
 
               {/* 🔔 Notification Button with Popover */}

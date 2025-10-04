@@ -59,6 +59,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 import {
   FaTwitter, FaInstagram, FaLinkedin, FaYoutube, FaFacebook
 } from 'react-icons/fa';
+import {  Link } from "react-router-dom";
 
 export default function BBSCARTFooter() {
   return (
@@ -68,15 +69,37 @@ export default function BBSCARTFooter() {
           {/* Left Column: Contact Info */}
           <Col md={3} className="mb-4">
             <h5 className="fw-bold">BBSCART Health Access</h5>
-            <p>55 Life Wellness Avenue<br />Bangalore, India 560001</p>
-            <p><a href="#" className="text-info text-decoration-none">Find a Location</a></p>
-            <p><a href="#" className="text-info text-decoration-none">Contact Us</a></p>
+            <p>
+              55 Life Wellness Avenue
+              <br />
+              Bangalore, India 560001
+            </p>
+            <p>
+              <a href="#" className="text-info text-decoration-none">
+                Find a Location
+              </a>
+            </p>
+            <p>
+              <a href="#" className="text-info text-decoration-none">
+                Contact Us
+              </a>
+            </p>
             <div className="d-flex gap-3 mt-3 fs-5">
-              <a href="#"><FaTwitter /></a>
-              <a href="#"><FaInstagram /></a>
-              <a href="#"><FaLinkedin /></a>
-              <a href="#"><FaYoutube /></a>
-              <a href="#"><FaFacebook /></a>
+              <a href="#">
+                <FaTwitter />
+              </a>
+              <a href="#">
+                <FaInstagram />
+              </a>
+              <a href="#">
+                <FaLinkedin />
+              </a>
+              <a href="#">
+                <FaYoutube />
+              </a>
+              <a href="#">
+                <FaFacebook />
+              </a>
             </div>
           </Col>
 
@@ -114,15 +137,90 @@ export default function BBSCARTFooter() {
             <h6 className="text-uppercase text-info">Partner Network</h6>
             <p>Hospitals • Labs • Pharmacies • NGOs</p>
 
-            <h6 className="text-uppercase text-info mt-3">Compliance & Policy</h6>
+            <h6 className="text-uppercase text-info mt-3">
+              Compliance & Policy
+            </h6>
             <ul className="list-unstyled">
-              <li><a href="#" className="text-white text-decoration-none">Privacy & Security</a></li>
-              <li><a href="#" className="text-white text-decoration-none">Terms of Use</a></li>
-              <li><a href="#" className="text-white text-decoration-none">Data Rights & Access</a></li>
+              <li>
+                <a href="#" className="text-white text-decoration-none">
+                  Privacy & Security
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-white text-decoration-none">
+                  Terms of Use
+                </a>
+              </li>
+              <li>
+                <Link
+                  to="/data-rights"
+                  className="text-white text-decoration-none"
+                  >
+                  Data Rights & Access
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/compliance-center"
+                  className="text-white text-decoration-none"
+                >
+                  Compliance Center
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/health-passport"
+                  className="text-white text-decoration-none"
+                >
+                  Health Passport
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/profile-sharing-page"
+                  className="text-white text-decoration-none"
+                >
+                  Profile Sharing
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/grievance-resolution"
+                  className="text-white text-decoration-none"
+                >
+                  Grievance Resolution
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/global-rollout"
+                  className="text-white text-decoration-none"
+                >
+                  Global Rollout
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/localization"
+                  className="text-white text-decoration-none"
+                >
+                  Localization
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/health-access-ecosystem"
+                  className="text-white text-decoration-none"
+                >
+                  Health-Access Ecosystem
+                </Link>
+              </li>
             </ul>
 
             <div className="mt-4">
-              <p className="small text-muted">© 2025 BBSCART Health Corporation</p>
+              <p className="small text-muted">
+                © 2025 BBSCART Health Corporation
+              </p>
               <p className="small text-muted">A Unified Access Network</p>
             </div>
           </Col>
@@ -131,7 +229,12 @@ export default function BBSCARTFooter() {
 
       {/* Scroll to Top */}
       <div className="text-center mt-4">
-        <a href="#top" className="btn btn-outline-light btn-sm rounded-pill px-3">⬆ Top</a>
+        <a
+          href="#top"
+          className="btn btn-outline-light btn-sm rounded-pill px-3"
+        >
+          ⬆ Top
+        </a>
       </div>
     </footer>
   );

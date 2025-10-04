@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Form, Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 const BookAppointmentPage = () => {
   const [form, setForm] = useState({
@@ -12,6 +13,7 @@ const BookAppointmentPage = () => {
     slot: "",
     notes: "",
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -81,6 +83,13 @@ const BookAppointmentPage = () => {
           Book Now
         </Button>
       </Form>
+      <Button
+        className="mt-3"
+        variant="outline-info"
+        onClick={() => navigate("/appointment-otp")}
+      >
+        Appointment OTP
+      </Button>
     </div>
   );
 };

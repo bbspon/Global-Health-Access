@@ -19,12 +19,21 @@ import {
   QuestionCircle,
   Bell,
   People,
+  Hospital,
+  Globe2,
+  GraphUp,
+  QrCode, // NEW (for QR Pass)
+  UpcScan, // NEW (for Raw QR)
+  ShieldCheck, // NEW (Compliance)
+  Cpu, // NEW (Intelligence)
+  Activity, // NEW (Surveillance)
 } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 
 const HospitalDashboard = () => {
   const navigate = useNavigate();
 
+  // ✅ Unchanged: your existing modules array
   const modules = [
     {
       title: "Hospital Onboarding",
@@ -58,7 +67,7 @@ const HospitalDashboard = () => {
       color: "dark",
       bgImage: "/health.png",
     },
-       {
+    {
       title: "Staff Access Manager",
       description: "Manage staff roles & permissions",
       icon: <People size={28} />,
@@ -74,7 +83,7 @@ const HospitalDashboard = () => {
       color: "warning",
       bgImage: "/health.png",
     },
-    
+
     {
       title: "Analytics & Reports",
       description: "Track service usage, earnings, feedback",
@@ -91,7 +100,7 @@ const HospitalDashboard = () => {
       color: "danger",
       bgImage: "/health.png",
     },
- 
+
     {
       title: "Alerts & Notifications",
       description: "View important hospital updates & alerts",
@@ -100,22 +109,53 @@ const HospitalDashboard = () => {
       color: "primary",
       bgImage: "/health.png",
     },
+    {
+      title: "Hospital Partnership",
+      description: "View important hospital partnership",
+      icon: <Hospital size={28} />,
+      link: "/hospital/hospital-partnership",
+      color: "primary",
+      bgImage: "/health.png",
+    },
+    {
+      title: "Health Ecosystem",
+      description: "View important hospital health-ecosystem",
+      icon: <Globe2 size={28} />,
+      link: "/hospital/health-ecosystem",
+      color: "primary",
+      bgImage: "/health.png",
+    },
+    {
+      title: "Ecosystem Expansion",
+      description: "View important hospital ecosystem-expansion",
+      icon: <GraphUp size={28} />,
+      link: "/hospital/ecosystem-expansion",
+      color: "primary",
+      bgImage: "/health.png",
+    },
+    {
+      title: "Consult Room",
+      description: "View important hospital consult-room",
+      icon: <GraphUp size={28} />,
+      link: "/consult-room",
+      color: "primary",
+      bgImage: "/health.png",
+    },
   ];
 
   return (
-    <Container className="p-5 my-4  rounded-3">
+    <Container className="p-5 my-4 rounded-3">
       <h3 className="mb-4 text-center">🏥 Hospital Partner Dashboard</h3>
       <Row xs={1} sm={2} md={3} className="g-4">
         {modules.map((mod, idx) => (
           <Col key={idx}>
             <Card
-              className="h-100 shadow-sm border-0 text-white "
+              className="h-100 shadow-sm border-0 text-white"
               style={{
                 backgroundImage: `url(${mod.bgImage})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 position: "relative",
-                
               }}
             >
               <div
@@ -126,22 +166,27 @@ const HospitalDashboard = () => {
                   right: 0,
                   bottom: 0,
                   backgroundColor:
-                    mod.color === "light" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.5)",
+                    mod.color === "light"
+                      ? "rgba(255,255,255,0.7)"
+                      : "rgba(0,0,0,0.5)",
                   zIndex: 1,
-                  border : "2px solid #ccc",
+                  border: "2px solid #ccc",
                   borderRadius: "10px",
                 }}
-              ></div>
+              />
               <Card.Body style={{ position: "relative", zIndex: 2 }}>
-                <Card.Title className="d-flex align-items-center justify-content-between ">
+                <Card.Title className="d-flex align-items-center justify-content-between">
                   {mod.title}
                   <Badge pill bg="white" text="dark">
                     {mod.icon}
                   </Badge>
                 </Card.Title>
+
                 <Card.Text style={{ minHeight: "60px" }}>
                   {mod.description}
                 </Card.Text>
+
+                {/* Primary action (unchanged) */}
                 <OverlayTrigger
                   placement="top"
                   overlay={<Tooltip>Go to {mod.title}</Tooltip>}
@@ -154,6 +199,131 @@ const HospitalDashboard = () => {
                     Open
                   </Button>
                 </OverlayTrigger>
+           
+                {/* ---------------- Extra quick-links (ONLY additions) ---------------- */}
+                {mod.title === "Care Pass QR Scanner" && (
+                  <>
+                    <Button
+                      variant="outline-success"
+                      size="sm"
+                      className="ms-2"
+                      onClick={() => navigate("/qr-pass")}
+                      title="QR Pass"
+                    >
+                      <QrCode size={16} className="me-1" />
+                      QR Pass
+                    </Button>
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      className="ms-2"
+                      onClick={() => navigate("/qr")}
+                      title="Raw QR"
+                    >
+                      <UpcScan size={16} className="me-1" />
+                      Raw QR
+                    </Button>
+                  </>
+                )}
+
+                {mod.title === "Staff Access Manager" && (
+                  <>
+                    {" "}
+                    <Button
+                      variant="outline-success"
+                      size="sm"
+                      className="ms-2"
+                      onClick={() => navigate("/hospital/staff-manager")}
+                      title="Staff Manager"
+                    >
+                      <People size={16} className="me-1" />
+                      Staff Manager
+                    </Button>
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
+                      className="ms-2"
+                      onClick={() => navigate("/role-based")}
+                      title="Roles & Permissions (RBAC)"
+                    >
+                      Roles &amp; Access
+                    </Button>
+                  </>
+                )}
+
+                {mod.title === "Enter Bill & Reimbursement" && (
+                  <Button
+                    variant="outline-success"
+                    size="sm"
+                    className="ms-2"
+                    onClick={() => navigate("/revenue-engine")}
+                    title="Revenue Engine"
+                  >
+                    <GraphUp size={16} className="me-1" />
+                    Revenue Engine
+                  </Button>
+                )}
+
+                {mod.title === "Analytics & Reports" && (
+                  <>
+                    <Button
+                      variant="outline-info"
+                      size="sm"
+                      className="ms-2"
+                      onClick={() => navigate("/hospital-ai")}
+                      title="Hospital AI"
+                    >
+                      <BarChartLine size={16} className="me-1" />
+                      Hospital AI
+                    </Button>
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
+                      className="ms-2"
+                      onClick={() => navigate("/health-intelligence")}
+                      title="Health Intelligence"
+                    >
+                      <Cpu size={16} className="me-1" />
+                      Intelligence
+                    </Button>
+                    <Button
+                      variant="outline-warning"
+                      size="sm"
+                      className="ms-2"
+                      onClick={() => navigate("/disease-surveillance")}
+                      title="Disease Surveillance"
+                    >
+                      <Activity size={16} className="me-1" />
+                      Surveillance
+                    </Button>
+                  </>
+                )}
+
+                {mod.title === "Support & Escalations" && (
+                  <Button
+                    variant="outline-light"
+                    size="sm"
+                    className="ms-2"
+                    onClick={() => navigate("/grievance-resolution")}
+                    title="Grievance Resolution"
+                  >
+                    Grievance Resolution
+                  </Button>
+                )}
+
+                {mod.title === "Alerts & Notifications" && (
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    className="ms-2"
+                    onClick={() => navigate("/compliance-center")}
+                    title="Compliance Center"
+                  >
+                    <ShieldCheck size={16} className="me-1" />
+                    Compliance
+                  </Button>
+                )}
+                {/* -------------------------------------------------------------------- */}
               </Card.Body>
             </Card>
           </Col>

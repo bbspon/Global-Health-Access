@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Button, Modal, Form, Spinner, Container, Row, Col, Accordion, Table, Alert } from 'react-bootstrap';
 import { FaFileDownload, FaQrcode, FaFileSignature, FaCheckCircle, FaPlus } from 'react-icons/fa';
+import { Link } from "react-router-dom";
 
 const HospitalPartnershipKit = () => {
   const [showForm, setShowForm] = useState(false);
@@ -27,11 +28,40 @@ const HospitalPartnershipKit = () => {
   return (
     <Container className="py-5">
       <h2 className="mb-4 text-primary">🏥 Hospital Partnership Toolkit</h2>
-
+      <Link
+        to="/health-access/pay-plan"
+        className="btn btn-outline-success align-items-center gap-2"
+      >
+        Health Access Pay Plan
+      </Link>
+      <Link
+        to="/health-card"
+        className="btn btn-outline-success align-items-center gap-2"
+      >
+        Health Card
+      </Link>
       <Row className="mb-4">
-        <Col><Button variant="primary" onClick={() => setShowForm(true)}>📥 Start Onboarding</Button></Col>
-        <Col><Button variant="success" onClick={() => handleDownload('MSA')}>📄 Download MSA</Button></Col>
-        <Col><Button variant="warning" onClick={() => handleDownload('Toolkit')}>🧰 Download Toolkit</Button></Col>
+        <Col>
+          <Button variant="primary" onClick={() => setShowForm(true)}>
+            📥 Start Onboarding
+          </Button>
+        </Col>
+        <Col>
+          <Button variant="success" onClick={() => handleDownload("MSA")}>
+            📄 Download MSA
+          </Button>
+        </Col>
+        <Col>
+          <Button variant="warning" onClick={() => handleDownload("Toolkit")}>
+            🧰 Download Toolkit
+          </Button>
+          <Link
+            to="/health-access/partner"
+            className="btn btn-outline-success align-items-center gap-2"
+          >
+            Health Access Partner
+          </Link>
+        </Col>
       </Row>
 
       <Accordion defaultActiveKey="0">
@@ -59,10 +89,21 @@ const HospitalPartnershipKit = () => {
           <Accordion.Header>🌐 Country-Specific Onboarding</Accordion.Header>
           <Accordion.Body>
             <Table striped bordered>
-              <thead><tr><th>UAE</th><th>India</th></tr></thead>
+              <thead>
+                <tr>
+                  <th>UAE</th>
+                  <th>India</th>
+                </tr>
+              </thead>
               <tbody>
-                <tr><td>Emirates ID, DHA, Arabic Docs</td><td>Aadhaar/GST, NABH, Regional Docs</td></tr>
-                <tr><td>VAT-Linked Invoices</td><td>GST-Ready Templates</td></tr>
+                <tr>
+                  <td>Emirates ID, DHA, Arabic Docs</td>
+                  <td>Aadhaar/GST, NABH, Regional Docs</td>
+                </tr>
+                <tr>
+                  <td>VAT-Linked Invoices</td>
+                  <td>GST-Ready Templates</td>
+                </tr>
               </tbody>
             </Table>
           </Accordion.Body>
@@ -70,17 +111,31 @@ const HospitalPartnershipKit = () => {
       </Accordion>
 
       <Modal show={showForm} onHide={() => setShowForm(false)}>
-        <Modal.Header closeButton><Modal.Title>📝 Hospital Onboarding</Modal.Title></Modal.Header>
+        <Modal.Header closeButton>
+          <Modal.Title>📝 Hospital Onboarding</Modal.Title>
+        </Modal.Header>
         <Modal.Body>
-          {submitted && <Alert variant="success">Form submitted successfully!</Alert>}
+          {submitted && (
+            <Alert variant="success">Form submitted successfully!</Alert>
+          )}
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
               <Form.Label>Hospital Name</Form.Label>
-              <Form.Control type="text" name="name" onChange={handleChange} required />
+              <Form.Control
+                type="text"
+                name="name"
+                onChange={handleChange}
+                required
+              />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Admin Email</Form.Label>
-              <Form.Control type="email" name="email" onChange={handleChange} required />
+              <Form.Control
+                type="email"
+                name="email"
+                onChange={handleChange}
+                required
+              />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Hospital Type</Form.Label>
@@ -94,14 +149,24 @@ const HospitalPartnershipKit = () => {
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Location</Form.Label>
-              <Form.Control type="text" name="location" onChange={handleChange} required />
+              <Form.Control
+                type="text"
+                name="location"
+                onChange={handleChange}
+                required
+              />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Departments Offered</Form.Label>
-              <Form.Control as="textarea" name="departments" rows={3} onChange={handleChange} />
+              <Form.Control
+                as="textarea"
+                name="departments"
+                rows={3}
+                onChange={handleChange}
+              />
             </Form.Group>
             <Button type="submit" variant="primary" disabled={loading}>
-              {loading ? <Spinner size="sm" animation="border" /> : 'Submit'}
+              {loading ? <Spinner size="sm" animation="border" /> : "Submit"}
             </Button>
           </Form>
         </Modal.Body>

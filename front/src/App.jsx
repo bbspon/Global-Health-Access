@@ -172,7 +172,7 @@ function App() {
         />
         <Route path="/booking-manager" element={<BookingManager />} />
         <Route path="/payments-wallet" element={<PaymentsWalletPage />} />
-        <Route path="/plan-terms-modal" element={<PlanTermsModal />} />
+        <Route path="/plan-terms-modal/:planId" element={<PlanTermsModal />} />
         <Route path="/data-flow" element={<DataFlowPage />} />
         <Route path="/plan-comparison" element={<PlanComparison />} />
         <Route path="/buy-plan" element={<BuyPlan />} />
@@ -249,10 +249,7 @@ function App() {
           path="/uae-insurance-integration"
           element={<UAEInsuranceIntegration />}
         />
-        <Route
-          path="/insurance-integra"
-          element={<InsuranceIntegrationPage />}
-        />
+    
         <Route
           path="/health-access-ecosystem"
           element={<HealthAccessAPIEcosystem />}
@@ -261,7 +258,7 @@ function App() {
           path="/offline-deployment"
           element={<OfflineDeploymentDashboard />}
         />
-        <Route path="/bookAppointment" element={<BookAppointmentPage />} />
+        <Route path="/book-appointment" element={<BookAppointmentPage />} />
         <Route path="/bookingManager" element={<BookingManager />} />
         <Route path="/appointment-otp" element={<AppointmentOtpPage />} />
         <Route
@@ -277,7 +274,7 @@ function App() {
         <Route path="/emergencySOSSection" element={<EmergencySOSSection />} />
         <Route path="/emergencySOSPage" element={<EmergencySOSPage />} />
         <Route path="/lab-diagnostics" element={<LabDiagnostics />} />
-        <Route path="/pharmary-order" element={<PharmacyOrders />} />
+        <Route path="/pharmacy-order" element={<PharmacyOrders />} />
         <Route path="/offline" element={<OfflineHealthKiosk />} />
         <Route path="/doctor-scorecard" element={<DoctorScoreCard />} />
         <Route path="/health-insights" element={<HealthInsightsEngine />} />
