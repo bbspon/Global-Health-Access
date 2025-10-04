@@ -12,6 +12,11 @@ const PlanEligibilityPage = () => {
 
   const handleCheckEligibility = async () => {
     const token = JSON.parse(localStorage.getItem("bbsUser"))?.token;
+    const payload = JSON.parse(atob(t.split(".")[1]));
+    payload; 
+
+    console.log(payload,"payload");
+    
     setError("");
     try {
       const res = await axios.post(
