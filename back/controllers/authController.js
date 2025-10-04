@@ -1,67 +1,118 @@
+// back/controllers/authController.js
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
-const generateToken = (user) => {
-  return jwt.sign(
+// Always sign with { id } so authMiddleware can read decoded.id
+const signAccessToken = (user, expiresIn = "1d") =>
+  jwt.sign(
     {
-      _id: user._id,
+      id: user._id.toString(),
       email: user.email,
-      roleTags: user.roleTags,
+      roleTags: user.roleTags || [],
     },
     process.env.JWT_SECRET,
-    { expiresIn: "7d" }
+    { expiresIn }
   );
-};
 
+// -------------------- REGISTER --------------------
 exports.register = async (req, res) => {
   try {
-    const { name, email, phone, password, createdFrom } = req.body;
+    const { name, email, phone, password, createdFrom } = req.body || {};
+
+    // Validate required fields explicitly to avoid generic 500s
+    if (!name || !phone || !email || !password) {
+      return res.status(400).json({
+        message:
+          "Missing fields. Please provide name, phone, email, and password.",
+      });
+    }
 
     const userExists = await User.findOne({ email });
-    if (userExists)
+    if (userExists) {
       return res.status(400).json({ message: "User already exists" });
+    }
 
     const newUser = await User.create({
       name,
       email,
       phone,
-      password,
-      createdFrom,
+      password, // keep your existing hashing/validation if applied elsewhere
+      createdFrom: createdFrom || "healthcare",
     });
-    res.status(201).json({
+
+    return res.status(201).json({
       message: "User created",
-      token: generateToken(newUser),
+      token: signAccessToken(newUser, "7d"),
       user: {
+        _id: newUser._id,
         name: newUser.name,
+        phone: newUser.phone,
         email: newUser.email,
-        roleTags: newUser.roleTags,
+        roleTags: newUser.roleTags || [],
         createdFrom: newUser.createdFrom,
       },
     });
   } catch (err) {
     console.error("Register Error:", err);
-    res.status(500).json({ message: "Server Error" });
+    // Surface validation problems clearly
+    if (err.name === "ValidationError") {
+      return res.status(400).json({ message: err.message });
+    }
+    return res.status(500).json({ message: "Server Error" });
   }
 };
 
+// -------------------- LOGIN --------------------
 exports.login = async (req, res) => {
-const { email, password, name } = req.body;
-let user = await User.findOne({ email }); // BBSlive lookup
-if (!user) {
-  user = await User.create({
-    email,
-    name,
-    password,
-    createdFrom: "healthcare",
-  });
-}
-const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-  expiresIn: "1d",
-});
-res.json({
-  message: "Login success",
-  token,
-  user: { _id: user._id, email: user.email, name: user.name },
-});
-};
+  try {
+    const { email, password, name, phone } = req.body || {};
 
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    // Lookup in BBSlive (models/User is bound to userDB)
+    let user = await User.findOne({ email });
+
+    // If user doesn't exist, CREATE it — but respect required fields
+    if (!user) {
+      if (!name || !phone) {
+        return res.status(400).json({
+          message:
+            "First-time login detected. Please provide both name and phone to create your account.",
+        });
+      }
+
+      user = await User.create({
+        name,
+        phone,
+        email,
+        password: password || "placeholder", // keep/replace with your hashing logic as needed
+        createdFrom: "healthcare",
+      });
+    }
+
+    // (Optional) If you enforce password, add verification here.
+
+    const token = signAccessToken(user, "1d");
+
+    return res.json({
+      message: "Login success",
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        phone: user.phone,
+        email: user.email,
+        roleTags: user.roleTags || [],
+        createdFrom: user.createdFrom,
+      },
+    });
+  } catch (err) {
+    console.error("Login Error:", err);
+    if (err.name === "ValidationError") {
+      return res.status(400).json({ message: err.message });
+    }
+    return res.status(500).json({ message: "Login failed" });
+  }
+};
