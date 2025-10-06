@@ -13,7 +13,7 @@ const MyHealthPlan = () => {
     const fetchPlan = async () => {
       const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
       const token = bbsUserData?.token;
-      const userIdFromStorage = bbsUserData?.user?._id;
+      const userIdFromStorage = bbsUserData?.user?._id
 
       setUserId(userIdFromStorage);
 
@@ -58,7 +58,7 @@ const MyHealthPlan = () => {
         <strong>Add-ons:</strong>{" "}
         {plan.selectedAddons && plan.selectedAddons.join(", ")}
       </p>
-      <div className="d-flex gap-2 flex-wrap">
+      <div className="d-flex justify-content-center gap-3 flex-wrap">
         <Button variant="primary">View QR</Button>
         <Button onClick={() => navigate(`/user-plan/${plan._id}/family`)}>
           Manage Family

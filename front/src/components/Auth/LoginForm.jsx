@@ -25,53 +25,59 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="container mt-5">
-      <form
-        onSubmit={handleSubmit}
-        className="p-5 border rounded shadow"
-        style={{ width: "500px", margin: "auto" }}
-      >
-        <h3 className="mb-4" style={{ fontStyle: "italic", fontWeight: "bold", fontSize: "35px" }}>
-          Login
-        </h3>
+   <div className="container my-5">
+      <div className="row justify-content-center">
+        <div className="col-12 col-xl-10 col-md-8 col-lg-6 col-xl-4">
+          <form
+            onSubmit={handleSubmit}
+            className="p-4 p-sm-5 border rounded shadow bg-white"
+            style={{ maxWidth: "100%" }}
+          >
+            <h3 className="mb-4 fw-bold fs-4 text-center">
+              Login
+            </h3>
 
-        {error && <div className="alert alert-danger">{error}</div>}
+            {error && <div className="alert alert-danger">{error}</div>}
 
-        <label htmlFor="email" className="form-label" style={{ fontStyle: "italic", fontSize: "20px" }}>
-          E-mail
-        </label>
-        <input
-          className="form-control my-2"
-          name="email"
-          type="email"
-          placeholder="Email"
-          onChange={handleChange}
-          required
-        />
+            <label htmlFor="email"  className="form-label text-start w-100  fs-6">
+              E-mail
+            </label>
+            <input
+              id="email"
+              className="form-control mb-3"
+              name="email"
+              type="email"
+              placeholder="Email"
+              onChange={handleChange}
+              required
+            />
 
-        <label htmlFor="password" className="form-label" style={{ fontStyle: "italic", fontSize: "20px" }}>
-          Password
-        </label>
-        <input
-          className="form-control my-2"
-          name="password"
-          type="password"
-          placeholder="Password"
-          onChange={handleChange}
-          required
-        />
+            <label htmlFor="password"  className="form-label text-start w-100 fs-6">
+              Password
+            </label>
+            <input
+              id="password"
+              className="form-control mb-3"
+              name="password"
+              type="password"
+              placeholder="Password"
+              onChange={handleChange}
+              required
+            />
 
-        <button className="btn btn-primary w-100 mt-3">Login</button>
+            <button className="btn btn-primary w-100 mt-2">Login</button>
 
-        <div className="text-center mt-4">
-          <span style={{ fontSize: "16px" }}>
-            Don't have an account?{" "}
-            <Link to="/signup" className="text-decoration-none fw-bold">
-              Sign Up
-            </Link>
-          </span>
+            <div className="text-center mt-4">
+              <span className="fs-6">
+                Don&apos;t have an account?{" "}
+                <Link to="/signup" className="text-decoration-none fw-bold">
+                  Sign Up
+                </Link>
+              </span>
+            </div>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

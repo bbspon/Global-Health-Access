@@ -131,9 +131,13 @@ import HealthIDCard from "./pages/HealthIDCard";
 import ProfileSharingPage from "./pages/ProfileSharingPage";
 import PlanComparisonEditor from "./cms/PlanComparisonEditor";
 import PartnerWithUsForm from "./cms/PartnerWithUsForm";
+import ScrollToTop from "./components/ScrollToTop";
+
 function App() {
   return (
     <AuthProvider>
+            <ScrollToTop /> 
+
       <Header />
 
       <Routes>

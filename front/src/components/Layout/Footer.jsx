@@ -54,12 +54,15 @@
 // export default Footer;
 
 
-import React from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import React from "react";
+import { Container, Row, Col } from "react-bootstrap";
 import {
-  FaTwitter, FaInstagram, FaLinkedin, FaYoutube, FaFacebook
-} from 'react-icons/fa';
-import {  Link } from "react-router-dom";
+  FaTwitter,
+  FaInstagram,
+  FaLinkedin,
+  FaYoutube,
+  FaFacebook,
+} from "react-icons/fa";
 
 export default function BBSCARTFooter() {
   return (
@@ -84,20 +87,30 @@ export default function BBSCARTFooter() {
                 Contact Us
               </a>
             </p>
-            <div className="d-flex gap-3 mt-3 fs-5">
-              <a href="#">
+            <div className="d-flex justify-content-center gap-3 mt-3 fs-5">
+              <a href="#" style={{ color: "#1DA1F2" }}>
+                {" "}
+                {/* Twitter Blue */}
                 <FaTwitter />
               </a>
-              <a href="#">
+              <a href="#" style={{ color: "#C13584" }}>
+                {" "}
+                {/* Instagram Gradient simplified to main pink */}
                 <FaInstagram />
               </a>
-              <a href="#">
+              <a href="#" style={{ color: "#0077B5" }}>
+                {" "}
+                {/* LinkedIn Blue */}
                 <FaLinkedin />
               </a>
-              <a href="#">
+              <a href="#" style={{ color: "#FF0000" }}>
+                {" "}
+                {/* YouTube Red */}
                 <FaYoutube />
               </a>
-              <a href="#">
+              <a href="#" style={{ color: "#1877F2" }}>
+                {" "}
+                {/* Facebook Blue */}
                 <FaFacebook />
               </a>
             </div>
@@ -152,68 +165,9 @@ export default function BBSCARTFooter() {
                 </a>
               </li>
               <li>
-                <Link
-                  to="/data-rights"
-                  className="text-white text-decoration-none"
-                  >
+                <a href="#" className="text-white text-decoration-none">
                   Data Rights & Access
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/compliance-center"
-                  className="text-white text-decoration-none"
-                >
-                  Compliance Center
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/health-passport"
-                  className="text-white text-decoration-none"
-                >
-                  Health Passport
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/profile-sharing-page"
-                  className="text-white text-decoration-none"
-                >
-                  Profile Sharing
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/grievance-resolution"
-                  className="text-white text-decoration-none"
-                >
-                  Grievance Resolution
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/global-rollout"
-                  className="text-white text-decoration-none"
-                >
-                  Global Rollout
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/localization"
-                  className="text-white text-decoration-none"
-                >
-                  Localization
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/health-access-ecosystem"
-                  className="text-white text-decoration-none"
-                >
-                  Health-Access Ecosystem
-                </Link>
+                </a>
               </li>
             </ul>
 
