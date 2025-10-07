@@ -47,7 +47,7 @@ const features = [
   {
     icon: <FileEarmarkText size={32} />,
     title: "Medical Records",
-    path: "/medical-records",
+    path: "/medical-vault",
   },
   {
     icon: <GeoAltFill size={32} />,
