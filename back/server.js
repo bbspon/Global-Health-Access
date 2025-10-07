@@ -120,6 +120,7 @@ app.use("/api/emergency", emergencySOSRoutes);
 app.use("/api/emergency", emergencyRoutes);
 app.use("/api/feedback", userFeedbackRoutes);
 app.use("/api/grievance", require("./routes/grievanceRoutes"));
+app.use("/api/hospital-bills", require("./routes/hospitalBillRoutes"));
 app.use("/api/offline-deployment", offlineDeploymentRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api", appointmentRoutes);

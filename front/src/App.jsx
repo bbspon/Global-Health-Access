@@ -165,7 +165,7 @@ function App() {
           element={<PlanComparisonEditor />}
         />
         <Route path="/hospital/carepass-scan" element={<CarePassScanner />} />
-        <Route path="/hospital/staff" element={<HospitalBilling />} />
+        <Route path="/hospital/billing" element={<HospitalBilling />} />
         <Route path="/hospital/analytics" element={<AnalyticsPage />} />
         <Route path="/hospital/support" element={<SupportPage />} />
         <Route path="/hospital/staff-manager" element={<StaffManager />} />
