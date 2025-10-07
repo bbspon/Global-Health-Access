@@ -71,7 +71,7 @@ const HospitalDashboard = () => {
       title: "Staff Access Manager",
       description: "Manage staff roles & permissions",
       icon: <People size={28} />,
-      link: "/hospital/staff",
+      link: "/hospital/staff-manager",
       color: "dark",
       bgImage: "/health.png",
     },
@@ -228,17 +228,6 @@ const HospitalDashboard = () => {
 
                 {mod.title === "Staff Access Manager" && (
                   <>
-                    {" "}
-                    <Button
-                      variant="outline-success"
-                      size="sm"
-                      className="ms-2"
-                      onClick={() => navigate("/hospital/staff-manager")}
-                      title="Staff Manager"
-                    >
-                      <People size={16} className="me-1" />
-                      Staff Manager
-                    </Button>
                     <Button
                       variant="outline-primary"
                       size="sm"
