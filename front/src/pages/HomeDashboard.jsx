@@ -52,7 +52,7 @@ const features = [
   {
     icon: <GeoAltFill size={32} />,
     title: "Nearby Hospitals",
-    path: "/hospitals",
+    path: "/hospital",
   },
   {
     icon: <Robot size={32} />,

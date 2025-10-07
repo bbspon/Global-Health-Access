@@ -91,7 +91,6 @@ const Header = () => {
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
             <Nav className="align-items-center gap-3">
-            
               <Nav.Link as={Link} to="/">
                 Home
               </Nav.Link>
@@ -114,15 +113,15 @@ const Header = () => {
                 <NavDropdown.Item as={Link} to="/plans-landing">
                   Health Access Plan
                 </NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/health-access/wellness">
+                <NavDropdown.Item as={Link} to="/Wellness-tracker">
                   Wellness Store
                 </NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/health-access/offers">
+                <NavDropdown.Item as={Link} to="/loyalty-reward">
                   Special Offers
                 </NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/health-access/remedies">
+                {/* <NavDropdown.Item as={Link} to="/health-access/remedies">
                   Remedies
-                </NavDropdown.Item>
+                </NavDropdown.Item> */}
                 <NavDropdown.Item as={Link} to="/virtual-health">
                   Virtual Health
                 </NavDropdown.Item>
