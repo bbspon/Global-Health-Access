@@ -8,34 +8,89 @@ const SignupForm = () => {
     email: "",
     password: "",
     phone: "",
-    role: "user", // dropdown role
-    createdFrom: "healthcare", // auto-tagged
+    role: "",
+    createdFrom: "healthcare",
   });
 
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
+  // ✅ Validation logic for each field
+  const validateField = (name, value) => {
+    let message = "";
+
+    switch (name) {
+      case "name":
+        if (!value.trim()) message = "Full name is required.";
+        else if (value.trim().length < 3)
+          message = "Name must be at least 3 characters.";
+        break;
+
+      case "email":
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!value.trim()) message = "Email address is required.";
+        else if (!emailRegex.test(value))
+          message = "Enter a valid email address.";
+        break;
+
+      case "password":
+        const passRegex =
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?#&])[A-Za-z\d@$!%*?#&]{8,}$/;
+        if (!value.trim()) message = "Password is required.";
+        else if (!passRegex.test(value))
+          message =
+            "Password must be 8+ chars with uppercase, lowercase, number & special character.";
+        break;
+
+      case "phone":
+        const phoneRegex = /^[0-9]{10}$/;
+        if (!value.trim()) message = "Phone number is required.";
+        else if (!phoneRegex.test(value))
+          message = "Enter a valid 10-digit phone number.";
+        break;
+
+      case "role":
+        if (!value.trim()) message = "Please select a user role.";
+        break;
+
+      default:
+        break;
+    }
+
+    return message;
+  };
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+
+    // validate as user types
+    setErrors({ ...errors, [name]: validateField(name, value) });
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    Object.keys(form).forEach((key) => {
+      const errorMsg = validateField(key, form[key]);
+      if (errorMsg) newErrors[key] = errorMsg;
+    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setSuccess("");
 
-    if (!form.role) {
-      setError("Please select a user role.");
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
-      await signupUser(form); // POST to /api/auth/register (shared)
+      await signupUser(form);
       setSuccess("Signup successful! Redirecting to login...");
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      setError(err.response?.data?.message || "Signup failed");
+      setErrors({ general: err.response?.data?.message || "Signup failed" });
     }
   };
 
@@ -53,55 +108,67 @@ const SignupForm = () => {
           Create Your Account
         </h3>
 
-        {error && <div className="alert alert-danger">{error}</div>}
+        {errors.general && (
+          <div className="alert alert-danger">{errors.general}</div>
+        )}
         {success && <div className="alert alert-success">{success}</div>}
 
+        {/* Name */}
         <label className="form-label">Full Name</label>
         <input
           className="form-control my-2"
           name="name"
           placeholder="Enter your name"
+          value={form.name}
           onChange={handleChange}
-          required
         />
+        {errors.name && <small className="text-danger">{errors.name}</small>}
 
-        <label className="form-label">Email Address</label>
+        {/* Email */}
+        <label className="form-label mt-2">Email Address</label>
         <input
           className="form-control my-2"
           name="email"
           type="email"
           placeholder="Enter your email"
+          value={form.email}
           onChange={handleChange}
-          required
         />
+        {errors.email && <small className="text-danger">{errors.email}</small>}
 
-        <label className="form-label">Password</label>
+        {/* Password */}
+        <label className="form-label mt-2">Password</label>
         <input
           className="form-control my-2"
           name="password"
           type="password"
           placeholder="Create a password"
+          value={form.password}
           onChange={handleChange}
-          required
         />
+        {errors.password && (
+          <small className="text-danger">{errors.password}</small>
+        )}
 
-        <label className="form-label">Phone Number</label>
+        {/* Phone */}
+        <label className="form-label mt-2">Phone Number</label>
         <input
           className="form-control my-2"
           name="phone"
           type="tel"
           placeholder="Enter phone number"
+          value={form.phone}
           onChange={handleChange}
-          required
         />
+        {errors.phone && <small className="text-danger">{errors.phone}</small>}
 
-        <label className="form-label">Select Role</label>
+        {/* Role */}
+        <label className="form-label mt-2">Select Role</label>
         <select
           className="form-control my-2"
           name="role"
           value={form.role}
           onChange={handleChange}
-          required
         >
           <option value="">-- Choose Role --</option>
           <option value="user">User</option>
@@ -109,8 +176,9 @@ const SignupForm = () => {
           <option value="ngo">NGO</option>
           <option value="corporate">Corporate</option>
         </select>
+        {errors.role && <small className="text-danger">{errors.role}</small>}
 
-        <button className="btn btn-success w-100 mt-3">Signup</button>
+        <button className="btn btn-success w-100 mt-4">Signup</button>
 
         <div className="text-center mt-4">
           <span>
