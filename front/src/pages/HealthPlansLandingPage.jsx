@@ -3,9 +3,7 @@ import axios from "axios";
 import PlanCard from "../components/HealthAccess/PlanCard";
 import BuyPlanModal from "../components/HealthAccess/BuyPlanModal";
 import { useNavigate, Link } from "react-router-dom";
-import {
-  Button,
-} from "react-bootstrap";
+import { Button } from "react-bootstrap";
 const HealthPlansLandingPage = () => {
   const [plans, setPlans] = useState([]);
   const [filteredPlans, setFilteredPlans] = useState([]);
@@ -39,7 +37,7 @@ const HealthPlansLandingPage = () => {
   };
 
   return (
-    <div className="container my-4">
+    <div className="container my-5 vh-100">
       <h2 className="mb-3">Explore Our Health Plans</h2>
 
       {/* Tier Filters */}
@@ -56,7 +54,7 @@ const HealthPlansLandingPage = () => {
             {tier.charAt(0).toUpperCase() + tier.slice(1)}
           </button>
         ))}
-        <Button variant="info" as={Link} to="/health-access/plan-eligibility">
+        <Button variant="light" as={Link} to="/health-access/plan-eligibility">
           Check Plan Eligibility
         </Button>
         <Link to="/country-plans" className="btn btn-outline">

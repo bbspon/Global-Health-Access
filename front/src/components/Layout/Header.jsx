@@ -10,12 +10,13 @@ import {
   Popover,
   ListGroup,
 } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Bell, Cart, Globe } from "react-bootstrap-icons";
 import { FaUserAlt } from "react-icons/fa";
 import { IoLogoXing } from "react-icons/io";
 import { GiArchiveRegister } from "react-icons/gi";
 const Header = () => {
+  const location = useLocation();
   const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
   const token = bbsUserData?.token;
   const username = bbsUserData?.user.name;
@@ -90,23 +91,43 @@ const Header = () => {
 
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
-            <Nav className="align-items-center gap-3">
-              <Nav.Link as={Link} to="/">
+            <Nav className="align-items-center gap-1">
+              <Nav.Link as={Link} to="/" onClick={() => handleLinkClick("/")}>
                 Home
               </Nav.Link>
-              <Nav.Link as={Link} to="/plans">
+              <Nav.Link
+                as={Link}
+                to="/plans"
+                onClick={() => handleLinkClick("/plans")}
+              >
                 Plans
               </Nav.Link>
-              <Nav.Link as={Link} to="/about">
+              <Nav.Link
+                as={Link}
+                to="/about"
+                onClick={() => handleLinkClick("/about")}
+              >
                 About Us
               </Nav.Link>
-              <Nav.Link as={Link} to="/hospital">
+              <Nav.Link
+                as={Link}
+                to="/hospital"
+                onClick={() => handleLinkClick("/hospital")}
+              >
                 Health Partners
               </Nav.Link>
-              <Nav.Link as={Link} to="/plan-comparison">
+              <Nav.Link
+                as={Link}
+                to="/plan-comparison"
+                onClick={() => handleLinkClick("/plan-comparison")}
+              >
                 Compare Plans
               </Nav.Link>
-              <Nav.Link as={Link} to="/myplan">
+              <Nav.Link
+                as={Link}
+                to="/myplan"
+                onClick={() => handleLinkClick("/myplan")}
+              >
                 My Plans
               </Nav.Link>
               <NavDropdown title="More Services" id="services-nav">
@@ -145,7 +166,7 @@ const Header = () => {
                   <Badge
                     bg="danger"
                     pill
-                    className="position-absolute top-0 start-100 translate-middle"
+                    className="position-absolute top-0 start-20 translate-middle"
                   >
                     {notifications}
                   </Badge>
@@ -205,7 +226,7 @@ const Header = () => {
                   <Badge
                     bg="primary"
                     pill
-                    className="position-absolute top-0 start-100 translate-middle"
+                    className="position-absolute top-0 start-20 translate-middle"
                   >
                     {cartCount}
                   </Badge>

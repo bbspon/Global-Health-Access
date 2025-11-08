@@ -34,7 +34,7 @@ const PlanCard = ({ plan }) => {
         </div>
         <Card.Text>{plan.description}</Card.Text>
 
-        <ul className="small text-muted flex-grow-1">
+        <ul className="small text-muted flex-grow-1 text-start">
           {Array.isArray(plan.features) &&
             plan.features.map((feature, idx) => <li key={idx}>{feature}</li>)}
         </ul>

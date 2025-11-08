@@ -53,7 +53,6 @@
 
 // export default Footer;
 
-
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import {
@@ -66,75 +65,72 @@ import {
 
 export default function BBSCARTFooter() {
   return (
-    <footer className="bg-dark text-white pt-5 pb-3 mt-5">
-      <Container fluid="md">
-        <Row>
+    <footer
+      className="text-white p-5 mt-5"
+      style={{ backgroundColor: "#0a2540", textAlign: "left" }} // Hospital calm dark blue
+    >
+      <Container fluid>
+        <Row className="gx-5 gy-4">
+          {" "}
+          {/* Adjust horizontal (gx) and vertical (gy) gaps */}
           {/* Left Column: Contact Info */}
-          <Col md={3} className="mb-4">
-            <h5 className="fw-bold">BBSCART Health Access</h5>
-            <p>
+          <Col md={3}>
+            <h5 className="fw-bold mb-3">BBSCART HEALTH ACCESS</h5>
+            <p className="mb-1">
               55 Life Wellness Avenue
               <br />
               Bangalore, India 560001
             </p>
-            <p>
+            <p className="mb-1">
               <a href="#" className="text-info text-decoration-none">
                 Find a Location
               </a>
             </p>
-            <p>
+            <p className="mb-1">
               <a href="#" className="text-info text-decoration-none">
                 Contact Us
               </a>
             </p>
-            <div className="d-flex justify-content-center gap-3 mt-3 fs-5">
+            <div className="d-flex gap-3 mt-2 fs-5">
               <a href="#" style={{ color: "#1DA1F2" }}>
-                {" "}
-                {/* Twitter Blue */}
                 <FaTwitter />
               </a>
               <a href="#" style={{ color: "#C13584" }}>
-                {" "}
-                {/* Instagram Gradient simplified to main pink */}
                 <FaInstagram />
               </a>
               <a href="#" style={{ color: "#0077B5" }}>
-                {" "}
-                {/* LinkedIn Blue */}
                 <FaLinkedin />
               </a>
               <a href="#" style={{ color: "#FF0000" }}>
-                {" "}
-                {/* YouTube Red */}
                 <FaYoutube />
               </a>
               <a href="#" style={{ color: "#1877F2" }}>
-                {" "}
-                {/* Facebook Blue */}
                 <FaFacebook />
               </a>
             </div>
           </Col>
-
           {/* Center Left: Links */}
-          <Col md={3} className="mb-4">
-            <h6 className="text-uppercase text-info">Education & Training</h6>
-            <p>Fellowships, internships, wellness careers</p>
+          <Col md={3}>
+            <h6 className="text-uppercase text-info mb-1">
+              Education & Training
+            </h6>
+            <p className="mb-2">Fellowships, internships, wellness careers</p>
 
-            <h6 className="text-uppercase text-info mt-3">Careers</h6>
-            <p>Explore BBSCART openings</p>
+            <h6 className="text-uppercase text-info mt-2 mb-1">Careers</h6>
+            <p className="mb-2">Explore BBSCART openings</p>
 
-            <h6 className="text-uppercase text-info mt-3">News & Events</h6>
-            <p>Latest platform updates</p>
+            <h6 className="text-uppercase text-info mt-2 mb-1">
+              News & Events
+            </h6>
+            <p className="mb-2">Latest platform updates</p>
 
-            <h6 className="text-uppercase text-info mt-3">Ways to Give</h6>
-            <p>Support health access for all</p>
+            <h6 className="text-uppercase text-info mt-2 mb-1">Ways to Give</h6>
+            <p className="mb-0">Support health access for all</p>
           </Col>
-
           {/* Center Right: Departments */}
-          <Col md={3} className="mb-4">
-            <h6 className="text-uppercase text-info">Health Services</h6>
-            <ul className="list-unstyled">
+          <Col md={3}>
+            <h6 className="text-uppercase text-info mb-2">Health Services</h6>
+            <ul className="list-unstyled mb-0">
               <li>Primary Care</li>
               <li>Cardiology</li>
               <li>Diagnostics</li>
@@ -144,16 +140,15 @@ export default function BBSCARTFooter() {
               <li>Mental Health</li>
             </ul>
           </Col>
-
           {/* Right: Legal & Partner Info */}
           <Col md={3}>
-            <h6 className="text-uppercase text-info">Partner Network</h6>
-            <p>Hospitals • Labs • Pharmacies • NGOs</p>
+            <h6 className="text-uppercase text-info mb-2">Partner Network</h6>
+            <p className="mb-2">Hospitals • Labs • Pharmacies • NGOs</p>
 
-            <h6 className="text-uppercase text-info mt-3">
+            <h6 className="text-uppercase text-info mt-2 mb-2">
               Compliance & Policy
             </h6>
-            <ul className="list-unstyled">
+            <ul className="list-unstyled mb-0">
               <li>
                 <a href="#" className="text-white text-decoration-none">
                   Privacy & Security
@@ -171,25 +166,25 @@ export default function BBSCARTFooter() {
               </li>
             </ul>
 
-            <div className="mt-4">
-              <p className="small text-muted">
+            <div className="mt-3">
+              <p className="small text-muted mb-0">
                 © 2025 BBSCART Health Corporation
               </p>
-              <p className="small text-muted">A Unified Access Network</p>
+              <p className="small text-muted mb-0">A Unified Access Network</p>
             </div>
           </Col>
         </Row>
-      </Container>
 
-      {/* Scroll to Top */}
-      <div className="text-center mt-4">
-        <a
-          href="#top"
-          className="btn btn-outline-light btn-sm rounded-pill px-3"
-        >
-          ⬆ Top
-        </a>
-      </div>
+        {/* Scroll to Top */}
+        <div className="text-center mt-4">
+          <a
+            href="#top"
+            className="btn btn-outline-light btn-sm rounded-pill px-3"
+          >
+            ⬆ Top
+          </a>
+        </div>
+      </Container>
     </footer>
   );
 }

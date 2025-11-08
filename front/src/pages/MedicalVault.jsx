@@ -13,15 +13,18 @@ const MedicalVault = () => {
     tags: "",
   });
 
-const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
-const token = bbsUserData?.token;
+  const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+  const token = bbsUserData?.token;
 
   // 🔁 Fetch Records
   const fetchRecords = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URI}/medical-vault`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URI}/medical-vault`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setRecords(res.data);
     } catch (err) {
       console.error("Error fetching records:", err);
@@ -71,21 +74,22 @@ const token = bbsUserData?.token;
   }, []);
 
   return (
-    <div className="container p-4">
+    <div className="container p-4 vh-100">
       <h2 className="text-xl font-bold mb-4">🧬 My Medical Vault</h2>
+      <div className="d-flex gap-3 justify-content-center">
+        <button
+          onClick={() => setUploadModal(true)}
+          className="bg-dark text-white px-4 py-2 rounded mb-4"
+        >
+          Upload Record
+        </button>
 
-      <button
-        onClick={() => setUploadModal(true)}
-        className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
-      >
-        📤 Upload Record
-      </button>
-
-      <input
-        type="text"
-        placeholder="Search records..."
-        className="w-full p-2 border rounded mb-4"
-      />
+        <input
+          type="text"
+          placeholder="Search records..."
+          className="w-full p-2 border-2 rounded mb-4"
+        />
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {records.map((record, index) => (
@@ -121,64 +125,78 @@ const token = bbsUserData?.token;
 
       {/* Upload Modal */}
       {uploadModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded w-full max-w-md">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
+          <div
+            className="p-4  w-full max-w-md shadow-lg "
+            style={{
+              backgroundColor: "#0598bd96", // Hospital blue
+              color: "#fff", // White text for contrast
+              gap: "1rem", // Gap between inner elements if using flex
+              border: "2px solid #0598bd", // Border color
+            }}
+          >
             <h3 className="text-lg font-semibold mb-4">
               Upload Medical Record
             </h3>
 
-            <input
-              type="text"
-              placeholder="Name"
-              value={uploadData.name}
-              onChange={(e) =>
-                setUploadData({ ...uploadData, name: e.target.value })
-              }
-              className="w-full border p-2 mb-2 rounded"
-            />
-            <input
-              type="text"
-              placeholder="Category"
-              value={uploadData.category}
-              onChange={(e) =>
-                setUploadData({ ...uploadData, category: e.target.value })
-              }
-              className="w-full border p-2 mb-2 rounded"
-            />
-            <input
-              type="date"
-              value={uploadData.date}
-              onChange={(e) =>
-                setUploadData({ ...uploadData, date: e.target.value })
-              }
-              className="w-full border p-2 mb-2 rounded"
-            />
-            <input
-              type="text"
-              placeholder="Tags (comma separated)"
-              value={uploadData.tags}
-              onChange={(e) =>
-                setUploadData({ ...uploadData, tags: e.target.value })
-              }
-              className="w-full border p-2 mb-2 rounded"
-            />
-            <input
-              type="file"
-              onChange={(e) => setFile(e.target.files[0])}
-              className="w-full mb-4"
-            />
-
-            <div className="flex justify-between">
+            <div className="d-flex gap-3 justify-content-center flex-wrap mb-4">
+              <input
+                type="text"
+                placeholder="Name"
+                value={uploadData.name}
+                onChange={(e) =>
+                  setUploadData({ ...uploadData, name: e.target.value })
+                }
+                className="w-full border p-2 mb-2 rounded"
+              />
+              <input
+                type="text"
+                placeholder="Category"
+                value={uploadData.category}
+                onChange={(e) =>
+                  setUploadData({ ...uploadData, category: e.target.value })
+                }
+                className="w-full border p-2 mb-2 rounded"
+              />
+              <input
+                type="date"
+                value={uploadData.date}
+                onChange={(e) =>
+                  setUploadData({ ...uploadData, date: e.target.value })
+                }
+                className="w-full border p-2 mb-2 rounded"
+              />
+              <input
+                type="text"
+                placeholder="Tags (comma separated)"
+                value={uploadData.tags}
+                onChange={(e) =>
+                  setUploadData({ ...uploadData, tags: e.target.value })
+                }
+                className="w-full border p-2 mb-2 rounded"
+              />
+              <input
+                type="file"
+                onChange={(e) => setFile(e.target.files[0])}
+                className="w-full mb-4 rounded px-3 py-2"
+                style={{
+                  backgroundColor: "#485f8098", // light hospital blue background
+                  border: "2px solid #121416ff", // hospital blue border
+                  color: "#d9d9f1ff", // text color
+                }}
+              />
+            </div>
+            <div className="d-flex gap-3 justify-content-center">
               <button
                 onClick={handleUpload}
                 disabled={uploading}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
+                className="bg-dark text-white px-4 py-2 rounded"
               >
                 {uploading ? "Uploading..." : "Upload"}
               </button>
               <button
                 onClick={() => setUploadModal(false)}
-                className="bg-gray-400 text-white px-4 py-2 rounded"
+                className="bg-gray-400 text-dark bg-secondary px-4 py-2 rounded"
               >
                 Cancel
               </button>

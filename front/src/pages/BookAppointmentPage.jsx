@@ -40,10 +40,15 @@ const BookAppointmentPage = () => {
   };
 
   return (
-    <div className="container py-4">
+    <div className="container py-5 vh-100">
       <h4>Book Appointment</h4>
       <Form>
-        <Form.Select name="type" value={form.type} onChange={handleChange}>
+        <Form.Select
+          name="type"
+          className="mb-3"
+          value={form.type}
+          onChange={handleChange}
+        >
           <option value="doctor">Doctor Consultation</option>
           <option value="video">Video Call</option>
           <option value="lab">Lab Test</option>
@@ -52,44 +57,52 @@ const BookAppointmentPage = () => {
           name="providerName"
           placeholder="Hospital/Lab Name"
           onChange={handleChange}
+          className="mb-3"
         />
         <Form.Control
           name="doctorName"
           placeholder="Doctor Name (optional)"
           onChange={handleChange}
+          className="mb-3"
         />
         <Form.Control
           name="specialization"
           placeholder="Specialization"
           onChange={handleChange}
+          className="mb-3"
         />
         <Form.Control
           type="date"
           name="appointmentDate"
           onChange={handleChange}
+          className="mb-3"
         />
         <Form.Control
           name="slot"
           placeholder="Preferred Time Slot"
           onChange={handleChange}
+          className="mb-3"
         />
         <Form.Control
           as="textarea"
           name="notes"
           placeholder="Reason or Notes"
           onChange={handleChange}
+          className="mb-3"
         />
-        <Button className="mt-3" onClick={handleSubmit}>
+      </Form>
+      <div className="d-flex gap-2 justify-content-end">
+        <Button className="mt-3 bg-info" onClick={handleSubmit}>
           Book Now
         </Button>
-      </Form>
-      <Button
-        className="mt-3"
-        variant="outline-info"
-        onClick={() => navigate("/appointment-otp")}
-      >
-        Appointment OTP
-      </Button>
+        <Button
+          className="mt-3"
+          variant="outline-info"
+          onClick={() => navigate("/appointment-otp")}
+        >
+          Appointment OTP
+        </Button>
+      </div>
     </div>
   );
 };

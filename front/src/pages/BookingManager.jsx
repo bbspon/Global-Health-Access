@@ -40,7 +40,7 @@ const BookingManager = () => {
   };
 
   return (
-    <Container className="mt-4">
+    <Container className="mt-4 vh-100">
       <Row>
         <Col md={12}>
           <h3>Booking & Scheduling Dashboard</h3>

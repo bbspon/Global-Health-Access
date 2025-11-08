@@ -1,7 +1,7 @@
 import React from "react";
 import { Container, Table, Badge, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
- 
+
 const planData = [
   {
     feature: "OPD Consultations / Mo",
@@ -13,7 +13,12 @@ const planData = [
   },
   {
     feature: "Diagnostics & Tests",
-    tiers: ["1 Lab / Mo", "2 Labs + 1 Scan", "4 Labs + 2 Scans", "Unlimited (Fair Usage)"],
+    tiers: [
+      "1 Lab / Mo",
+      "2 Labs + 1 Scan",
+      "4 Labs + 2 Scans",
+      "Unlimited (Fair Usage)",
+    ],
   },
   {
     feature: "Pharmacy Discount",
@@ -21,7 +26,12 @@ const planData = [
   },
   {
     feature: "Dental Services / Year",
-    tiers: ["1", "1 + Cleaning", "2 + Cleaning + X-Ray", "3 + Cleaning + Procedure"],
+    tiers: [
+      "1",
+      "1 + Cleaning",
+      "2 + Cleaning + X-Ray",
+      "3 + Cleaning + Procedure",
+    ],
   },
   {
     feature: "Accidental Care Cap",
@@ -74,39 +84,41 @@ const PlanComparison = () => {
     <Container className="py-5">
       <h2 className="text-center mb-4">Plan Tier Comparison</h2>
       <Button
-        className="mt-3"
+        className="mt-1 mb-4"
         variant="outline-info"
         onClick={() => navigate("/hospital/plancomparison-editor")}
       >
         Plan Comparison Editor
       </Button>
-      <Table
-        bordered
-        responsive
-        hover
-        className="text-center align-middle shadow"
-      >
-        <thead className="table-dark">
-          <tr>
-            <th>Feature</th>
-            {tiers.map((tier, i) => (
-              <th key={tier}>
-                <Badge bg={badgeColors[i]}>{tier}</Badge>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {planData.map((row, i) => (
-            <tr key={i}>
-              <td>{row.feature}</td>
-              {row.tiers.map((val, idx) => (
-                <td key={idx}>{val}</td>
+      <div className="border border-3 border-dark rounded p-3">
+        <Table
+          bordered
+          responsive
+          hover
+          className="text-center align-middle shadow mb-4 border-1 p-3"
+        >
+          <thead className="table-dark">
+            <tr>
+              <th>Feature</th>
+              {tiers.map((tier, i) => (
+                <th key={tier}>
+                  <Badge bg={badgeColors[i]}>{tier}</Badge>
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {planData.map((row, i) => (
+              <tr key={i}>
+                <td>{row.feature}</td>
+                {row.tiers.map((val, idx) => (
+                  <td key={idx}>{val}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </div>
     </Container>
   );
 };

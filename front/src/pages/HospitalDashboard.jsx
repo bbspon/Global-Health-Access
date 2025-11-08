@@ -199,14 +199,14 @@ const HospitalDashboard = () => {
                     Open
                   </Button>
                 </OverlayTrigger>
-           
+
                 {/* ---------------- Extra quick-links (ONLY additions) ---------------- */}
                 {mod.title === "Care Pass QR Scanner" && (
                   <>
                     <Button
                       variant="outline-success"
                       size="sm"
-                      className="ms-2"
+                      className="ms-2 text-dark bg-light "
                       onClick={() => navigate("/qr-pass")}
                       title="QR Pass"
                     >
@@ -216,7 +216,7 @@ const HospitalDashboard = () => {
                     <Button
                       variant="outline-secondary"
                       size="sm"
-                      className="ms-2"
+                      className="ms-2 text-dark bg-light "
                       onClick={() => navigate("/qr")}
                       title="Raw QR"
                     >
@@ -229,9 +229,8 @@ const HospitalDashboard = () => {
                 {mod.title === "Staff Access Manager" && (
                   <>
                     <Button
-                      variant="outline-primary"
                       size="sm"
-                      className="ms-2"
+                      className="ms-2 text-dark bg-light "
                       onClick={() => navigate("/role-based")}
                       title="Roles & Permissions (RBAC)"
                     >
@@ -244,47 +243,49 @@ const HospitalDashboard = () => {
                   <Button
                     variant="outline-success"
                     size="sm"
-                    className="ms-2"
+                    className="ms-2 text-dark bg-light "
                     onClick={() => navigate("/revenue-engine")}
                     title="Revenue Engine"
                   >
-                    <GraphUp size={16} className="me-1" />
+                    <GraphUp size={16} className="me-1  " />
                     Revenue Engine
                   </Button>
                 )}
 
                 {mod.title === "Analytics & Reports" && (
                   <>
-                    <Button
-                      variant="outline-info"
-                      size="sm"
-                      className="ms-2"
-                      onClick={() => navigate("/hospital-ai")}
-                      title="Hospital AI"
-                    >
-                      <BarChartLine size={16} className="me-1" />
-                      Hospital AI
-                    </Button>
-                    <Button
-                      variant="outline-primary"
-                      size="sm"
-                      className="ms-2"
-                      onClick={() => navigate("/health-intelligence")}
-                      title="Health Intelligence"
-                    >
-                      <Cpu size={16} className="me-1" />
-                      Intelligence
-                    </Button>
-                    <Button
-                      variant="outline-warning"
-                      size="sm"
-                      className="ms-2"
-                      onClick={() => navigate("/disease-surveillance")}
-                      title="Disease Surveillance"
-                    >
-                      <Activity size={16} className="me-1" />
-                      Surveillance
-                    </Button>
+                    <div className="d-flex flex-wrap flex-row m-3 align-items-center justify-content-center gap-2">
+                      <Button
+                        variant="outline-info"
+                        size="sm"
+                        className="ms-2 text-dark bg-light "
+                        onClick={() => navigate("/hospital-ai")}
+                        title="Hospital AI"
+                      >
+                        <BarChartLine size={16} className="me-1  " />
+                        Hospital AI
+                      </Button>
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        className="ms-2 text-dark bg-light "
+                        onClick={() => navigate("/health-intelligence")}
+                        title="Health Intelligence"
+                      >
+                        <Cpu size={16} className="me-1" />
+                        Intelligence
+                      </Button>
+                      <Button
+                        variant="outline-warning"
+                        size="sm"
+                        className="ms-2 text-dark bg-light "
+                        onClick={() => navigate("/disease-surveillance")}
+                        title="Disease Surveillance"
+                      >
+                        <Activity size={16} className="me-1" />
+                        Surveillance
+                      </Button>
+                    </div>
                   </>
                 )}
 
@@ -292,7 +293,7 @@ const HospitalDashboard = () => {
                   <Button
                     variant="outline-light"
                     size="sm"
-                    className="ms-2"
+                    className="ms-2 text-dark bg-light "
                     onClick={() => navigate("/grievance-resolution")}
                     title="Grievance Resolution"
                   >
@@ -304,7 +305,7 @@ const HospitalDashboard = () => {
                   <Button
                     variant="outline-primary"
                     size="sm"
-                    className="ms-2"
+                    className="ms-2 text-dark bg-light "
                     onClick={() => navigate("/compliance-center")}
                     title="Compliance Center"
                   >
