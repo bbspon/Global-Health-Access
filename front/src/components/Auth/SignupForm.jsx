@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { signupUser } from "../../services/authAPI";
 import { useNavigate, Link } from "react-router-dom";
-
+import { IoEyeOutline, IoEyeOffSharp } from "react-icons/io5";
 const SignupForm = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -40,7 +42,7 @@ const SignupForm = () => {
         if (!value.trim()) message = "Password is required.";
         else if (!passRegex.test(value))
           message =
-            "Password must be 8+ chars with uppercase, lowercase, number & special character.";
+            "Password must be 8+ chars with uppercase, lowercase, number & special character";
         break;
 
       case "phone":
@@ -95,100 +97,191 @@ const SignupForm = () => {
   };
 
   return (
-    <div className="container mt-5">
-      <form
-        onSubmit={handleSubmit}
+    <div
+      className="container-fluid d-flex justify-content-center align-items-center rounded-5"
+      style={{
+        backgroundImage:
+          "url('https://jclis.com/wp-content/uploads/2023/02/THE-HEALTH-INSURANCE-MARKETPLACE-EXPLAINED-1.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        minHeight: "80vh", // ensures full height coverage
+        width: "100%", // ensures full width
+      }}
+    >
+      <div
         className="p-5 border rounded shadow"
-        style={{ width: "500px", margin: "auto" }}
+        style={{
+          width: "550px",
+          maxWidth: "90%",
+          height: "750px",
+          backgroundColor: "#bbc6d188",
+        }}
       >
         <h3
-          className="mb-4"
-          style={{ fontStyle: "italic", fontWeight: "bold", fontSize: "30px" }}
+          style={{
+            fontStyle: "italic",
+            fontSize: "22px",
+            borderBottom: "1px solid #ccc",
+            padding: "5px ",
+            borderRadius: "8px",
+            backgroundColor: "#94c2ecd0",
+          }}
         >
           Create Your Account
         </h3>
+        <form onSubmit={handleSubmit}>
+          {errors.general && (
+            <div className="alert alert-danger">{errors.general}</div>
+          )}
+          {success && <div className="alert alert-success">{success}</div>}
+          <div className="row">
+            {/* Name */}
+            <div className="col-md-6  mb-3">
+              <label className="form-label text-start d-block text-start">
+                Full Name
+              </label>
+              <input
+                className="form-control my-2 "
+                name="name"
+                placeholder="Enter your name"
+                value={form.name}
+                onChange={handleChange}
+              />
+              {errors.name && (
+                <small className="text-danger d-block ">{errors.name}</small>
+              )}
+            </div>
 
-        {errors.general && (
-          <div className="alert alert-danger">{errors.general}</div>
-        )}
-        {success && <div className="alert alert-success">{success}</div>}
+            {/* Email */}
+            <div className="col-md-6">
+              <label className="form-label d-block text-start text-nowrap ">
+                Email Address
+              </label>
+              <input
+                className="form-control my-2"
+                name="email"
+                type="email"
+                placeholder="Enter your email"
+                value={form.email}
+                onChange={handleChange}
+              />{" "}
+              {errors.email && (
+                <small className="text-danger d-block ">{errors.email}</small>
+              )}
+            </div>
+          </div>
+          {/* Password */}
+          <div>
+            <label className="form-label mt-2 d-block text-start">
+              Password
+            </label>
+            <div className="position-relative">
+              <input
+                className="form-control my-2"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Create a password"
+                value={form.password}
+                onChange={handleChange}
+              />
+              <span
+                className="position-absolute top-50 end-0 translate-middle-y me-3"
+                style={{ cursor: "pointer" }}
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <IoEyeOffSharp className="text-danger" />
+                ) : (
+                  <IoEyeOutline />
+                )}
+              </span>
+            </div>
+            {errors.password && (
+              <small className="text-danger text-wrap ">
+                {errors.password}
+              </small>
+            )}
+          </div>
+          {/* Confirm Password */}
+          <div>
+            <label className="form-label mt-2 d-block text-start">
+              Confirm Password
+            </label>
+            <div className="position-relative">
+              <input
+                className="form-control my-2"
+                name="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Re-enter your password"
+                value={form.confirmPassword}
+                onChange={handleChange}
+              />
+              <span
+                className="position-absolute top-50 end-0 translate-middle-y me-3"
+                style={{ cursor: "pointer" }}
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? (
+                  <IoEyeOffSharp className="text-danger" />
+                ) : (
+                  <IoEyeOutline />
+                )}
+              </span>
+            </div>
+            {errors.confirmPassword && (
+              <small className="text-danger text-center">
+                {errors.confirmPassword}
+              </small>
+            )}
+          </div>
 
-        {/* Name */}
-        <label className="form-label">Full Name</label>
-        <input
-          className="form-control my-2"
-          name="name"
-          placeholder="Enter your name"
-          value={form.name}
-          onChange={handleChange}
-        />
-        {errors.name && <small className="text-danger">{errors.name}</small>}
+          {/* Phone */}
+          <label className="form-label mt-2 d-block text-start">
+            Phone Number
+          </label>
+          <input
+            className="form-control my-2"
+            name="phone"
+            type="tel"
+            placeholder="Enter phone number"
+            value={form.phone}
+            onChange={handleChange}
+          />
+          {errors.phone && (
+            <small className="text-danger">{errors.phone}</small>
+          )}
 
-        {/* Email */}
-        <label className="form-label mt-2">Email Address</label>
-        <input
-          className="form-control my-2"
-          name="email"
-          type="email"
-          placeholder="Enter your email"
-          value={form.email}
-          onChange={handleChange}
-        />
-        {errors.email && <small className="text-danger">{errors.email}</small>}
+          {/* Role */}
+          <label className="form-label mt-2 d-block text-start">
+            Select Role
+          </label>
+          <select
+            className="form-control my-2"
+            name="role"
+            value={form.role}
+            onChange={handleChange}
+          >
+            <option value="">-- Choose Role --</option>
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+            <option value="ngo">NGO</option>
+            <option value="corporate">Corporate</option>
+          </select>
+          {errors.role && <small className="text-danger">{errors.role}</small>}
 
-        {/* Password */}
-        <label className="form-label mt-2">Password</label>
-        <input
-          className="form-control my-2"
-          name="password"
-          type="password"
-          placeholder="Create a password"
-          value={form.password}
-          onChange={handleChange}
-        />
-        {errors.password && (
-          <small className="text-danger">{errors.password}</small>
-        )}
+          <button className="btn btn-success w-100 mt-4">Signup</button>
 
-        {/* Phone */}
-        <label className="form-label mt-2">Phone Number</label>
-        <input
-          className="form-control my-2"
-          name="phone"
-          type="tel"
-          placeholder="Enter phone number"
-          value={form.phone}
-          onChange={handleChange}
-        />
-        {errors.phone && <small className="text-danger">{errors.phone}</small>}
-
-        {/* Role */}
-        <label className="form-label mt-2">Select Role</label>
-        <select
-          className="form-control my-2"
-          name="role"
-          value={form.role}
-          onChange={handleChange}
-        >
-          <option value="">-- Choose Role --</option>
-          <option value="user">User</option>
-          <option value="admin">Admin</option>
-          <option value="ngo">NGO</option>
-          <option value="corporate">Corporate</option>
-        </select>
-        {errors.role && <small className="text-danger">{errors.role}</small>}
-
-        <button className="btn btn-success w-100 mt-4">Signup</button>
-
-        <div className="text-center mt-4">
-          <span>
-            Already have an account?{" "}
-            <Link to="/login" className="fw-bold text-decoration-none">
-              Login
-            </Link>
-          </span>
-        </div>
-      </form>
+          <div className="text-center mt-4">
+            <span>
+              Already have an account?{" "}
+              <Link to="/login" className="fw-bold text-decoration-none">
+                Login
+              </Link>
+            </span>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
