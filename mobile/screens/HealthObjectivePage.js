@@ -90,7 +90,8 @@ const HealthObjectivePage = () => {
           uri: "https://www.novotel-visakhapatnam.com/wp-content/uploads/sites/24/2022/12/unnamed.jpg",
         }}
         style={styles.banner}
-        imageStyle={{ borderRadius: 12 }}
+ imageStyle={{ resizeMode: "cover" }}
+
       />
 
       {/* 🧬 Services Covered */}
@@ -172,7 +173,13 @@ const HealthObjectivePage = () => {
 const styles = StyleSheet.create({
   container: { backgroundColor: "#fff" },
   carouselContainer: { height: 400, marginBottom: 20 },
-  carouselImage: { height: 400, width: "100%" },
+carouselImage: {
+  width: "100%",
+  height: Dimensions.get("window").height * 0.65, // larger view
+  justifyContent: "center",
+  alignItems: "center",
+  resizeMode: "cover",
+},
   headerOverlay: {
     position: "absolute",
     top: 0,
