@@ -76,27 +76,34 @@ const Header = () => {
             className="d-flex align-items-center gap-2"
           >
             <div
-              style={{ height: "60px", display: "flex", alignItems: "center" }}
+              className="d-flex align-items-center"
+              style={{
+                height: "65px", // keeps navbar height stable
+                overflow: "hidden", // hides overflow of tall logos
+              }}
             >
-              <div
+              {/* Logo Icon */}
+              <img
+                src="/logo.png"
+                alt="Logo"
                 style={{
-                  height: "40px", // visible navbar height
-                  overflow: "visible", // prevents navbar growth
-                  display: "flex",
-                  alignItems: "center",
-                  marginTop: "30px", // ⭐ add top space for logo
+                  height: "100px",
+                  width: "auto",
+                  objectFit: "contain",
                 }}
-              >
-                <img
-                  src="/health.png"
-                  alt="Health Insurance Logo"
-                  style={{
-                    height: "180px", // big logo
-                    width: "auto",
-                    objectFit: "contain",
-                  }}
-                />
-              </div>
+              />
+
+              {/* Logo Text */}
+              <img
+                src="/logo-text.png"
+                alt="Logo Text"
+                style={{
+                  height: "150px",
+                  marginLeft: "2px",
+                  width: "auto",
+                  objectFit: "contain",
+                }}
+              />
             </div>
           </Navbar.Brand>
 
