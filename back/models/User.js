@@ -41,6 +41,13 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    country: { type: String, default: null },
+    city: { type: String, default: null },
+    hospitalId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "HealthcarePartner",
+      default: null,
+    },
   },
   { timestamps: true }
 );

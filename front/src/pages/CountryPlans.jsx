@@ -94,7 +94,7 @@ const fetchPlansAndHospitals = async (selectedCountry, selectedCity) => {
         <Spinner animation="border" />
       ) : (
         <>
-          <h4 className="mt-4">📦 Available Plans in {city}</h4>
+          <h4 className="mt-4">Our Network Hospitals in {city}</h4>
           <Row>
             {plans.map((plan, idx) => (
               <Col md={6} key={idx}>

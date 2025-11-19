@@ -132,11 +132,21 @@ import ProfileSharingPage from "./pages/ProfileSharingPage";
 import PlanComparisonEditor from "./cms/PlanComparisonEditor";
 import PartnerWithUsForm from "./cms/PartnerWithUsForm";
 import ScrollToTop from "./components/ScrollToTop";
-
+import Card from "./card";
+import FormCard from "./FormCard";
+import VendorIdentityCardForm from "./VendorIdentityCardForm";
+import VendorIdentityCard from "./VendorIdentityCard";
+import TerrotoryIdentityCardForm from "./TerrotoryIdentityCardForm";
+import TerritoryCard from "./TerritoryCard";
+import HealthcareAgentCardForm from "./AgentCardForm";
+import AgentIdentityCard from "./AgentIdentityCard";
+import FranchiseIdentityCardForm from "./FranchiseIdentityCardForm";
+import FranchiseCard from "./FranchiseCard";
+import Healthcare from "./components/HealthPartner/Healthcare";
 function App() {
   return (
     <AuthProvider>
-            <ScrollToTop /> 
+      <ScrollToTop />
 
       <Header />
 
@@ -182,8 +192,8 @@ function App() {
         <Route path="/buy-plan" element={<BuyPlan />} />
         <Route path="/digital-health-card" element={<DigitalHealthCard />} />
         <Route path="/health-card" element={<HealthIDCard />} />
-
         <Route path="/country-plans" element={<CountryPlans />} />
+        <Route path="/healthcare" element={<Healthcare />} />
         <Route path="/medical-vault" element={<MedicalVault />} />
         {/*09.07.2025*/}
         <Route path="/revenue-engine" element={<RevenueEngineDashboard />} />
@@ -253,7 +263,7 @@ function App() {
           path="/uae-insurance-integration"
           element={<UAEInsuranceIntegration />}
         />
-    
+
         <Route
           path="/health-access-ecosystem"
           element={<HealthAccessAPIEcosystem />}
@@ -351,6 +361,22 @@ function App() {
           path="/health-access/plan-eligibility"
           element={<PlanEligibilityPage />}
         />
+        {/* 18-11-2025 Start */}
+        <Route path="/beneficiary-form" element={<FormCard />} />
+        <Route path="/card" element={<Card />} />
+
+        <Route path="/vendor" element={<VendorIdentityCardForm />} />
+        <Route path="/vendorcard" element={<VendorIdentityCard />} />
+
+        <Route path="/terrotory" element={<TerrotoryIdentityCardForm />} />
+        <Route path="/terrotory-card" element={<TerritoryCard />} />
+
+        <Route path="/agentform" element={<HealthcareAgentCardForm />} />
+        <Route path="/agent-card" element={<AgentIdentityCard />} />
+
+        <Route path="/franchise-form" element={<FranchiseIdentityCardForm />} />
+        <Route path="/franchise-card" element={<FranchiseCard />} />
+        {/* 18-11-2025 End */}
         <Route path="/health-access/partner" element={<PartnerWithUsForm />} />
         <Route path="/health-access/pay-plan" element={<PlanPaymentPage />} />
         <Route path="/admin" element={<HealthAccessCMS />}>

@@ -2,7 +2,7 @@
 import LoginForm from "../components/Auth/LoginForm";
 
 const Login = () => (
-  <div className="container mt-5  min-vh-100  ">
+  <div className="container mt-5">
     <div className="row justify-content-center">
       <div className="col-md-6">
         <LoginForm />

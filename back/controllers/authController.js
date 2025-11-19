@@ -17,7 +17,17 @@ const signAccessToken = (user, expiresIn = "1d") =>
 // -------------------- REGISTER --------------------
 exports.register = async (req, res) => {
   try {
-    const { name, email, phone, password, createdFrom } = req.body || {};
+const {
+  name,
+  email,
+  phone,
+  password,
+  referralCode,
+  createdFrom,
+  country,
+  city,
+  hospitalId,
+} = req.body;
 
     // Validate required fields explicitly to avoid generic 500s
     if (!name || !phone || !email || !password) {
@@ -37,6 +47,11 @@ exports.register = async (req, res) => {
       email,
       phone,
       password, // keep your existing hashing/validation if applied elsewhere
+      referralCode,
+      country,
+      city,
+      hospitalId,
+
       createdFrom: createdFrom || "healthcare",
     });
 
@@ -49,6 +64,7 @@ exports.register = async (req, res) => {
         phone: newUser.phone,
         email: newUser.email,
         roleTags: newUser.roleTags || [],
+        referralCode: referralCode || null,
         createdFrom: newUser.createdFrom,
       },
     });

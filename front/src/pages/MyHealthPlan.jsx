@@ -7,20 +7,23 @@ const MyHealthPlan = () => {
   const navigate = useNavigate();
   const [plan, setPlan] = useState(null);
   const [userId, setUserId] = useState(null);
- const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
- const userID = bbsUserData?.user?.id;
+  const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+  const userID = bbsUserData?.user?.id;
   useEffect(() => {
     const fetchPlan = async () => {
       const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
       const token = bbsUserData?.token;
-      const userIdFromStorage = bbsUserData?.user?._id
+      const userIdFromStorage = bbsUserData?.user?._id;
 
       setUserId(userIdFromStorage);
 
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URI}/user/my-plan`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URI}/user/my-plan`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setPlan(res.data);
       } catch (err) {
         console.error("Error loading plan", err);

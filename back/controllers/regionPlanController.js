@@ -24,3 +24,19 @@ exports.getHospitalsByRegion = async (req, res) => {
     res.status(500).json({ error: "Error fetching hospitals" });
   }
 };
+exports.getAllHospitals = async (req, res) => {
+  try {
+    const hospitals = await Hospital.find(
+      {},
+      "name country city tier supports"
+    );
+
+    res.status(200).json({
+      success: true,
+      hospitals,
+    });
+  } catch (err) {
+    console.error("Error fetching all hospitals:", err);
+    res.status(500).json({ error: "Server error fetching hospitals" });
+  }
+};
