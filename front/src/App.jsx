@@ -363,7 +363,7 @@ function App() {
         />
         {/* 18-11-2025 Start */}
         <Route path="/beneficiary-form" element={<FormCard />} />
-        <Route path="/card" element={<Card />} />
+        <Route path="/card/:id" element={<Card />} />
 
         <Route path="/vendor" element={<VendorIdentityCardForm />} />
         <Route path="/vendorcard" element={<VendorIdentityCard />} />

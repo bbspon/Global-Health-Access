@@ -1,46 +1,61 @@
 import React, { useState, useEffect } from "react";
 import { Card, Container, Row, Col, Image } from "react-bootstrap";
 import QRCode from "react-qr-code";
+import { useParams } from "react-router-dom";
 import logo from "../src/assets/logo.png";
-// ✅ Mock data generator
-const generateMockData = () => ({
-  name: "Annie Smith",
-  address: "123 Green Park, Mumbai",
-  age: 32,
-  bloodGroup: "O+",
-  donorId: "BBS2025-0002",
-  profileImg:
-    "https://cdn.pixabay.com/photo/2017/10/18/21/36/portrait-2865605_960_720.jpg",
-  healthcareLink: "https://healthcare.example.com/patient/john-doe",
-  volunteerdonor: "Blood Donor",
-  contactNumber: "+91 98765 43210",
-  emergencyContact: "+91 91234 56789",
-  allergies: "None",
-
-  // ✅ New fields
-  companyName: "BBS Global Health Access Pvt. Ltd.",
-  licenseNumber: "IRDAI/HEALTH/BBS/2025-0009",
-  issueDate: "2025-01-01",
-  expiryDate: "2030-01-01",
-  languagesSpoken: "English, Hindi, Marathi",
-  issuingAuthority: "Dr. R. K. Menon (Director, BBS Health)",
-  customerService: {
-    phone: "+91 1800 123 4567",
-    email: "support@bbsglobalhealth.com",
-    website: "https://www.bbsglobalhealth.com",
-  },
-});
 
 export default function IdentityCard() {
+  const { id } = useParams();
+
   const [donorType, setDonorType] = useState("all");
-  const [mockData, setMockData] = useState(generateMockData());
+  const [mockData, setMockData] = useState(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setMockData(generateMockData());
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    async function loadBeneficiary() {
+      try {
+        const res = await fetch(`http://localhost:5000/api/beneficiary/${id}`);
+        const json = await res.json();
+
+        if (json.success) {
+          setMockData({
+            ...json.data,
+
+            // Use MongoDB beneficiaryId as card badge
+            donorId: json.data.beneficiaryId,
+
+            // Health Link for QR
+            healthcareLink: `https://www.bbsglobalhealth.com/beneficiary/${json.data._id}`,
+
+            // FIXED IMAGE PATH (matches your backend)
+            profileImg: json.data.profileImg
+              ? `http://localhost:5000/uploads/beneficiaries/${json.data.profileImg}`
+              : null,
+
+            customerService: {
+              phone: json.data.customerServicePhone,
+              email: json.data.customerServiceEmail,
+              website: "https://www.bbsglobalhealth.com",
+            },
+          });
+        }
+      } catch (err) {
+        console.error("Error loading card data:", err);
+      }
+    }
+
+    loadBeneficiary();
+  }, [id]);
+
+  if (!mockData) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "80vh" }}
+      >
+        <h4>Loading Identity Card...</h4>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -54,7 +69,7 @@ export default function IdentityCard() {
       >
         <div className="card-flip">
           <div className="card-flip-inner">
-            {/* ✅ Front Side */}
+            {/* FRONT SIDE */}
             <div className="card-flip-front">
               <Card
                 className="shadow-lg border-0 p-3"
@@ -75,10 +90,8 @@ export default function IdentityCard() {
                   }}
                 >
                   <div className="d-flex align-items-center bg-white p-2 rounded">
-                    {/* Logo on the left */}
                     <Image src={logo} width={70} height={70} className="me-3" />
 
-                    {/* Title and subtitle vertically aligned */}
                     <div className="text-center flex-grow-1">
                       <h4
                         className="fw-bold text-uppercase mb-0"
@@ -102,10 +115,12 @@ export default function IdentityCard() {
 
                 <Card.Body className="pt-4 pb-2">
                   <Row className="align-items-center">
-                    {/* Left Side - Profile */}
                     <Col xs={4} className="text-center">
                       <Image
-                        src={mockData.profileImg}
+                        src={
+                          mockData.profileImg ||
+                          "https://ui-avatars.com/api/?name=User"
+                        }
                         roundedCircle
                         className="border border-3 border-primary shadow-sm mb-2"
                         style={{
@@ -114,6 +129,7 @@ export default function IdentityCard() {
                           objectFit: "cover",
                         }}
                       />
+
                       <div className="small text-muted fw-semibold">
                         Beneficiary
                       </div>
@@ -122,7 +138,6 @@ export default function IdentityCard() {
                       </div>
                     </Col>
 
-                    {/* Right Info */}
                     <Col xs={8}>
                       <Row className="small g-2">
                         <Col xs={5} className="fw-bold text-secondary">
@@ -175,7 +190,6 @@ export default function IdentityCard() {
                       className="p-3 rounded-4 shadow-sm bg-white"
                       style={{
                         border: "2px dashed #007bf4",
-                        display: "inline-block",
                       }}
                     >
                       <QRCode
@@ -184,6 +198,7 @@ export default function IdentityCard() {
                       />
                     </div>
                   </div>
+
                   <h6 className="text-center fw-bold">Beneficiary Details</h6>
                   <p className="text-center small text-muted mt-2">
                     Scan to view digital health record
@@ -214,7 +229,7 @@ export default function IdentityCard() {
               </Card>
             </div>
 
-            {/* ✅ Back Side */}
+            {/* BACK SIDE */}
             <div className="card-flip-back d-flex flex-column justify-content-center align-items-center text-white p-4">
               <h4 className="fw-bold mb-1">{mockData.companyName}</h4>
               <p className="small text-center mb-4">
@@ -240,6 +255,7 @@ export default function IdentityCard() {
               <div className="bg-white p-3 rounded-4 my-2">
                 <QRCode value={mockData.healthcareLink} size={100} />
               </div>
+
               <p className="text-center small text-light mt-2 mb-3">
                 Scan for Verification / Digital Health Access
               </p>
@@ -276,24 +292,20 @@ export default function IdentityCard() {
         </div>
       </Container>
 
-      {/* ✅ Flip Animation Styles */}
       <style>
         {`
         .card-flip {
           perspective: 1000px;
         }
-
         .card-flip-inner {
           position: relative;
           width: 32rem;
           transform-style: preserve-3d;
           transition: transform 0.8s;
         }
-
         .card-flip:hover .card-flip-inner {
           transform: rotateY(180deg);
         }
-
         .card-flip-front,
         .card-flip-back {
           position: absolute;
@@ -302,11 +314,9 @@ export default function IdentityCard() {
           border-radius: 25px;
           overflow: hidden;
         }
-
         .card-flip-front {
           transform: rotateY(0deg);
         }
-
         .card-flip-back {
           background: linear-gradient(135deg, #007bff, #00bcd4);
           transform: rotateY(180deg);

@@ -16,54 +16,82 @@ export default function FormCardForm() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    name: "Annie Smith",
-    address: "123 Green Park, Mumbai",
-    age: 32,
-    bloodGroup: "O+",
-    donorId: "BBS2025-0002",
-    profileImg:
-      "https://cdn.pixabay.com/photo/2017/10/18/21/36/portrait-2865605_960_720.jpg",
-    volunteerdonor: "Blood Donor",
-    contactNumber: "+91 98765 43210",
-    emergencyContact: "none",
-    allergies: "none",
-    email: "LHq4M@example.com",
-
-    // 🏢 New Insurance Fields
-    companyName: "BBS Health Insurance Co.",
-    licenseNumber: "IRDAI-INS-2025-0123",
-    issueDate: "2025-01-15",
-    expiryDate: "2030-01-14",
-    languagesSpoken: "English, Hindi, Marathi",
-    issuingAuthority: "Dr. A. Kumar (Digital Signature)",
-    customerServicePhone: "+91 1800-123-4567",
-    customerServiceEmail: "support@bbshealth.co.in",
+    name: "",
+    address: "",
+    age: "",
+    bloodGroup: "",
+    volunteerdonor: "",
+    contactNumber: "",
+    emergencyContact: "",
+    allergies: "",
+    email: "",
+    companyName: "",
+    licenseNumber: "",
+    issueDate: "",
+    expiryDate: "",
+    languagesSpoken: "",
+    issuingAuthority: "",
+    customerServicePhone: "",
+    customerServiceEmail: "",
+    profileImgFile: null,
   });
 
+  // FIXED: Normal text handler
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // FIXED: Remove FileReader & base64 completely
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setFormData((prev) => ({ ...prev, profileImg: reader.result }));
-      };
-      reader.readAsDataURL(file);
+      setFormData((prev) => ({
+        ...prev,
+        profileImgFile: file,
+      }));
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    Swal.fire({
-      icon: "success",
-      title: "Success!",
-      text: "Identity card info updated successfully!",
-      confirmButtonColor: "#0dcaf0",
-    }).then(() => navigate("/card"));
+
+    const formToSend = new FormData();
+
+    // Append all text fields
+    for (let key in formData) {
+      if (key !== "profileImgFile") {
+        formToSend.append(key, formData[key]);
+      }
+    }
+
+    // Append file if selected
+    if (formData.profileImgFile) {
+      formToSend.append("profileImg", formData.profileImgFile);
+    }
+
+    const response = await fetch("http://localhost:5000/api/beneficiary", {
+      method: "POST",
+      body: formToSend,
+    });
+
+    const res = await response.json();
+
+    if (res.success) {
+      Swal.fire({
+        icon: "success",
+        title: "Updated",
+        text: "Identity Card Info Updated Successfully!",
+      }).then(() => {
+        navigate(`/card/${res.data._id}`);
+      });
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: res.error,
+      });
+    }
   };
 
   return (
@@ -98,17 +126,20 @@ export default function FormCardForm() {
                   background: "linear-gradient(to right, #5462e0, #20c997)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
-                  display: "inline-block",
                 }}
               >
                 BBS GLOBAL HEALTH ACCESS
               </h2>
             </div>
 
-            {/* Profile */}
+            {/* Profile Preview Always Blank (No Base64 Preview) */}
             <div className="text-center mb-3">
               <Image
-                src={formData.profileImg}
+                src={
+                  formData.profileImgFile
+                    ? URL.createObjectURL(formData.profileImgFile)
+                    : "https://via.placeholder.com/100"
+                }
                 roundedCircle
                 width={100}
                 height={100}
@@ -121,15 +152,14 @@ export default function FormCardForm() {
               <p className="text-muted small">Keep your details up to date</p>
             </div>
 
-            {/* Form */}
             <Form onSubmit={handleSubmit}>
+              {/* All your existing UI kept unchanged */}
+              {/* ---------------- TEXT INPUTS ---------------- */}
+
               <Row className="g-2">
                 <Col md={6}>
                   <Form.Group>
-                    <Form.Label
-                      className="fw-semibold small"
-                      style={{ color: "#0d6efd" }}
-                    >
+                    <Form.Label className="fw-semibold small text-primary">
                       Full Name
                     </Form.Label>
                     <Form.Control
@@ -138,16 +168,13 @@ export default function FormCardForm() {
                       value={formData.name}
                       onChange={handleChange}
                       className="form-control-sm"
-                      style={{ borderRadius: "8px" }}
                     />
                   </Form.Group>
                 </Col>
+
                 <Col md={6}>
                   <Form.Group>
-                    <Form.Label
-                      className="fw-semibold small"
-                      style={{ color: "#0d6efd" }}
-                    >
+                    <Form.Label className="fw-semibold small text-primary">
                       Age
                     </Form.Label>
                     <Form.Control
@@ -156,17 +183,13 @@ export default function FormCardForm() {
                       value={formData.age}
                       onChange={handleChange}
                       className="form-control-sm"
-                      style={{ borderRadius: "8px" }}
                     />
                   </Form.Group>
                 </Col>
               </Row>
 
               <Form.Group className="mt-2">
-                <Form.Label
-                  className="fw-semibold small"
-                  style={{ color: "#0d6efd" }}
-                >
+                <Form.Label className="fw-semibold small text-primary">
                   Address
                 </Form.Label>
                 <Form.Control
@@ -175,17 +198,13 @@ export default function FormCardForm() {
                   value={formData.address}
                   onChange={handleChange}
                   className="form-control-sm"
-                  style={{ borderRadius: "8px" }}
                 />
               </Form.Group>
 
               <Row className="g-2 mt-2">
                 <Col md={6}>
                   <Form.Group>
-                    <Form.Label
-                      className="fw-semibold small"
-                      style={{ color: "#0d6efd" }}
-                    >
+                    <Form.Label className="fw-semibold small text-primary">
                       Blood Group
                     </Form.Label>
                     <Form.Control
@@ -194,16 +213,13 @@ export default function FormCardForm() {
                       value={formData.bloodGroup}
                       onChange={handleChange}
                       className="form-control-sm"
-                      style={{ borderRadius: "8px" }}
                     />
                   </Form.Group>
                 </Col>
+
                 <Col md={6}>
                   <Form.Group>
-                    <Form.Label
-                      className="fw-semibold small"
-                      style={{ color: "#0d6efd" }}
-                    >
+                    <Form.Label className="fw-semibold small text-primary">
                       Donor Type
                     </Form.Label>
                     <Form.Select
@@ -211,7 +227,6 @@ export default function FormCardForm() {
                       value={formData.volunteerdonor}
                       onChange={handleChange}
                       className="form-control-sm"
-                      style={{ borderRadius: "8px" }}
                     >
                       <option>Blood Donor</option>
                       <option>Organ Donor</option>
@@ -220,11 +235,9 @@ export default function FormCardForm() {
                 </Col>
               </Row>
 
+              {/* Email */}
               <Form.Group className="mt-2">
-                <Form.Label
-                  className="fw-semibold small"
-                  style={{ color: "#0d6efd" }}
-                >
+                <Form.Label className="fw-semibold small text-primary">
                   Email
                 </Form.Label>
                 <Form.Control
@@ -233,15 +246,12 @@ export default function FormCardForm() {
                   value={formData.email}
                   onChange={handleChange}
                   className="form-control-sm"
-                  style={{ borderRadius: "8px" }}
                 />
               </Form.Group>
-              {/* 📞 Contact Info */}
+
+              {/* Contact Number */}
               <Form.Group className="mt-2">
-                <Form.Label
-                  className="fw-semibold small"
-                  style={{ color: "#0d6efd" }}
-                >
+                <Form.Label className="fw-semibold small text-primary">
                   Contact Number
                 </Form.Label>
                 <Form.Control
@@ -250,15 +260,12 @@ export default function FormCardForm() {
                   value={formData.contactNumber}
                   onChange={handleChange}
                   className="form-control-sm"
-                  style={{ borderRadius: "8px" }}
                 />
               </Form.Group>
 
+              {/* Emergency Contact */}
               <Form.Group className="mt-2">
-                <Form.Label
-                  className="fw-semibold small"
-                  style={{ color: "#0d6efd" }}
-                >
+                <Form.Label className="fw-semibold small text-primary">
                   Emergency Contact
                 </Form.Label>
                 <Form.Control
@@ -267,15 +274,12 @@ export default function FormCardForm() {
                   value={formData.emergencyContact}
                   onChange={handleChange}
                   className="form-control-sm"
-                  style={{ borderRadius: "8px" }}
                 />
               </Form.Group>
 
+              {/* Allergies */}
               <Form.Group className="mt-2">
-                <Form.Label
-                  className="fw-semibold small"
-                  style={{ color: "#0d6efd" }}
-                >
+                <Form.Label className="fw-semibold small text-primary">
                   Allergies
                 </Form.Label>
                 <Form.Control
@@ -284,12 +288,12 @@ export default function FormCardForm() {
                   value={formData.allergies}
                   onChange={handleChange}
                   className="form-control-sm"
-                  style={{ borderRadius: "8px" }}
                 />
               </Form.Group>
 
-              {/* 🏢 New Company Details Section */}
               <hr className="my-3" />
+
+              {/* Hospital Information */}
               <h2 className="fw-bold text-primary mb-2">
                 Network Hospital Information
               </h2>
@@ -304,7 +308,6 @@ export default function FormCardForm() {
                   value={formData.companyName}
                   onChange={handleChange}
                   className="form-control-sm"
-                  style={{ borderRadius: "8px" }}
                 />
               </Form.Group>
 
@@ -312,7 +315,7 @@ export default function FormCardForm() {
                 <Col md={6}>
                   <Form.Group>
                     <Form.Label className="fw-semibold small text-primary">
-                      License / Registration Number
+                      License Number
                     </Form.Label>
                     <Form.Control
                       type="text"
@@ -320,14 +323,14 @@ export default function FormCardForm() {
                       value={formData.licenseNumber}
                       onChange={handleChange}
                       className="form-control-sm"
-                      style={{ borderRadius: "8px" }}
                     />
                   </Form.Group>
                 </Col>
+
                 <Col md={3}>
                   <Form.Group>
                     <Form.Label className="fw-semibold small text-primary">
-                      Date of Issue
+                      Issue Date
                     </Form.Label>
                     <Form.Control
                       type="date"
@@ -335,10 +338,10 @@ export default function FormCardForm() {
                       value={formData.issueDate}
                       onChange={handleChange}
                       className="form-control-sm"
-                      style={{ borderRadius: "8px" }}
                     />
                   </Form.Group>
                 </Col>
+
                 <Col md={3}>
                   <Form.Group>
                     <Form.Label className="fw-semibold small text-primary">
@@ -350,7 +353,6 @@ export default function FormCardForm() {
                       value={formData.expiryDate}
                       onChange={handleChange}
                       className="form-control-sm"
-                      style={{ borderRadius: "8px" }}
                     />
                   </Form.Group>
                 </Col>
@@ -366,13 +368,12 @@ export default function FormCardForm() {
                   value={formData.languagesSpoken}
                   onChange={handleChange}
                   className="form-control-sm"
-                  style={{ borderRadius: "8px" }}
                 />
               </Form.Group>
 
               <Form.Group className="mt-2">
                 <Form.Label className="fw-semibold small text-primary">
-                  Issuing Authority / Signature (Digital)
+                  Issuing Authority
                 </Form.Label>
                 <Form.Control
                   type="text"
@@ -380,7 +381,6 @@ export default function FormCardForm() {
                   value={formData.issuingAuthority}
                   onChange={handleChange}
                   className="form-control-sm"
-                  style={{ borderRadius: "8px" }}
                 />
               </Form.Group>
 
@@ -396,10 +396,10 @@ export default function FormCardForm() {
                       value={formData.customerServicePhone}
                       onChange={handleChange}
                       className="form-control-sm"
-                      style={{ borderRadius: "8px" }}
                     />
                   </Form.Group>
                 </Col>
+
                 <Col md={6}>
                   <Form.Group>
                     <Form.Label className="fw-semibold small text-primary">
@@ -411,13 +411,12 @@ export default function FormCardForm() {
                       value={formData.customerServiceEmail}
                       onChange={handleChange}
                       className="form-control-sm"
-                      style={{ borderRadius: "8px" }}
                     />
                   </Form.Group>
                 </Col>
               </Row>
 
-              {/* 📷 Photo Upload */}
+              {/* Photo Upload */}
               <Form.Group className="mb-2 text-start mt-3">
                 <Form.Label
                   className="fw-semibold small"
@@ -433,7 +432,7 @@ export default function FormCardForm() {
                 />
               </Form.Group>
 
-              {/* ✅ Submit Button */}
+              {/* Submit */}
               <div className="d-grid mt-3">
                 <Button
                   type="submit"

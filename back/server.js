@@ -62,6 +62,8 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const coverageRoutes = require("./routes/coverageRoutes");
 const carePassRoutes = require("./routes/carePassRoutes");
 const regionRoutes = require("./routes/regionRoutes");
+const beneficiaryRoutes = require("./routes/beneficiaryRoutes");
+const path = require("path");
 
 const app = express();
 app.use(cors());
@@ -150,10 +152,16 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/coverage", coverageRoutes);
 app.use("/api/carepass", carePassRoutes);
 app.use("/api/region", regionRoutes);
+app.use("/api/beneficiary", beneficiaryRoutes);
+
 app.use("/api/auth-debug", require("./routes/authDebug"));
 app.use(
   "/api/healthcare-partners",
   require("./routes/healthcarePartnerRoutes")
+);
+app.use(
+  "/uploads/beneficiaries",
+  express.static(path.join(__dirname, "uploads/beneficiaries"))
 );
 
 app.listen(process.env.PORT || 5000, () =>
