@@ -143,64 +143,108 @@ const AddHealthcareModal = ({ show, onClose, onSuccess }) => {
     });
   };
 
-const handleSubmit = async () => {
-  try {
-    setLoading(true);
+  // ====================================================
+  // FINAL HANDLE SUBMIT (FULL BACKEND MAPPING FIXED)
+  // ====================================================
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
 
-    const formData = new FormData();
+      const formData = new FormData();
 
-    Object.keys(form).forEach((key) => {
-      if (
-        key === "registrationDoc" ||
-        key === "clinicLicense" ||
-        key === "gstCertificate" ||
-        key === "aadhaarDocument" ||
-        key === "clinicPhotos"
-      ) {
-        return;
+      // BASIC DETAILS
+      formData.append("fullName", form.fullName || "");
+      formData.append("email", form.email || "");
+      formData.append("phone", form.phone || "");
+      formData.append("contactPerson", form.contactPerson || "");
+      formData.append("designation", form.designation || "");
+      formData.append("whatsapp", form.whatsapp || "");
+
+      // PARTNER TYPE
+      formData.append("partnerType", form.partnerType || "");
+
+      // HOSPITAL / CLINIC DETAILS
+      formData.append("clinicName", form.clinicName || "");
+      formData.append("clinicType", form.clinicType || "");
+      formData.append("registrationNumber", form.registrationNumber || "");
+      formData.append("gstNumber", form.gstNumber || "");
+      formData.append("gstStatus", form.gstStatus || "");
+
+      // ADDRESS SECTION
+      formData.append("addressLine", form.clinicAddress || "");
+      formData.append("state", form.state || "");
+      formData.append("district", form.district || "");
+      formData.append("city", form.city || "");
+      formData.append("pincode", form.pincode || "");
+
+      // SUPPORTED SERVICES → departments[]
+      if (Array.isArray(form.supportedServices)) {
+        form.supportedServices.forEach((svc) =>
+          formData.append("departments[]", svc)
+        );
       }
 
-      const value = form[key];
+      // SUPPORTED PLAN TIER → hospitalTier
+      if (form.supportedPlanTiers?.length > 0) {
+        formData.append("hospitalTier", form.supportedPlanTiers[0]);
+      }
 
-      if (Array.isArray(value)) {
-        formData.append(key, value.join(","));
+      // ADDONS[]
+      if (Array.isArray(form.addOns)) {
+        form.addOns.forEach((addon) => formData.append("addOns[]", addon));
+      }
+
+      // PAYOUT SETTINGS
+      formData.append(
+        "payoutSettings",
+        JSON.stringify({
+          opd: form.commissionOPD || 0,
+          ipd: form.commissionIPD || 0,
+          lab: form.commissionLabs || 0,
+          pharmacy: form.commissionPharmacy || 0,
+        })
+      );
+
+      // REFERRAL & HIERARCHY MAPPING
+      formData.append("referralCode", form.referralCodeHospital || "");
+      formData.append("franchiseId", form.assignedFranchiseId || "");
+      formData.append("agentId", form.assignedAgentId || "");
+
+      // DOCUMENTS — SINGLE FILES
+      if (form.registrationDoc)
+        formData.append("registrationDoc", form.registrationDoc);
+      if (form.clinicLicense)
+        formData.append("clinicLicense", form.clinicLicense);
+      if (form.gstCertificate)
+        formData.append("gstCertificate", form.gstCertificate);
+      if (form.aadhaarDocument)
+        formData.append("aadhaarDocument", form.aadhaarDocument);
+
+      // MULTI-PHOTO UPLOAD
+      if (form.clinicPhotos && form.clinicPhotos.length > 0) {
+        Array.from(form.clinicPhotos).forEach((file) =>
+          formData.append("clinicPhotos", file)
+        );
+      }
+
+      // API CALL
+      const response = await registerHealthcarePartner(formData);
+
+      if (response?.success) {
+        alert("Healthcare Partner Added Successfully");
+        onSuccess && onSuccess();
+        onClose();
       } else {
-        formData.append(key, value);
+        alert(response?.error || "Something went wrong");
       }
-    });
-
-    if (form.registrationDoc)
-      formData.append("registrationDoc", form.registrationDoc);
-    if (form.clinicLicense)
-      formData.append("clinicLicense", form.clinicLicense);
-    if (form.gstCertificate)
-      formData.append("gstCertificate", form.gstCertificate);
-    if (form.aadhaarDocument)
-      formData.append("aadhaarDocument", form.aadhaarDocument);
-
-    if (form.clinicPhotos?.length > 0) {
-      form.clinicPhotos.forEach((file) => {
-        formData.append("clinicPhotos", file);
-      });
+    } catch (error) {
+      console.error("Submit Error:", error);
+      alert("Failed to submit healthcare partner");
+    } finally {
+      setLoading(false);
     }
-
-    // ✔ Use your API service instead of axios
-    const res = await registerHealthcarePartner(formData);
-
-    if (res.success) {
-      alert("Healthcare Partner added successfully!");
-      onSuccess();
-    } else {
-      alert(res.error || "Failed to save");
-    }
-  } catch (err) {
-    console.error("Healthcare Save Error:", err);
-    alert("Something went wrong");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   if (!show) return null;
 
@@ -410,6 +454,30 @@ const handleSubmit = async () => {
                     </div>
                   </div>
                 </div>
+                {/* Partner Type */}
+                <div className="col-md-4 mb-3">
+                  <label className="form-label fw-semibold">
+                    Partner Type *
+                  </label>
+                  <select
+                    className="form-control"
+                    value={form.partnerType}
+                    onChange={(e) =>
+                      setForm({ ...form, partnerType: e.target.value })
+                    }
+                  >
+                    <option value="">Select</option>
+                    <option value="Hospital">Hospital</option>
+                    <option value="Clinic">Clinic</option>
+                    <option value="Diagnostic Center">Diagnostic Center</option>
+                    <option value="Laboratory">Laboratory</option>
+                    <option value="Specialist Center">Specialist Center</option>
+                    <option value="Multi-Speciality Hospital">
+                      Multi-Speciality Hospital
+                    </option>
+                    <option value="Day Care Center">Day Care Center</option>
+                  </select>
+                </div>
               </div>
 
               {/* LOCATION DETAILS */}
@@ -489,6 +557,34 @@ const handleSubmit = async () => {
                   </div>
                 </div>
               </div>
+              {/* Supported Plan Tier */}
+              <div className="section-card p-4 mb-4">
+                <h6 className="section-title text-center mb-3">
+                  Supported Plan Tier
+                </h6>
+                <div className="row">
+                  <div className="col-md-4 mx-auto">
+                    <label className="form-label fw-semibold">
+                      Select Tier *
+                    </label>
+                    <select
+                      className="form-control"
+                      value={form.supportedPlanTiers[0] || ""}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          supportedPlanTiers: [e.target.value],
+                        })
+                      }
+                    >
+                      <option value="">Select Tier</option>
+                      <option value="Basic">Basic</option>
+                      <option value="Prime">Prime</option>
+                      <option value="Elite">Elite</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
 
               {/* CLINICAL CAPABILITIES */}
               <div className="card border-0 shadow-sm mb-4">
@@ -523,6 +619,94 @@ const handleSubmit = async () => {
                         </div>
                       </div>
                     ))}
+                  </div>
+                  {/* ADD-ONS SECTION */}
+                  <div className="card border-0 shadow-sm mb-4">
+                    <div className="card-header bg-white border-0 py-2">
+                      <h6 className="mb-0 fw-semibold text-primary">
+                        Add-On Benefits
+                      </h6>
+                      <small className="text-muted">
+                        Select applicable add-on benefits for this healthcare
+                        partner
+                      </small>
+                    </div>
+
+                    <div className="card-body">
+                      {/* HIGH-RISK ADDONS */}
+                      <div className="mb-3">
+                        <h6 className="fw-bold text-danger mb-2">
+                          High-Risk AddOns
+                        </h6>
+                        <div className="row g-2">
+                          {[
+                            "Maternity",
+                            "OPD",
+                            "IPD Cashless Boost",
+                            "Pharmacy Cover",
+                            "Lab & Diagnostics Pack",
+                            "Emergency Care Pack",
+                            "Chronic Care",
+                          ].map((item) => (
+                            <div className="col-md-4" key={item}>
+                              <div className="form-check">
+                                <input
+                                  type="checkbox"
+                                  className="form-check-input"
+                                  checked={form.addOns?.includes(item)}
+                                  onChange={() => {
+                                    const exists = form.addOns?.includes(item);
+                                    const updated = exists
+                                      ? form.addOns.filter((i) => i !== item)
+                                      : [...(form.addOns || []), item];
+                                    setForm({ ...form, addOns: updated });
+                                  }}
+                                />
+                                <label className="form-check-label">
+                                  {item}
+                                </label>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* LOW-RISK ADDONS */}
+                      <div>
+                        <h6 className="fw-bold text-success mb-2">
+                          Low-Risk AddOns
+                        </h6>
+                        <div className="row g-2">
+                          {[
+                            "Dental",
+                            "Vision",
+                            "Wellness Pack",
+                            "Mental Health Support",
+                            "Teleconsultation Upgrade",
+                          ].map((item) => (
+                            <div className="col-md-4" key={item}>
+                              <div className="form-check">
+                                <input
+                                  type="checkbox"
+                                  className="form-check-input"
+                                  checked={form.addOns?.includes(item)}
+                                  onChange={() => {
+                                    const exists = form.addOns?.includes(item);
+                                    const updated = exists
+                                      ? form.addOns.filter((i) => i !== item)
+                                      : [...(form.addOns || []), item];
+                                    setForm({ ...form, addOns: updated });
+                                  }}
+                                />
+                                <label className="form-check-label">
+                                  {item}
+                                </label>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   {/* <label className="form-label fw-semibold">

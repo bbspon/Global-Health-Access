@@ -143,6 +143,8 @@ import AgentIdentityCard from "./AgentIdentityCard";
 import FranchiseIdentityCardForm from "./FranchiseIdentityCardForm";
 import FranchiseCard from "./FranchiseCard";
 import Healthcare from "./components/HealthPartner/Healthcare";
+import PremiumCalculatorPage from "./pages/PremiumCalculatorPage";
+import SettlementSimulationPage from "./pages/SettlementSimulationPage";
 function App() {
   return (
     <AuthProvider>
@@ -336,6 +338,11 @@ function App() {
         <Route path="/health-access/plan/:id" element={<PlanDetailsPage />} />
         <Route path="/buyWithWalletPage" element={<BuyWithWalletPage />} />
         <Route
+          path="/premiumCalculatorPage"
+          element={<PremiumCalculatorPage />}
+        />
+
+        <Route
           path="/health-access/renew-plan"
           element={<HealthPlanRenewal />}
         />
@@ -361,19 +368,20 @@ function App() {
           path="/health-access/plan-eligibility"
           element={<PlanEligibilityPage />}
         />
+        <Route
+          path="/settlement-simulation"
+          element={<SettlementSimulationPage />}
+        />
+
         {/* 18-11-2025 Start */}
         <Route path="/beneficiary-form" element={<FormCard />} />
         <Route path="/card/:id" element={<Card />} />
-
         <Route path="/vendor" element={<VendorIdentityCardForm />} />
         <Route path="/vendorcard" element={<VendorIdentityCard />} />
-
         <Route path="/terrotory" element={<TerrotoryIdentityCardForm />} />
         <Route path="/terrotory-card" element={<TerritoryCard />} />
-
         <Route path="/agentform" element={<HealthcareAgentCardForm />} />
         <Route path="/agent-card" element={<AgentIdentityCard />} />
-
         <Route path="/franchise-form" element={<FranchiseIdentityCardForm />} />
         <Route path="/franchise-card" element={<FranchiseCard />} />
         {/* 18-11-2025 End */}

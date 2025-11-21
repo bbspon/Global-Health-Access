@@ -145,6 +145,9 @@ const Header = () => {
                 <NavDropdown.Item as={Link} to="/plans-landing">
                   Health Access Plan
                 </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/settlement-simulation">
+                  Settlement Simultion
+                </NavDropdown.Item>
                 <NavDropdown.Item as={Link} to="/Wellness-tracker">
                   Wellness Store
                 </NavDropdown.Item>

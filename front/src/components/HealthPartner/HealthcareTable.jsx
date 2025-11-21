@@ -5,25 +5,48 @@ import {
   deleteHealthcarePartner,
 } from "../../services/healthPartnerAPI";
 
-const HealthcareTable = () => {
+const HealthcareTable = ({ filters, refresh }) => {
   const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewData, setViewData] = useState(null);
 
+  // Pagination
+  const [page, setPage] = useState(1);
+  const limit = 20;
+  const [total, setTotal] = useState(0);
+
   const loadPartners = async () => {
     try {
       setLoading(true);
-      const list = await getHealthcarePartners();
-      setPartners(list);
+
+      const query = {
+        page,
+        limit,
+        ...filters,
+      };
+
+      const list = await getHealthcarePartners(query.page, query.limit, query);
+
+      // FIXED: Backend returns { success, partners: [...] }
+      if (list && Array.isArray(list.partners)) {
+        setPartners(list.partners);
+        setTotal(list.partners.length); // No total field → use length
+      } else {
+        setPartners([]);
+        setTotal(0);
+      }
     } catch (err) {
       console.log("Fetch partners error:", err);
+      setPartners([]);
+      setTotal(0);
     }
     setLoading(false);
   };
 
+  // Reload table when filters, refresh, or page changes
   useEffect(() => {
     loadPartners();
-  }, []);
+  }, [page, refresh, filters]);
 
   const handleStatus = async (id, status) => {
     try {
@@ -37,6 +60,7 @@ const HealthcareTable = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this partner?"))
       return;
+
     try {
       await deleteHealthcarePartner(id);
       loadPartners();
@@ -56,15 +80,22 @@ const HealthcareTable = () => {
           <div className="details-box">
             <strong>Hospital:</strong> {viewData.clinicName} <br />
             <strong>Partner Code:</strong> {viewData.partnerCode} <br />
-            <strong>Type:</strong> {viewData.clinicType} <br />
+            <strong>Partner Type:</strong> {viewData.partnerType || "N/A"}{" "}
+            <br />
+            <strong>Clinic Type:</strong> {viewData.clinicType || "N/A"} <br />
             <strong>Location:</strong> {viewData.city}, {viewData.district},{" "}
             {viewData.state} <br />
             <strong>Phone:</strong> {viewData.phone} <br />
             <strong>Email:</strong> {viewData.email} <br />
-            <strong>Services:</strong>{" "}
-            {viewData.supportedServices?.slice(0, 10)?.join(", ")}… <br />
-            <strong>Plan Tiers:</strong>{" "}
-            {viewData.supportedPlanTiers?.join(", ")} <br />
+            <strong>Departments:</strong>{" "}
+            {viewData.departments?.length
+              ? viewData.departments.join(", ")
+              : "N/A"}{" "}
+            <br />
+            <strong>Hospital Tier:</strong> {viewData.tier || "N/A"} <br />
+            <strong>Add Ons:</strong>{" "}
+            {viewData.addOns?.length ? viewData.addOns.join(", ") : "None"}{" "}
+            <br />
             <strong>Status:</strong> {viewData.status}
           </div>
 
@@ -96,7 +127,8 @@ const HealthcareTable = () => {
               <th style={{ minWidth: "180px" }}>Hospital Name</th>
               <th style={{ minWidth: "220px" }}>Partner Code</th>
               <th style={{ minWidth: "200px" }}>Location</th>
-              <th style={{ width: "130px" }}>Clinic Type</th>
+              <th style={{ width: "130px" }}>Partner Type</th>
+              <th style={{ width: "130px" }}>Tier</th>
               <th style={{ width: "100px" }}>Status</th>
               <th style={{ width: "260px" }}>Actions</th>
             </tr>
@@ -105,9 +137,10 @@ const HealthcareTable = () => {
           <tbody>
             {partners.map((p, index) => (
               <tr key={p._id} className="text-center">
-                <td>{index + 1}</td>
+                <td>{(page - 1) * limit + index + 1}</td>
 
                 <td>{p.clinicName}</td>
+
                 <td className="fw-semibold">{p.partnerCode}</td>
 
                 <td>
@@ -116,7 +149,13 @@ const HealthcareTable = () => {
 
                 <td>
                   <span className="badge bg-info text-dark">
-                    {p.clinicType}
+                    {p.partnerType || "N/A"}
+                  </span>
+                </td>
+
+                <td>
+                  <span className="badge bg-primary text-white">
+                    {p.tier || "N/A"}
                   </span>
                 </td>
 
@@ -170,13 +209,32 @@ const HealthcareTable = () => {
 
             {partners.length === 0 && (
               <tr>
-                <td colSpan="7" className="text-center py-3">
+                <td colSpan="8" className="text-center py-3">
                   No healthcare partners found.
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+
+        {/* Pagination */}
+        <div className="d-flex justify-content-between mt-3">
+          <button
+            className="btn btn-outline-primary"
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+          >
+            Previous
+          </button>
+
+          <button
+            className="btn btn-outline-primary"
+            disabled={page * limit >= total}
+            onClick={() => setPage(page + 1)}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </>
   );

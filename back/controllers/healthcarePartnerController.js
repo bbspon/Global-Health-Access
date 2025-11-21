@@ -86,7 +86,35 @@ exports.registerHealthcarePartner = async (req, res) => {
 
 exports.getHealthcarePartners = async (req, res) => {
   try {
-    const partners = await HealthcarePartner.find().sort({ createdAt: -1 });
+    const {
+      search,
+      state,
+      district,
+      city,
+      clinicType,
+      partnerType,
+      hospitalTier,
+    } = req.query;
+
+    let filter = {};
+
+    if (search) {
+      filter.clinicName = { $regex: search, $options: "i" };
+    }
+
+    if (state) filter.state = state;
+    if (district) filter.district = district;
+    if (city) filter.city = city;
+    if (clinicType) filter.clinicType = clinicType;
+    if (partnerType) filter.partnerType = partnerType;
+
+    // Your model uses "tier", not "hospitalTier"
+    if (hospitalTier) filter.tier = hospitalTier;
+
+    const partners = await HealthcarePartner.find(filter).sort({
+      createdAt: -1,
+    });
+
     res.json({ success: true, partners });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });

@@ -44,18 +44,32 @@ export const registerHealthcarePartner = async (formData) => {
 // =========================
 // 2. Get All Healthcare Partners
 // =========================
-export const getHealthcarePartners = async () => {
+// =========================
+// 2. Get All Healthcare Partners (Corrected)
+// =========================
+export const getHealthcarePartners = async (
+  page = 1,
+  limit = 20,
+  filters = {}
+) => {
   try {
-    const res = await axios.get(
-      `${API}/healthcare-partners`,
-      getAuthHeader()
-    );
-    return res.data.partners || [];
+    const params = { page, limit, ...filters };
+
+    const res = await axios.get(`${API}/healthcare-partners`, {
+      ...getAuthHeader(),
+      params,
+    });
+
+    return {
+      partners: res.data.partners || [],
+      total: (res.data.partners || []).length,
+    };
   } catch (err) {
     console.error("Fetch Partners Error:", err);
-    throw err.response?.data || { error: "Fetch partners failed" };
+    return { partners: [], total: 0 };
   }
 };
+
 
 // =========================
 // 3. Update Partner Status
@@ -98,16 +112,32 @@ export const deleteHealthcarePartner = async (id) => {
 export const getHealthcareFilterOptions = async () => {
   try {
     const res = await axios.get(`${API}/healthcare-partners`, getAuthHeader());
-
     const all = res.data.partners || [];
 
     const states = [...new Set(all.map((p) => p.state))];
     const districts = [...new Set(all.map((p) => p.district))];
+    const cities = [...new Set(all.map((p) => p.city))];
     const clinicTypes = [...new Set(all.map((p) => p.clinicType))];
+    const partnerTypes = [...new Set(all.map((p) => p.partnerType))];
+    const hospitalTiers = [...new Set(all.map((p) => p.tier))];
 
-    return { states, districts, clinicTypes };
+    return {
+      states,
+      districts,
+      cities,
+      clinicTypes,
+      partnerTypes,
+      hospitalTiers,
+    };
   } catch (err) {
     console.error("Filter Options Error:", err);
-    throw err.response?.data || { error: "Filter fetch failed" };
+    return {
+      states: [],
+      districts: [],
+      cities: [],
+      clinicTypes: [],
+      partnerTypes: [],
+      hospitalTiers: [],
+    };
   }
 };

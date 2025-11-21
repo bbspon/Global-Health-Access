@@ -6,27 +6,30 @@ import HealthcareFilterBar from "./HealthcareFilterBar";
 const Healthcare = () => {
   const [showAddModal, setShowAddModal] = useState(false);
 
-  // Filters coming from FilterBar
+  // Filters (FULL LIST)
   const [filters, setFilters] = useState({
     search: "",
     state: "",
     district: "",
+    city: "",
     clinicType: "",
+    partnerType: "",
+    hospitalTier: "",
   });
 
-  // Reload trigger
   const [refresh, setRefresh] = useState(false);
 
   const handleFilter = (newFilters) => {
-    setFilters(newFilters);
+    setFilters((prev) => ({ ...prev, ...newFilters }));
   };
 
   const handleSuccess = () => {
-    setRefresh(!refresh);
+    setRefresh((prev) => !prev);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <div>
+    <div className="container-fluid">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h3>Healthcare Partners</h3>
         <button
@@ -38,12 +41,12 @@ const Healthcare = () => {
       </div>
 
       {/* Filter Bar */}
-      <HealthcareFilterBar onFilterChange={handleFilter} />
+      <HealthcareFilterBar onFilterChange={handleFilter} filters={filters} />
 
-      {/* Healthcare Table */}
+      {/* Table */}
       <HealthcareTable filters={filters} refresh={refresh} />
 
-      {/* Modal */}
+      {/* Add Partner Modal */}
       {showAddModal && (
         <AddHealthcareModal
           show={showAddModal}
