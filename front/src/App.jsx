@@ -134,14 +134,6 @@ import PartnerWithUsForm from "./cms/PartnerWithUsForm";
 import ScrollToTop from "./components/ScrollToTop";
 import Card from "./card";
 import FormCard from "./FormCard";
-import VendorIdentityCardForm from "./VendorIdentityCardForm";
-import VendorIdentityCard from "./VendorIdentityCard";
-import TerrotoryIdentityCardForm from "./TerrotoryIdentityCardForm";
-import TerritoryCard from "./TerritoryCard";
-import HealthcareAgentCardForm from "./AgentCardForm";
-import AgentIdentityCard from "./AgentIdentityCard";
-import FranchiseIdentityCardForm from "./FranchiseIdentityCardForm";
-import FranchiseCard from "./FranchiseCard";
 import Healthcare from "./components/HealthPartner/Healthcare";
 import PremiumCalculatorPage from "./pages/PremiumCalculatorPage";
 import SettlementSimulationPage from "./pages/SettlementSimulationPage";
@@ -376,14 +368,8 @@ function App() {
         {/* 18-11-2025 Start */}
         <Route path="/beneficiary-form" element={<FormCard />} />
         <Route path="/card/:id" element={<Card />} />
-        <Route path="/vendor" element={<VendorIdentityCardForm />} />
-        <Route path="/vendorcard" element={<VendorIdentityCard />} />
-        <Route path="/terrotory" element={<TerrotoryIdentityCardForm />} />
-        <Route path="/terrotory-card" element={<TerritoryCard />} />
-        <Route path="/agentform" element={<HealthcareAgentCardForm />} />
-        <Route path="/agent-card" element={<AgentIdentityCard />} />
-        <Route path="/franchise-form" element={<FranchiseIdentityCardForm />} />
-        <Route path="/franchise-card" element={<FranchiseCard />} />
+  
+      
         {/* 18-11-2025 End */}
         <Route path="/health-access/partner" element={<PartnerWithUsForm />} />
         <Route path="/health-access/pay-plan" element={<PlanPaymentPage />} />

@@ -70,10 +70,13 @@ export default function FormCardForm() {
       formToSend.append("profileImg", formData.profileImgFile);
     }
 
-    const response = await fetch("http://localhost:5000/api/beneficiary", {
-      method: "POST",
-      body: formToSend,
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URI}/api/beneficiary`,
+      {
+        method: "POST",
+        body: formToSend,
+      }
+    );
 
     const res = await response.json();
 

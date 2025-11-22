@@ -13,7 +13,9 @@ export default function IdentityCard() {
   useEffect(() => {
     async function loadBeneficiary() {
       try {
-        const res = await fetch(`http://localhost:5000/api/beneficiary/${id}`);
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URI}/api/beneficiary/${id}`
+        );
         const json = await res.json();
 
         if (json.success) {
@@ -28,7 +30,9 @@ export default function IdentityCard() {
 
             // FIXED IMAGE PATH (matches your backend)
             profileImg: json.data.profileImg
-              ? `http://localhost:5000/uploads/beneficiaries/${json.data.profileImg}`
+              ? `${import.meta.env.VITE_API_URI}/uploads/beneficiaries/${
+                  json.data.profileImg
+                }`
               : null,
 
             customerService: {
