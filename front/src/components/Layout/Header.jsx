@@ -15,7 +15,13 @@ import { Bell, Cart, Globe } from "react-bootstrap-icons";
 import { FaUserAlt } from "react-icons/fa";
 import { IoLogoXing } from "react-icons/io";
 import { GiArchiveRegister } from "react-icons/gi";
+import { BiSearchAlt } from "react-icons/bi";
+import { IoClose } from "react-icons/io5";
+import { BiCurrentLocation } from "react-icons/bi";
 const Header = () => {
+  const [open, setOpen] = useState(false);
+  const [openLocation, setOpenLocation] = useState(false);
+  const [query, setQuery] = useState("");
   const location = useLocation();
   const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
   const token = bbsUserData?.token;
@@ -57,6 +63,27 @@ const Header = () => {
     { title: "Reminder: OPD at 5 PM", time: "Today" },
   ];
 
+  const [selectedState, setSelectedState] = useState("");
+
+  const statesList = [
+    "Tamil Nadu",
+    "Kerala",
+    "Karnataka",
+    "Maharashtra",
+    "Delhi",
+    "Punjab",
+    "Gujarat",
+  ];
+
+  // Function to apply selected location
+  const applyLocation = (state) => {
+    setSelectedState(state);
+    setOpenLocation(false);
+
+    // 🔥 call your filter api or product filter logic here
+    console.log("Location applied:", state);
+  };
+
   return (
     <header
       style={{
@@ -70,37 +97,21 @@ const Header = () => {
     >
       <Navbar expand="lg" className="px-3">
         <Container fluid className="px-0">
-          <Navbar.Brand
-            as={Link}
-            to="/"
-            className="d-flex align-items-center gap-2"
-          >
+          <Navbar.Brand as={Link} to="/" className="d-flex align-items-center ">
             <div
-              className="d-flex align-items-center"
+              className="d-flex align-items-center mt-2 "
               style={{
-                height: "65px", // keeps navbar height stable
+                height: "60px", // keeps navbar height stable
                 overflow: "hidden", // hides overflow of tall logos
               }}
             >
-              {/* Logo Icon */}
-              <img
-                src="/logo.png"
-                alt="Logo"
-                style={{
-                  height: "100px",
-                  width: "auto",
-                  objectFit: "contain",
-                }}
-              />
-
               {/* Logo Text */}
               <img
-                src="/logo-text.png"
+                src="/health.png"
                 alt="Logo Text"
                 style={{
-                  height: "150px",
-                  marginLeft: "2px",
-                  width: "auto",
+                  height: "90px",
+                  width: "120px",
                   objectFit: "contain",
                 }}
               />
@@ -168,14 +179,153 @@ const Header = () => {
                 </NavDropdown.Item>
               </NavDropdown>
               {/* 🔔 Notification Button with Popover */}
+            </Nav>
+          </Navbar.Collapse>
+          <Navbar.Collapse className="justify-content-end">
+            <Nav className="align-items-center justify-content-end d-flex gap-2">
+              <div>
+                {/* SEARCH ICON */}
+                <div
+                  onClick={() => setOpen(true)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <BiSearchAlt size={18} />
+                </div>
+
+                {/* SEARCH OVERLAY */}
+                {open && (
+                  <div
+                    style={{
+                      position: "fixed",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      background: "rgba(0,0,0,0.6)",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      zIndex: 9999,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "90%",
+                        maxWidth: "650px",
+                        background: "#fff",
+                        borderRadius: "12px",
+                        padding: "20px",
+                      }}
+                    >
+                      {/* HEADER */}
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <h3>Search Healthcare Products</h3>
+                        <IoClose
+                          size={24}
+                          onClick={() => setOpen(false)}
+                          style={{ cursor: "pointer" }}
+                        />
+                      </div>
+
+                      {/* SEARCH INPUT */}
+                      <input
+                        type="text"
+                        placeholder="Search medicines, equipment, supplements..."
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        style={{
+                          width: "100%",
+                          padding: "12px",
+                          marginTop: "10px",
+                          borderRadius: "8px",
+                          border: "1px solid #ccc",
+                          fontSize: "14px",
+                        }}
+                      />
+
+                      {/* ADVANCED FILTERS */}
+                      <div style={{ marginTop: "20px" }}>
+                        <label>Category</label>
+                        <select className="form-control my-2">
+                          <option>All</option>
+                          <option>Medicines</option>
+                          <option>Medical Equipment</option>
+                          <option>Surgery & Tools</option>
+                          <option>Supplements</option>
+                          <option>Diagnostics</option>
+                        </select>
+
+                        <label>Brand</label>
+                        <select className="form-control my-2">
+                          <option>Any</option>
+                          <option>Apollo</option>
+                          <option>1mg</option>
+                          <option>Dr Reddy’s</option>
+                          <option>Pharmeasy</option>
+                        </select>
+
+                        <label>Price Range</label>
+                        <div style={{ display: "flex", gap: "10px" }}>
+                          <input
+                            type="number"
+                            className="form-control my-2"
+                            placeholder="Min ₹"
+                          />
+                          <input
+                            type="number"
+                            className="form-control my-2"
+                            placeholder="Max ₹"
+                          />
+                        </div>
+
+                        <label>Availability</label>
+                        <select className="form-control my-2">
+                          <option>All</option>
+                          <option>In Stock</option>
+                          <option>Out of Stock</option>
+                        </select>
+                      </div>
+
+                      {/* BUTTONS */}
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          gap: "10px",
+                        }}
+                      >
+                        <button
+                          className="btn btn-secondary"
+                          onClick={() => setOpen(false)}
+                        >
+                          Cancel
+                        </button>
+
+                        <button
+                          className="btn btn-primary"
+                          onClick={() => console.log("Searching for:", query)}
+                        >
+                          Search
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
               <Button
-                variant="outline-secondary"
+                variant="none"
                 size="sm"
                 className="position-relative"
                 ref={notifTarget}
                 onClick={() => setShowNotif(!showNotif)}
               >
-                <Bell size={16} />
+                <Bell size={15} />
                 {notifications > 0 && (
                   <Badge
                     bg="danger"
@@ -229,13 +379,13 @@ const Header = () => {
                 </Popover>
               </Overlay>
               <Button
-                variant="outline-secondary"
+                variant="none"
                 size="sm"
                 className="position-relative"
                 as={Link}
                 to="/cart"
               >
-                <Cart size={16} />
+                <Cart size={15} />
                 {cartCount > 0 && (
                   <Badge
                     bg="primary"
@@ -248,11 +398,11 @@ const Header = () => {
               </Button>
               <Button
                 size="sm"
-                variant="outline-dark"
+                variant="none"
                 onClick={toggleLanguage}
                 title="Switch Language"
               >
-                <Globe size={16} /> {language}
+                <Globe size={15} /> {language}
               </Button>
               {/* Account / Login/Register */}
               <div className="position-relative" ref={accountRef}>
@@ -265,7 +415,7 @@ const Header = () => {
                     >
                       <Button
                         size="sm"
-                        variant="outline-dark"
+                        variant="none"
                         className="me-3 d-flex align-items-center gap-1"
                       >
                         <FaUserAlt className="me-1" /> Account
@@ -321,6 +471,89 @@ const Header = () => {
                       Logout
                     </NavDropdown.Item>
                   </NavDropdown>
+                )}
+              </div>
+              <div style={{ position: "relative", display: "inline-block" }}>
+                {/* 🔍 LOCATION ICON + SELECTED STATE LABEL */}
+                <div
+                  onClick={() => setOpenLocation(!openLocation)}
+                  style={{
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "1px 1px",
+                    borderRadius: "10px",
+                    background: "#f8f8f8",
+                  }}
+                >
+                  <BiCurrentLocation size={22} />
+                  <span style={{ fontSize: "14px", fontWeight: 500 }}>
+                    {selectedState || "Select Location"}
+                  </span>
+                </div>
+
+                {/* 📌 DROPDOWN BOX */}
+                {openLocation && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "45px",
+                      right: 0,
+                      background: "#ffffff",
+                      padding: "12px 14px",
+                      width: "260px",
+                      maxHeight: "300px",
+                      overflowY: "auto",
+                      borderRadius: "14px",
+                      boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
+                      zIndex: 1000,
+                      border: "1px solid #f2f2f2",
+                      fontFamily: "Inter, sans-serif",
+                    }}
+                  >
+                    {/* ✔ DYNAMIC HEADER */}
+                    <h5
+                      style={{
+                        fontSize: "15px",
+                        fontWeight: "600",
+                        margin: "0 0 12px 0",
+                        paddingBottom: "10px",
+                        borderBottom: "1px solid #f0f0f0",
+                        color: "#222",
+                      }}
+                    >
+                      {selectedState
+                        ? `Selected: ${selectedState}`
+                        : "Select Your State"}
+                    </h5>
+
+                    {/* 🌍 STATE LIST */}
+                    <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                      {statesList.map((state, index) => (
+                        <li
+                          key={index}
+                          onClick={() => applyLocation(state)}
+                          style={{
+                            padding: "10px 8px",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                            color: "#333",
+                            borderRadius: "8px",
+                            transition: "0.25s",
+                          }}
+                          onMouseEnter={(e) =>
+                            (e.target.style.backgroundColor = "#f4f4f4")
+                          }
+                          onMouseLeave={(e) =>
+                            (e.target.style.backgroundColor = "transparent")
+                          }
+                        >
+                          {state}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
               </div>
             </Nav>

@@ -62,7 +62,10 @@ import {
   FaYoutube,
   FaFacebook,
 } from "react-icons/fa";
-
+import { MdEmail } from "react-icons/md";
+import { MdPhone } from "react-icons/md";
+import { MdOutlinePhoneAndroid } from "react-icons/md";
+import { BiSolidArrowToTop } from "react-icons/bi";
 export default function BBSCARTFooter() {
   return (
     <footer
@@ -75,21 +78,26 @@ export default function BBSCARTFooter() {
           {/* Adjust horizontal (gx) and vertical (gy) gaps */}
           {/* Left Column: Contact Info */}
           <Col md={3}>
-            <h5 className="fw-bold mb-3">BBSCART HEALTH ACCESS</h5>
+            <h5 className="fw-bold mb-3">BBS Global Health Access</h5>
             <p className="mb-1">
-              55 Life Wellness Avenue
-              <br />
-              Bangalore, India 560001
+              5, 2nd Cross,2nd Floor, Bharathy Street,
+              <br /> Anna Nagar, Puducherry, 605005
             </p>
-            <p className="mb-1">
-              <a href="#" className="text-info text-decoration-none">
-                Find a Location
+            <p className="mb-1 ">
+              <MdPhone className="me-2" />
+              <a href="#" className="text-white text-decoration-none">
+                0413 291 5916
               </a>
             </p>
             <p className="mb-1">
-              <a href="#" className="text-info text-decoration-none">
-                Contact Us
+              <MdOutlinePhoneAndroid className="me-2" />
+              <a href="#" className="text-white text-decoration-none">
+                +91 9600729596
               </a>
+            </p>
+            <p>
+              <MdEmail className="me-2" />
+              info@bbscart.com
             </p>
             <div className="d-flex gap-3 mt-2 fs-5">
               <a href="#" style={{ color: "#1DA1F2" }}>
@@ -176,12 +184,9 @@ export default function BBSCARTFooter() {
         </Row>
 
         {/* Scroll to Top */}
-        <div className="text-center mt-4">
-          <a
-            href="#top"
-            className="btn btn-outline-light btn-sm rounded-pill px-3"
-          >
-            ⬆ Top
+        <div className="text-end mt-4">
+          <a href="#top" className=" text-white text-decoration-none px-3">
+            <BiSolidArrowToTop size={20} /> Top
           </a>
         </div>
       </Container>

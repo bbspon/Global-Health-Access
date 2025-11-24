@@ -107,9 +107,9 @@ const HomeDashboard = () => {
 
   return (
     <>
-      <Container fluid className="home-dashboard-container p-5">
+      <Container fluid className="p-5">
         {/* Header */}
-        <Row className="align-items-center mb-4 ">
+        <Row className="align-items-center mb-4 title-row rounded-2">
           <Col
             md={6}
             className="d-flex flex-column align-items-center justify-content-center text-center text-md-start w-100"
@@ -155,11 +155,11 @@ const HomeDashboard = () => {
         </Row>
 
         {/* Tiles Grid */}
-        <Row xs={1} sm={2} md={3} lg={4} className="g-4">
+        <Row xs={1} sm={2} md={3} lg={4} className="g-4 ">
           {features.map((item, idx) => (
             <Col key={idx}>
               <Card
-                className="feature-card h-100 text-center"
+                className="feature-card h-100 text-center cardshadow"
                 onClick={() => navigate(item.path)}
                 style={{ cursor: "pointer" }}
               >
@@ -175,18 +175,17 @@ const HomeDashboard = () => {
         </Row>
 
         {/* Quick Actions Section */}
-        <Row className="mt-5 justify-content-center">
+        <Row className="mt-5 justify-content-center ">
           <Col xs={12} md={8} lg={12}>
             <Card
-              className="p-4 text-center"
+              className="p-4 text-center cardshadow "
               style={{
                 borderRadius: "20px",
                 boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
-                background: "linear-gradient(135deg, #39363f54, #4a474e54)",
               }}
             >
               <h5 className="text-light mb-3">Quick Actions</h5>
-              <div className=" d-flex flex-wrap justify-content-center gap-2 mt-3">
+              <div className=" d-flex flex-wrap justify-content-center gap-2 mt-3 ">
                 {/* Switch User */}
                 <Button
                   variant="success"
@@ -238,6 +237,14 @@ const HomeDashboard = () => {
       {/* Styling */}
       <style>
         {`
+        .title-row{
+         background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+         padding: 1rem;
+        }
+
+        .cardshadow {
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+        }
         .home-dashboard-container {
           background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
           min-height: 100vh;
