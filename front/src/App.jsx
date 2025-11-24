@@ -132,7 +132,7 @@ import ProfileSharingPage from "./pages/ProfileSharingPage";
 import PlanComparisonEditor from "./cms/PlanComparisonEditor";
 import PartnerWithUsForm from "./cms/PartnerWithUsForm";
 import ScrollToTop from "./components/ScrollToTop";
-import Card from "./Card";
+import Card from "./IdentityCard";
 import FormCard from "./FormCard";
 import Healthcare from "./components/HealthPartner/Healthcare";
 import PremiumCalculatorPage from "./pages/PremiumCalculatorPage";

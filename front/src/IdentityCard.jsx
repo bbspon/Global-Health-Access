@@ -4,7 +4,7 @@ import QRCode from "react-qr-code";
 import { useParams } from "react-router-dom";
 import logo from "../src/assets/logo.png";
 
-export default function Card() {
+export default function IdentityCard() {
   const { id } = useParams();
 
   const [donorType, setDonorType] = useState("all");
