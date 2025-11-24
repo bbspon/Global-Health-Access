@@ -3,31 +3,88 @@ import { Card, Container, Row, Col, Image } from "react-bootstrap";
 import QRCode from "react-qr-code";
 import logo from "../assets/logo.png";
 
-// 🔹 Mock Data (Customer Version)
-const generateMockData = () => ({
-  name: "Annie Smith",
-  address: "123 Green Park, Mumbai",
-  age: 32,
-  bloodGroup: "O+",
-  cardId: "BBS-CUST-2025-0002",
-  profileImg:
-    "https://cdn.pixabay.com/photo/2017/10/18/21/36/portrait-2865605_960_720.jpg",
-  signature:
-    "https://upload.wikimedia.org/wikipedia/commons/6/6c/Signature_example.png",
-  healthcareLink: "https://healthcare.example.com/profile/patientId",
-  emergencyQR: "https://healthcare.example.com/emergency?id=0002",
-  contactNumber: "+91 98765 43210",
-  emergencyContact: "+91 91234 56789",
-  allergies: "None",
-  issuedBy: "BBS Global Health Services",
-  membershipLevel: "Premium Healthcare Member",
-  dateOfIssue: "2023-01-01",
-  expiryDate: "2026-12-31",
-});
+// NEW imports for live API
+import { getUserId, getUserSession } from "../services/authAPI";
+import * as customerIdentityAPI from "../services/customerIdentityAPI";
 
 export default function CustomerHealthCard() {
-  const [mockData, setMockData] = useState(generateMockData());
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    async function fetchIdentity() {
+      try {
+        const userId = getUserId();
+        const session = getUserSession();
+
+        if (!userId || !session) {
+          setLoading(false);
+          return;
+        }
+
+        const res = await customerIdentityAPI.getIdentity(userId);
+
+        if (res?.data?.success && res.data.identity) {
+          const d = res.data.identity;
+
+          const healthcareLink = `https://bbscart.com/health/${userId}`;
+          const emergencyQR = `https://bbscart.com/health/emergency/${userId}`;
+
+          setData({
+            name: session.user?.name || "",
+            address: d.address,
+            age: d.age,
+            bloodGroup: d.bloodGroup,
+            cardId: `BBS-CUST-${new Date().getFullYear()}-${userId.slice(-4)}`,
+
+            profileImg: d.photo
+              ? `${import.meta.env.VITE_API_URI}/uploads/customeridentity/${d.photo}`
+              : null,
+
+            signature: d.signature
+              ? `${import.meta.env.VITE_API_URI}uploads/customeridentity/${
+                  d.signature
+                }`
+              : null,
+
+            healthcareLink,
+            emergencyQR,
+
+            contactNumber: d.contactNumber,
+            emergencyContact: d.emergencyContact,
+            allergies: d.allergies || "None",
+            membershipLevel: "Premium Healthcare Member",
+            issuedBy: "BBS Global Health Services",
+
+            dateOfIssue: d.dateOfIssue || "",
+            expiryDate: d.expiryDate || "",
+          });
+        }
+      } catch (err) {
+        console.log("Error loading card:", err);
+      }
+
+      setLoading(false);
+    }
+
+    fetchIdentity();
+  }, []);
+
+  if (loading)
+    return (
+      <div className="text-center mt-5">
+        <h4>Loading your Health Identity Card...</h4>
+      </div>
+    );
+
+  if (!data)
+    return (
+      <div className="text-center mt-5">
+        <h4>No Health Identity Card Found</h4>
+      </div>
+    );
+
+  // ======================== UI SAME (NO CHANGES) ==========================
   return (
     <>
       <Container
@@ -40,7 +97,6 @@ export default function CustomerHealthCard() {
       >
         <div className="card-flip">
           <div className="card-flip-inner">
-            
             {/* ================= FRONT SIDE =============== */}
             <div className="card-flip-front">
               <Card
@@ -86,32 +142,38 @@ export default function CustomerHealthCard() {
 
                 <Card.Body className="pt-4 pb-2">
                   <Row className="align-items-center">
-                    
                     {/* LEFT SIDE IMAGE */}
                     <Col xs={4} className="text-center">
-                      <Image
-                        src={mockData.profileImg}
-                        roundedCircle
-                        className="border border-3 border-primary shadow-sm mb-2"
-                        style={{
-                          height: "110px",
-                          width: "110px",
-                          objectFit: "cover",
-                        }}
-                      />
-                      <div className="small text-muted fw-semibold">Customer</div>
-                      <div className="badge bg-primary mt-2">{mockData.cardId}</div>
+                      {data.profileImg && (
+                        <Image
+                          src={data.profileImg}
+                          roundedCircle
+                          className="border border-3 border-primary shadow-sm mb-2"
+                          style={{
+                            height: "110px",
+                            width: "110px",
+                            objectFit: "cover",
+                          }}
+                        />
+                      )}
 
-                      <Image
-                        src={mockData.signature}
-                        rounded
-                        className="mt-3"
-                        style={{
-                          height: "50px",
-                          width: "120px",
-                          objectFit: "contain",
-                        }}
-                      />
+                      <div className="small text-muted fw-semibold">
+                        Customer
+                      </div>
+                      <div className="badge bg-primary mt-2">{data.cardId}</div>
+
+                      {data.signature && (
+                        <Image
+                          src={data.signature}
+                          rounded
+                          className="mt-3"
+                          style={{
+                            height: "50px",
+                            width: "120px",
+                            objectFit: "contain",
+                          }}
+                        />
+                      )}
                       <div className="small text-muted">Signature</div>
                     </Col>
 
@@ -121,57 +183,57 @@ export default function CustomerHealthCard() {
                         <Col xs={5} className="fw-bold text-primary fs-6">
                           Name:
                         </Col>
-                        <Col xs={7}>{mockData.name}</Col>
+                        <Col xs={7}>{data.name}</Col>
 
                         <Col xs={5} className="fw-bold text-secondary">
                           Address:
                         </Col>
-                        <Col xs={7}>{mockData.address}</Col>
+                        <Col xs={7}>{data.address}</Col>
 
                         <Col xs={5} className="fw-bold text-secondary">
                           Age:
                         </Col>
-                        <Col xs={7}>{mockData.age}</Col>
+                        <Col xs={7}>{data.age}</Col>
 
                         <Col xs={5} className="fw-bold text-secondary">
                           Blood Group:
                         </Col>
-                        <Col xs={7}>{mockData.bloodGroup}</Col>
+                        <Col xs={7}>{data.bloodGroup}</Col>
 
                         <Col xs={5} className="fw-bold text-secondary">
                           Phone:
                         </Col>
-                        <Col xs={7}>{mockData.contactNumber}</Col>
+                        <Col xs={7}>{data.contactNumber}</Col>
 
                         <Col xs={5} className="fw-bold text-secondary">
                           Emergency:
                         </Col>
-                        <Col xs={7}>{mockData.emergencyContact}</Col>
+                        <Col xs={7}>{data.emergencyContact}</Col>
 
                         <Col xs={5} className="fw-bold text-secondary">
                           Allergies:
                         </Col>
-                        <Col xs={7}>{mockData.allergies}</Col>
+                        <Col xs={7}>{data.allergies}</Col>
 
                         <Col xs={5} className="fw-bold text-secondary">
                           Membership:
                         </Col>
-                        <Col xs={7}>{mockData.membershipLevel}</Col>
+                        <Col xs={7}>{data.membershipLevel}</Col>
 
                         <Col xs={5} className="fw-bold text-secondary">
                           Issued By:
                         </Col>
-                        <Col xs={7}>{mockData.issuedBy}</Col>
+                        <Col xs={7}>{data.issuedBy}</Col>
 
                         <Col xs={5} className="fw-bold text-secondary">
                           Valid From:
                         </Col>
-                        <Col xs={7}>{mockData.dateOfIssue}</Col>
+                        <Col xs={7}>{data.dateOfIssue}</Col>
 
                         <Col xs={5} className="fw-bold text-secondary">
                           Valid Till:
                         </Col>
-                        <Col xs={7}>{mockData.expiryDate}</Col>
+                        <Col xs={7}>{data.expiryDate}</Col>
                       </Row>
                     </Col>
                   </Row>
@@ -183,9 +245,12 @@ export default function CustomerHealthCard() {
                     <Col md={6} className="mb-3">
                       <div
                         className="p-3 rounded-4 shadow-sm bg-white"
-                        style={{ border: "2px dashed #007bf4", display: "inline-block" }}
+                        style={{
+                          border: "2px dashed #007bf4",
+                          display: "inline-block",
+                        }}
                       >
-                        <QRCode value={mockData.healthcareLink} size={110} />
+                        <QRCode value={data.healthcareLink} size={110} />
                       </div>
                       <div className="small mt-1">Health Profile QR</div>
                     </Col>
@@ -193,9 +258,12 @@ export default function CustomerHealthCard() {
                     <Col md={6} className="mb-3">
                       <div
                         className="p-3 rounded-4 shadow-sm bg-white"
-                        style={{ border: "2px dashed #ff4d4d", display: "inline-block" }}
+                        style={{
+                          border: "2px dashed #ff4d4d",
+                          display: "inline-block",
+                        }}
                       >
-                        <QRCode value={mockData.emergencyQR} size={110} />
+                        <QRCode value={data.emergencyQR} size={110} />
                       </div>
                       <div className="small mt-1">Emergency Access QR</div>
                     </Col>
@@ -209,14 +277,14 @@ export default function CustomerHealthCard() {
               <h4 className="fw-bold">Emergency & Health Access</h4>
               <p className="text-center small">
                 This card verifies your health membership and enables medical
-                access during emergencies. Scan the QR codes to view records
-                and contact emergency services.
+                access during emergencies. Scan the QR codes to view records and
+                contact emergency services.
               </p>
 
               <Row className="justify-content-center mt-2">
                 <Col xs={6} className="text-center">
                   <QRCode
-                    value={mockData.healthcareLink}
+                    value={data.healthcareLink}
                     size={100}
                     className="bg-white p-2 rounded"
                   />
@@ -225,7 +293,7 @@ export default function CustomerHealthCard() {
 
                 <Col xs={6} className="text-center">
                   <QRCode
-                    value={mockData.emergencyQR}
+                    value={data.emergencyQR}
                     size={100}
                     className="bg-white p-2 rounded"
                   />

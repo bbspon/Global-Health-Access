@@ -193,7 +193,7 @@ function App() {
           path="/customer-Identity-card"
           element={<CustomerIdentityCardForm />}
         />
-        <Route path="/customerIdcard" element={<CustomerHealthCard />} />
+        <Route path="/customerIdcard/:id" element={<CustomerHealthCard />} />
         <Route path="/country-plans" element={<CountryPlans />} />
         <Route path="/healthcare" element={<Healthcare />} />
         <Route path="/medical-vault" element={<MedicalVault />} />

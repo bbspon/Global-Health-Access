@@ -13,9 +13,14 @@ import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import axios from "axios";
 
+// NEW — IMPORT FROM UPDATED authAPI
+import { getUserId } from "../services/authAPI";
+
 export default function CustomerIdentityCardForm() {
   const navigate = useNavigate();
-  const userId = localStorage.getItem("userId");
+
+  // ALWAYS GET VALID USER ID
+  const userId = getUserId();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -37,21 +42,37 @@ export default function CustomerIdentityCardForm() {
   const [photoFile, setPhotoFile] = useState(null);
   const [signatureFile, setSignatureFile] = useState(null);
 
-  // ============================
-  // LOAD EXISTING IDENTITY DATA
-  // ============================
+  // LOAD EXISTING DATA
   useEffect(() => {
+    if (!userId) return;
+
     async function fetchData() {
       try {
         const res = await axios.get(
           `http://localhost:5000/api/customer-identity/${userId}`
         );
 
-        if (res.data.success && res.data.data) {
+        if (res.data.success && res.data.identity) {
           setFormData({
-            ...res.data.data,
-            profileImg: res.data.data.profileImg || "",
-            signature: res.data.data.signature || "",
+            ...formData,
+            name: res.data.identity.fullName || "",
+            age: res.data.identity.age || "",
+            bloodGroup: res.data.identity.bloodGroup || "",
+            address: res.data.identity.address || "",
+            contactNumber: res.data.identity.contactNumber || "",
+            emergencyContact: res.data.identity.emergencyContact || "",
+            allergies: res.data.identity.allergies || "",
+            medicalHistory: res.data.identity.medicalHistory || "",
+            insuranceProvider: res.data.identity.insuranceProvider || "",
+            insuranceNumber: res.data.identity.insuranceNumber || "",
+            dateOfIssue: res.data.identity.dateOfIssue || "",
+            expiryDate: res.data.identity.expiryDate || "",
+            profileImg: res.data.identity.photo
+              ? `http://localhost:5000/uploads/customeridentity/${res.data.identity.photo}`
+              : "",
+            signature: res.data.identity.signature
+              ? `http://localhost:5000/uploads/customeridentity/${res.data.identity.signature}`
+              : "",
           });
         }
       } catch (error) {
@@ -62,9 +83,7 @@ export default function CustomerIdentityCardForm() {
     fetchData();
   }, [userId]);
 
-  // ============================
-  // FORM INPUT HANDLERS
-  // ============================
+  // FORM INPUTS
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -92,25 +111,37 @@ export default function CustomerIdentityCardForm() {
     reader.readAsDataURL(e.target.files[0]);
   };
 
-  // ============================
-  // SUBMIT FORM
-  // ============================
+  // SUBMIT
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!userId) {
+      Swal.fire("Error", "User not logged in", "error");
+      return;
+    }
 
     try {
       const fd = new FormData();
       fd.append("userId", userId);
 
-      Object.keys(formData).forEach((key) => {
-        fd.append(key, formData[key]);
-      });
-if (photoFile) fd.append("photo", photoFile);
-if (signatureFile) fd.append("signature", signatureFile);
+      fd.append("fullName", formData.name);
+      fd.append("age", formData.age);
+      fd.append("bloodGroup", formData.bloodGroup);
+      fd.append("address", formData.address);
+      fd.append("contactNumber", formData.contactNumber);
+      fd.append("emergencyContact", formData.emergencyContact);
+      fd.append("allergies", formData.allergies);
+      fd.append("medicalHistory", formData.medicalHistory);
+      fd.append("insuranceProvider", formData.insuranceProvider);
+      fd.append("insuranceNumber", formData.insuranceNumber);
+      fd.append("dateOfIssue", formData.dateOfIssue);
+      fd.append("expiryDate", formData.expiryDate);
 
+      if (photoFile) fd.append("photo", photoFile);
+      if (signatureFile) fd.append("signature", signatureFile);
 
       const res = await axios.post(
-        "http://localhost:5000/api/customer-identity/save",
+        `${import.meta.env.VITE_API_URI}/customer-identity/save`,
         fd,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -123,7 +154,7 @@ if (signatureFile) fd.append("signature", signatureFile);
           title: "Updated Successfully!",
           text: "Customer identity details saved!",
           confirmButtonColor: "#0dcaf0",
-        }).then(() => navigate("/customercard"));
+        }).then(() => navigate(`/customerIdcard/${userId}`));
       }
     } catch (error) {
       console.log("Update Error:", error);
@@ -131,9 +162,6 @@ if (signatureFile) fd.append("signature", signatureFile);
     }
   };
 
-  // ============================
-  // UI (UNCHANGED)
-  // ============================
   return (
     <Container
       fluid

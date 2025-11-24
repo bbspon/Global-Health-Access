@@ -1,8 +1,8 @@
 // services/customerIdentityAPI.js
 import axios from "axios";
 
-const API = import.meta.env.VITE_API_URI;
-const API_URL = `${API}/customer-identity`;
+const API_URL = `${import.meta.env.VITE_API_URI}/customer-identity`;
+
 export const saveIdentity = async (formData) => {
   return axios.post(`${API_URL}/save`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
