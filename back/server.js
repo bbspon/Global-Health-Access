@@ -68,6 +68,8 @@ const pricingRoutes = require("./routes/pricingRoutes");
 const eligibilityRoutes = require("./routes/eligibilityRoutes");
 const hospitalRoutes = require("./routes/hospitalRoutes");
 const settlementRoutes = require("./routes/settlementRoutes");
+const customerIdentityRoutes = require("./routes/customerIdentityRoutes");
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -160,6 +162,7 @@ app.use("/api/pricing", pricingRoutes);
 app.use("/api/eligibility", eligibilityRoutes);
 app.use("/api/hospitals", hospitalRoutes);
 app.use("/api/settlements", settlementRoutes);
+app.use("/api/customer-identity", customerIdentityRoutes);
 
 app.use("/api/auth-debug", require("./routes/authDebug"));
 app.use(
