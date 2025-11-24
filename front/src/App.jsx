@@ -132,11 +132,14 @@ import ProfileSharingPage from "./pages/ProfileSharingPage";
 import PlanComparisonEditor from "./cms/PlanComparisonEditor";
 import PartnerWithUsForm from "./cms/PartnerWithUsForm";
 import ScrollToTop from "./components/ScrollToTop";
-import Card from "./card";
+import Card from "./Card";
 import FormCard from "./FormCard";
 import Healthcare from "./components/HealthPartner/Healthcare";
 import PremiumCalculatorPage from "./pages/PremiumCalculatorPage";
 import SettlementSimulationPage from "./pages/SettlementSimulationPage";
+import CustomerIdentityCardForm from "./pages/CustomerIdentityCardForm";
+import CustomerHealthCard from "./pages/CustomerHealthCard";
+
 function App() {
   return (
     <AuthProvider>
@@ -186,6 +189,11 @@ function App() {
         <Route path="/buy-plan" element={<BuyPlan />} />
         <Route path="/digital-health-card" element={<DigitalHealthCard />} />
         <Route path="/health-card" element={<HealthIDCard />} />
+        <Route
+          path="/customer-Identity-card"
+          element={<CustomerIdentityCardForm />}
+        />
+        <Route path="/customerIdcard" element={<CustomerHealthCard />} />
         <Route path="/country-plans" element={<CountryPlans />} />
         <Route path="/healthcare" element={<Healthcare />} />
         <Route path="/medical-vault" element={<MedicalVault />} />
@@ -368,8 +376,7 @@ function App() {
         {/* 18-11-2025 Start */}
         <Route path="/beneficiary-form" element={<FormCard />} />
         <Route path="/card/:id" element={<Card />} />
-  
-      
+
         {/* 18-11-2025 End */}
         <Route path="/health-access/partner" element={<PartnerWithUsForm />} />
         <Route path="/health-access/pay-plan" element={<PlanPaymentPage />} />
