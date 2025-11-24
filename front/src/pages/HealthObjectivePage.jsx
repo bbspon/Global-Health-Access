@@ -22,7 +22,7 @@ import {
 import HomeDashboard from "./HomeDashboard";
 import thia from "../assets/thia.png";
 import bbscart from "../assets/bbscart.png";
-import PannerAd from "./pannerAd";
+import PannerAd from "./PannerAd";
 import ServicesGrid from "../components/Layout/ServicesGrid";
 import VisionPoints from "./VisionPoints";
 import Coverage from "./Coverage";
