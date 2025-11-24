@@ -2,6 +2,9 @@ import React from "react";
 import { RiArrowRightUpFill } from "react-icons/ri";
 import { FaHandshakeSimple } from "react-icons/fa6";
 import { FaTablets } from "react-icons/fa";
+import careimage1 from "../assets/careimage2.JPG";
+import careimage3 from "../assets/careimage3.JPG";
+
 const HealthcareSection = () => {
   return (
     <>
@@ -13,21 +16,12 @@ const HealthcareSection = () => {
             <div
               className="blue-box-outer"
               style={{
-                backgroundImage:
-                  "url('https://media.istockphoto.com/id/187044567/photo/children-dressed-in-medical-professional-uniform-at-hospital-clinic-hz.jpg?s=612x612&w=0&k=20&c=SD6g18BL2FwmPQ_iqUHsgLD93lvVITfgsHSKfm-PfOg=')",
+                backgroundImage: `url(${careimage1})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
               }}
-            >
-              <img
-                className="blue-box-inner"
-                width="460px"
-                height="320px"
-                src="https://media.istockphoto.com/id/187044567/photo/children-dressed-in-medical-professional-uniform-at-hospital-clinic-hz.jpg?s=612x612&w=0&k=20&c=SD6g18BL2FwmPQ_iqUHsgLD93lvVITfgsHSKfm-PfOg="
-                alt=""
-              />
-            </div>
+            ></div>
           </div>
 
           {/* Right Text Section */}
@@ -51,8 +45,7 @@ const HealthcareSection = () => {
             <div
               className="feature-card card-blue text-white p-4 rounded-4 h-100"
               style={{
-                backgroundImage:
-                  "url('https://img.freepik.com/premium-vector/abstract-soft-blue-background-with-dynamic-waves-shape_1023432-535.jpg?w=2000')",
+                backgroundImage: `url(${careimage3})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
@@ -66,8 +59,13 @@ const HealthcareSection = () => {
                 alt="doctor"
                 className="img-fluid mt-4"
               />
-                <div className="pt-3 text-start  ">
-              <RiArrowRightUpFill className="d-flex justify-content-center align-items-start bg-white rounded-circle p-2 " size={45} color="black" /> </div>
+              <div className="pt-3 text-start  ">
+                <RiArrowRightUpFill
+                  className="d-flex justify-content-center align-items-start bg-white rounded-circle p-2 "
+                  size={45}
+                  color="black"
+                />{" "}
+              </div>
             </div>
           </div>
 
@@ -91,33 +89,45 @@ const HealthcareSection = () => {
                 alt="doctor"
                 className="img-fluid mt-4"
               />
-           <div className="pt-3 text-start  ">
-               <RiArrowRightUpFill className="d-flex justify-content-center align-items-start bg-white rounded-circle p-2 " size={45} color="black"/>
-           </div>
+              <div className="pt-3 text-start  ">
+                <RiArrowRightUpFill
+                  className="d-flex justify-content-center align-items-start bg-white rounded-circle p-2 "
+                  size={45}
+                  color="black"
+                />
+              </div>
             </div>
           </div>
 
           {/* Card 3 (Wide) */}
           <div className="col-md-6">
             <div className="d-flex flex-row align-items-center card-darkblue text-white p-5 rounded-4 h-100">
-             <div className="text-center">
-                 <h3 className="fw-bold">
-                Connecting You to <br /> Better Health.
-              </h3>
-              <p className="mt-3">
-                Immediate care for life’s unexpected moments, delivered with
-                speed.
-              </p>
-             </div>
+              <div className="text-center">
+                <h3 className="fw-bold">
+                  Connecting You to <br /> Better Health.
+                </h3>
+                <p className="mt-3">
+                  Immediate care for life’s unexpected moments, delivered with
+                  speed.
+                </p>
+              </div>
 
               <div className="d-flex gap-5 mt-4">
                 <div>
-                  <FaHandshakeSimple className=" bg-white rounded-circle p-2 " size={60} color="black"/>
+                  <FaHandshakeSimple
+                    className=" bg-white rounded-circle p-2 "
+                    size={60}
+                    color="black"
+                  />
                   <p className="mt-2 small">Advanced care, Trusted hands.</p>
                 </div>
 
                 <div>
-          <FaTablets className=" bg-white rounded-circle p-2 " size={60} color="black"/>
+                  <FaTablets
+                    className=" bg-white rounded-circle p-2 "
+                    size={60}
+                    color="black"
+                  />
                   <p className="mt-2 small">Gentle medicine, Strong results.</p>
                 </div>
               </div>
