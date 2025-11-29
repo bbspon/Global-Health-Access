@@ -38,21 +38,28 @@ const LoginForm = () => {
     return true;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
 
-    if (!validateForm()) return;
+  try {
+    const res = await loginUser(form);
 
-    try {
-      const res = await loginUser(form);
-      login(res.data);
-      navigate("/");
-    } catch (err) {
-      setError(
-        err.response?.data?.message || "Login failed. Please try again."
-      );
-    }
-  };
+    // Save token separately
+    localStorage.setItem("token", res.data.token);
+
+    // Save user session
+    login({
+      user: res.data.user,
+      token: res.data.token,
+    });
+
+    navigate("/");
+  } catch (err) {
+    setError(err.response?.data?.message || "Login failed. Please try again.");
+  }
+};
+
 
   return (
     <>

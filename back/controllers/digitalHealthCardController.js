@@ -2,6 +2,8 @@ const DigitalHealthCard = require("../models/DigitalHealthCard");
 
 exports.getMyDigitalCard = async (req, res) => {
   try {
+    console.log("REQ.USER >>>", req.user); // 👈 ADD THIS
+
     const card = await DigitalHealthCard.findOne({ user: req.user._id });
     if (!card) return res.status(404).json({ message: "Card not found" });
     res.json(card);
@@ -9,6 +11,7 @@ exports.getMyDigitalCard = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
 
 exports.refreshQrToken = async (req, res) => {
   try {

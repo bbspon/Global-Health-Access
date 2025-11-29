@@ -1,6 +1,6 @@
 import React from "react";
 import earth from "../assets/earth.png";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 import {
   TbDental,
@@ -117,21 +117,22 @@ const Coverage = () => {
         <p style={{ marginTop: "10px", fontSize: "18px" }}>
           We are a 24x7 call center to help you with all your health needs
         </p>
-
-        <button
-          style={{
-            backgroundColor: "#003366",
-            color: "white",
-            padding: "12px 30px",
-            borderRadius: "50px",
-            border: "none",
-            marginTop: "20px",
-            fontSize: "16px",
-            cursor: "pointer",
-          }}
-        >
-          Book an appointment
-        </button>
+        <Link to="/book-appointment">
+          <button
+            style={{
+              backgroundColor: "#003366",
+              color: "white",
+              padding: "12px 30px",
+              borderRadius: "50px",
+              border: "none",
+              marginTop: "20px",
+              fontSize: "16px",
+              cursor: "pointer",
+            }}
+          >
+            Book an appointment
+          </button>
+        </Link>
       </div>
       {/* 🔥 Service Cards - Dynamic */}
       <div className="d-flex flex-wrap gap-3 mt-4 justify-content-center">

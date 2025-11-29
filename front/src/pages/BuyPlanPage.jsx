@@ -82,7 +82,7 @@ navigate("/health-access/purchase-summary", {
   return (
     <div className="container my-4">
       <h3>Checkout: {selectedPlan.name}</h3>
-      <p>₹ {selectedPlan.price}</p>
+      {/* <p>₹ {selectedPlan.price}</p> */}
 
       <h5>Add-ons:</h5>
       {selectedPlan.addons?.map((addon, i) => (

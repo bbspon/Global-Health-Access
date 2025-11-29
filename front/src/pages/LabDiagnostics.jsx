@@ -22,7 +22,7 @@ const LabDiagnostics = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.get('/api/labs'); // adjust based on actual endpoint
+      const res = await axios.get(`${import.meta.env.VITE_API_URI}/labs`); // adjust based on actual endpoint
       console.log("Lab API response:", res.data);
       if (Array.isArray(res.data)) {
         setLabs(res.data);

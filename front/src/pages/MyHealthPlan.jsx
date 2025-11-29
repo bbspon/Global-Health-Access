@@ -19,7 +19,7 @@ const MyHealthPlan = () => {
 
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_API_URI}/user/my-plan`,
+          `${import.meta.env.VITE_API_URI}/my-plan`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -48,7 +48,7 @@ const MyHealthPlan = () => {
         <strong>Status:</strong> {plan.status}
       </p>
       <p>
-        <strong>Price:</strong> ₹{plan.planId?.price}
+        <strong>Price:</strong> ₹{plan.planId?.price?.INR}
       </p>
       <p>
         <strong>Valid Till:</strong>{" "}

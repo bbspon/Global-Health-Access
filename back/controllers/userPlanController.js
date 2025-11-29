@@ -99,12 +99,12 @@ exports.buyPlanController = async (req, res) => {
 
 exports.getMyPlan = async (req, res) => {
   try {
-    const userId = req.user._id || req.user.id; // Handle both cases
+    const userId = req.user._id || req.user.id;
 
     console.log("📩 getMyPlan called for user:", userId);
 
     const plan = await UserPlan.findOne({
-      userId,
+      $or: [{ userId }, { user: userId }],
       status: "active",
     }).sort({ startDate: -1 });
 
@@ -112,12 +112,15 @@ exports.getMyPlan = async (req, res) => {
       return res.status(404).json({ message: "No active plan found." });
     }
 
-    // Optionally populate the plan details
     const fullPlan = await HealthPlan.findById(plan.planId);
 
-    res.status(200).json({ ...plan.toObject(), planDetails: fullPlan });
+    return res.status(200).json({
+      ...plan.toObject(),
+      planId: fullPlan, // ⭐ FRONTEND EXPECTS THIS
+    });
   } catch (error) {
     console.error("❌ Error in getMyPlan:", error);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 };
+

@@ -1,34 +1,19 @@
 const express = require("express");
 const router = express.Router();
-const Wellness = require("../models/Wellness");
+const {
+  logWellness,
+  getWellnessLogs,
+  getRecentLogs,
+} = require("../controllers/wellnessController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-// GET wellness data
-router.get("/", async (req, res) => {
-  const data = await Wellness.findOne({ userId: "demo" });
-  if (!data) {
-    const newData = await Wellness.create({ userId: "demo" });
-    return res.json(newData);
-  }
-  res.json(data);
-});
+// CREATE wellness log
+router.post("/log", authMiddleware, logWellness);
 
-// POST steps
-router.post("/steps", async (req, res) => {
-  const { steps } = req.body;
-  const updated = await Wellness.findOneAndUpdate(
-    { userId: "demo" },
-    { steps },
-    { new: true }
-  );
-  res.json(updated);
-});
+// GET user wellness logs
+router.get("/logs", authMiddleware, getWellnessLogs);
 
-// POST meal log
-router.post("/meal", async (req, res) => {
-  const user = await Wellness.findOne({ userId: "demo" });
-  user.mealsLogged += 1;
-  await user.save();
-  res.json(user);
-});
+// GET recent logs (last 7)
+router.get("/recent", authMiddleware, getRecentLogs);
 
 module.exports = router;

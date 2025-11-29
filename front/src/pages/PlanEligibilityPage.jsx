@@ -10,30 +10,38 @@ const PlanEligibilityPage = () => {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
-  const handleCheckEligibility = async () => {
-    const token = JSON.parse(localStorage.getItem("bbsUser"))?.token;
-    const payload = JSON.parse(atob(t.split(".")[1]));
-    payload; 
+const handleCheckEligibility = async () => {
+  setError("");
+  setResult(null);
 
-    console.log(payload,"payload");
-    
-    setError("");
+  const token = JSON.parse(localStorage.getItem("bbsUser"))?.token;
+
+  // OPTIONAL: Decode token only if needed
+  let payload = null;
+  if (token) {
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URI}/plan/check-eligibility`,
-        { age, city, planType },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setResult(res.data);
-    } catch (err) {
-      setResult(null);
-      setError(
-        "❌ " + (err.response?.data?.message || "Something went wrong.")
-      );
+      payload = JSON.parse(atob(token.split(".")[1]));
+      console.log("Decoded Payload:", payload);
+    } catch (e) {
+      console.log("Invalid Token");
     }
-  };
+  }
+
+  try {
+    const res = await axios.post(
+      `${import.meta.env.VITE_API_URI}/plan/check-eligibility`,
+      { age, city, planType },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    setResult(res.data);
+  } catch (err) {
+    setResult(null);
+    setError("❌ " + (err.response?.data?.message || "Something went wrong."));
+  }
+};
 
   return (
     <Container style={{ maxWidth: 600 }} className="mt-5">

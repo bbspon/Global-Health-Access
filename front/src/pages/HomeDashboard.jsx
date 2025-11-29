@@ -84,11 +84,11 @@ const features = [
     title: "Health Insights",
     path: "/health-insights",
   },
-  {
-    icon: <ExclamationTriangle size={32} color="#f56708ff" />,
-    title: "AI Risk & Early Warning",
-    path: "/ai-risk-engine",
-  },
+  // {
+  //   icon: <ExclamationTriangle size={32} color="#f56708ff" />,
+  //   title: "AI Risk & Early Warning",
+  //   path: "/ai-risk-engine",
+  // },
   {
     icon: <ExclamationTriangle size={32} color="#d83d57ff" />,
     title: "Feedback & Support",

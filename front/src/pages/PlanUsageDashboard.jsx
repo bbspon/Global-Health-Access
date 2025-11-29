@@ -26,6 +26,7 @@ const PlanUsageDashboard = () => {
   const [pdfModal, setPdfModal] = useState(false);
   const [resetModal, setResetModal] = useState(false);
   const navigate = useNavigate();
+  
   useEffect(() => {
     const fetchData = async () => {
       const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));

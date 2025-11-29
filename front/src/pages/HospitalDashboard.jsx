@@ -113,7 +113,7 @@ const HospitalDashboard = () => {
       title: "Hospital Partnership",
       description: "View important hospital partnership",
       icon: <Hospital size={28} />,
-      link: "/hospital/hospital-partnership",
+      link: "/hospital-partnership",
       color: "primary",
       bgImage: "/health.png",
     },

@@ -19,53 +19,59 @@ const PlanCard = ({ plan }) => {
   };
 
   const handleBuyClick = () => {
-    localStorage.setItem("selectedPlan", JSON.stringify(plan)); // ✅ Save selected plan
-    navigate("/health-access/buy-plan", { state: { plan } }); // ✅ Navigate with state
+    localStorage.setItem("selectedPlan", JSON.stringify(plan)); // Save selected plan
+    navigate("/health-access/buy-plan", { state: { plan } });
   };
 
   return (
     <Card className="h-100 shadow-sm">
       <Card.Body className="d-flex flex-column">
+        {/* Header Section */}
         <div className="d-flex justify-content-between align-items-center mb-2">
           <Card.Title>{plan.name}</Card.Title>
           <Badge bg={getBadgeColor(plan.tier)}>
             {(plan.tier || "N/A").toUpperCase()}
           </Badge>
         </div>
+
+        {/* Description */}
         <Card.Text>{plan.description}</Card.Text>
 
+        {/* Features */}
         <ul className="small text-muted flex-grow-1 text-start">
           {Array.isArray(plan.features) &&
             plan.features.map((feature, idx) => <li key={idx}>{feature}</li>)}
         </ul>
 
+        {/* Price */}
         <h5 className="mt-3">
           ₹ {plan.price?.INR}
           <small className="text-muted">/ year</small>
         </h5>
 
-        {/* ✅ Buttons Section - aligned */}
+        {/* Buttons Section */}
         <div className="mt-3 d-flex flex-wrap gap-2 justify-content-center">
           <Button variant="outline-primary" size="sm" disabled>
             Compare
           </Button>
+
           <Button variant="success" size="sm" onClick={handleBuyClick}>
             Buy Now
           </Button>
+
           <Link to={`/health-access/plan/${plan._id}`}>
             <Button variant="info" size="sm">
               View Details
             </Button>
           </Link>
-          <Link
-            to={`/plan-terms-modal/${plan._id}`}
-            className="d-block text-center small"
-          >
+
+          <Link to={`/plan-terms-modal/${plan._id}`}>
             <Button variant="info" size="sm">
               Plan Terms
             </Button>
           </Link>
-          <Link to={`/coverage-status`}>
+
+          <Link to="/coverage-status">
             <Button variant="info" size="sm">
               Coverage Status
             </Button>

@@ -100,19 +100,28 @@ export default function BBSCARTFooter() {
               info@bbscart.com
             </p>
             <div className="d-flex gap-3 mt-2 fs-5">
-              <a href="#" style={{ color: "#1DA1F2" }}>
-                <FaTwitter />
-              </a>
-              <a href="#" style={{ color: "#C13584" }}>
+              <a
+                href="https://www.instagram.com/bbscart/?hl=en"
+                style={{ color: "#C13584" }}
+              >
                 <FaInstagram />
               </a>
-              <a href="#" style={{ color: "#0077B5" }}>
+              <a
+                href="https://www.linkedin.com/in/bala-bharath-jayasingh-77a4bb22/"
+                style={{ color: "#0077B5" }}
+              >
                 <FaLinkedin />
               </a>
-              <a href="#" style={{ color: "#FF0000" }}>
+              <a
+                href="https://www.youtube.com/channel/UCNiBeRvAW1bQOUEcaqc0hYA"
+                style={{ color: "#FF0000" }}
+              >
                 <FaYoutube />
               </a>
-              <a href="#" style={{ color: "#1877F2" }}>
+              <a
+                href="https://www.facebook.com/profile.php?id=100090804256179"
+                style={{ color: "#1877F2" }}
+              >
                 <FaFacebook />
               </a>
             </div>

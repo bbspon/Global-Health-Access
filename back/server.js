@@ -128,7 +128,6 @@ app.use("/api/emergency", emergencyRoutes);
 app.use("/api/feedback", userFeedbackRoutes);
 app.use("/api/grievance", require("./routes/grievanceRoutes"));
 app.use("/api/hospital-bills", require("./routes/hospitalBillRoutes"));
-app.use("/api/hospitals", require("./routes/hospitalOnboardingRoutes"));
 
 app.use("/api/offline-deployment", offlineDeploymentRoutes);
 app.use("/api/appointments", appointmentRoutes);
@@ -161,6 +160,9 @@ app.use("/api/beneficiary", beneficiaryRoutes);
 app.use("/api/pricing", pricingRoutes);
 app.use("/api/eligibility", eligibilityRoutes);
 app.use("/api/hospitals", hospitalRoutes);
+app.use("/api/hospitals", require("./routes/hospitalOnboardingRoutes"));
+app.use("/api/labs", require("./routes/labRoutes"));
+
 app.use("/api/settlements", settlementRoutes);
 app.use("/api/customer-identity", customerIdentityRoutes);
 

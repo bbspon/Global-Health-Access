@@ -33,17 +33,17 @@ const SignupForm = () => {
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState("");
 
-  // ---------------------------
-  // LOAD GLOBAL COUNTRY LIST
-  // ---------------------------
+  // Password visibility states
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  // LOAD COUNTRY LIST
   useEffect(() => {
     const allCountries = getNames();
     setCountries(allCountries);
   }, []);
 
-  // ---------------------------
-  // LOAD ALL HOSPITALS FROM BACKEND
-  // ---------------------------
+  // LOAD ALL HOSPITALS
   useEffect(() => {
     loadAllHospitals();
   }, []);
@@ -53,55 +53,42 @@ const SignupForm = () => {
       const res = await axios.get(
         `${import.meta.env.VITE_API_URI}/region/hospitals/all`
       );
-
-      const hospitals = res.data?.hospitals || [];
-      setAllHospitals(hospitals);
+      setAllHospitals(res.data?.hospitals || []);
     } catch (err) {
       console.log("Hospital load error:", err);
     }
   };
 
-  // ---------------------------
-  // WHEN COUNTRY SELECTED → LOAD DB CITIES
-  // ---------------------------
-useEffect(() => {
-  if (!country) {
-    setCities([]);
-    setCity("");
-    return;
-  }
-
-  // 1. Find country object using exact match
-  const allCountries = Country.getAllCountries();
-  const selectedCountryObj = allCountries.find(
-    (item) => item.name.toLowerCase() === country.toLowerCase()
-  );
-
-  if (!selectedCountryObj) {
-    console.log("No matching country found for:", country);
-    setCities([]);
-    return;
-  }
-
-  // 2. Load global cities for selected country
-  const cityData = City.getCitiesOfCountry(selectedCountryObj.isoCode);
-
-  // 3. Convert to list of names
-  const cityNames = cityData.map((c) => c.name);
-
-  setCities(cityNames);
-  setCity("");
-}, [country]);
-
-  // ---------------------------
-  // WHEN CITY SELECTED → FILTER HOSPITALS
-  // ---------------------------
+  // COUNTRY → LOAD CITIES
   useEffect(() => {
-    if (!city || !country) return;
-    fetchFilteredHospitals();
+    if (!country) {
+      setCities([]);
+      setCity("");
+      return;
+    }
+
+    const countryList = Country.getAllCountries();
+    const selectedCountry = countryList.find(
+      (c) => c.name.toLowerCase() === country.toLowerCase()
+    );
+
+    if (!selectedCountry) {
+      setCities([]);
+      return;
+    }
+
+    const allCities = City.getCitiesOfCountry(selectedCountry.isoCode);
+    setCities(allCities.map((c) => c.name));
+    setCity("");
+  }, [country]);
+
+  // CITY SELECTED → FILTER HOSPITALS
+  useEffect(() => {
+    if (!city) return;
+    filterHospitals();
   }, [city]);
 
-  const fetchFilteredHospitals = async () => {
+  const filterHospitals = async () => {
     try {
       const res = await axios.get(
         `${
@@ -109,53 +96,44 @@ useEffect(() => {
         }/region/hospitals?country=${country}&city=${city}`
       );
 
-      const data = res.data;
-
-      if (Array.isArray(data)) {
-        setFilteredHospitals(data);
+      if (Array.isArray(res.data)) {
+        setFilteredHospitals(res.data);
       } else {
-        setFilteredHospitals(data.hospitals || []);
+        setFilteredHospitals(res.data.hospitals || []);
       }
     } catch (err) {
       console.log("Hospital filter error:", err);
     }
   };
 
-  // ---------------------------
   // VALIDATION
-  // ---------------------------
   const validateField = (name, value) => {
-    let message = "";
+    let msg = "";
 
     switch (name) {
       case "name":
-        if (!value.trim()) message = "Full name is required";
+        if (!value.trim()) msg = "Full name is required";
         break;
 
       case "email":
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
-          message = "Enter a valid email";
+          msg = "Enter valid email";
         break;
 
       case "password":
-        if (value.length < 6)
-          message = "Password must be at least 6 characters";
+        if (value.length < 6) msg = "Password must be at least 6 characters";
         break;
 
       case "confirmPassword":
-        if (value !== form.password) message = "Passwords do not match";
+        if (value !== form.password) msg = "Passwords do not match";
         break;
 
       case "phone":
-        if (!/^[0-9]{10}$/.test(value))
-          message = "Enter a valid 10-digit phone number";
-        break;
-
-      default:
+        if (!/^[0-9]{10}$/.test(value)) msg = "Enter valid 10-digit phone";
         break;
     }
 
-    return message;
+    return msg;
   };
 
   const handleChange = (e) => {
@@ -165,41 +143,32 @@ useEffect(() => {
     setErrors({ ...errors, [name]: validateField(name, value) });
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    Object.keys(form).forEach((key) => {
+  const validateForm = () =>
+    Object.keys(form).reduce((acc, key) => {
       const err = validateField(key, form[key]);
-      if (err) newErrors[key] = err;
-    });
+      if (err) acc[key] = err;
+      return acc;
+    }, {}) || {};
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // ---------------------------
   // SUBMIT
-  // ---------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
+    const newErrors = validateForm();
+    setErrors(newErrors);
 
-    const finalPayload = {
-      name: form.name,
-      email: form.email,
-      phone: form.phone,
-      password: form.password,
+    if (Object.keys(newErrors).length > 0) return;
+
+    const payload = {
+      ...form,
       referralCode,
-      createdFrom: "healthcare",
       country,
       city,
       hospitalId,
     };
 
     try {
-      await signupUser(finalPayload);
-
+      await signupUser(payload);
       setSuccess("Signup successful! Redirecting...");
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
@@ -209,9 +178,6 @@ useEffect(() => {
     }
   };
 
-  // ---------------------------
-  // RENDER UI
-  // ---------------------------
   return (
     <div
       className="container-fluid d-flex justify-content-center align-items-center"
@@ -263,33 +229,97 @@ useEffect(() => {
               )}
             </div>
           </div>
-
           {/* PASSWORD */}
-          <label>Password</label>
-          <div className="position-relative mb-2">
-            <input
-              name="password"
-              className="form-control"
-              type="password"
-              value={form.password}
-              onChange={handleChange}
-            />
+          <div className="mb-2">
+            <div
+              className="position-relative"
+              style={{ minHeight: "2.75rem" }} // Fix height to avoid icon shift
+            >
+              <input
+                name="password"
+                className="form-control password-input"
+                type={showPassword ? "text" : "password"}
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Password"
+                autoComplete="new-password"
+                style={{ paddingRight: "3rem" }}
+              />
+              <button
+                type="button"
+                className="password-toggle btn btn-link p-0"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                style={{
+                  position: "absolute",
+                  right: "0.75rem",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  color: "#555",
+                  fontSize: "1.25rem",
+                  userSelect: "none",
+                  padding: 0,
+                  zIndex: 2,
+                }}
+              >
+                {showPassword ? <IoEyeOffSharp /> : <IoEyeOutline />}
+              </button>
+            </div>
+            {errors.password && (
+              <small className="text-danger">{errors.password}</small>
+            )}
           </div>
 
           {/* CONFIRM PASSWORD */}
-          <label>Confirm Password</label>
-          <div className="position-relative mb-2">
-            <input
-              name="confirmPassword"
-              className="form-control"
-              type="password"
-              value={form.confirmPassword}
-              onChange={handleChange}
-            />
+          <div className="mb-2">
+            <div
+              className="position-relative"
+              style={{ minHeight: "2.75rem" }} // Fix height here too
+            >
+              <input
+                name="confirmPassword"
+                className="form-control password-input"
+                type={showConfirm ? "text" : "password"}
+                value={form.confirmPassword}
+                onChange={handleChange}
+                placeholder="Confirm Password"
+                autoComplete="new-password"
+                style={{ paddingRight: "3rem" }}
+              />
+              <button
+                type="button"
+                className="password-toggle btn btn-link p-0"
+                onClick={() => setShowConfirm(!showConfirm)}
+                aria-label={
+                  showConfirm
+                    ? "Hide confirm password"
+                    : "Show confirm password"
+                }
+                style={{
+                  position: "absolute",
+                  right: "0.75rem",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  color: "#555",
+                  fontSize: "1.25rem",
+                  userSelect: "none",
+                  padding: 0,
+                  zIndex: 2,
+                }}
+              >
+                {showConfirm ? <IoEyeOffSharp /> : <IoEyeOutline />}
+              </button>
+            </div>
+            {errors.confirmPassword && (
+              <small className="text-danger">{errors.confirmPassword}</small>
+            )}
           </div>
-          {errors.confirmPassword && (
-            <small className="text-danger">{errors.confirmPassword}</small>
-          )}
 
           {/* PHONE */}
           <label>Phone Number</label>
@@ -298,6 +328,7 @@ useEffect(() => {
             className="form-control mb-2"
             value={form.phone}
             onChange={handleChange}
+            placeholder="10-digit phone number"
           />
           {errors.phone && (
             <small className="text-danger">{errors.phone}</small>
@@ -350,7 +381,7 @@ useEffect(() => {
             ))}
           </select>
 
-          {/* REFERRAL CODE */}
+          {/* REFERRAL */}
           <label>Referral ID</label>
           <input
             type="text"

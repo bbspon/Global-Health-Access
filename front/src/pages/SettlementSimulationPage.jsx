@@ -13,14 +13,27 @@ const SettlementSimulationPage = () => {
 
   const API = import.meta.env.VITE_API_URI;
 
+  // Extract token from bbsUser
+  const getAuthToken = () => {
+    const bbsUser = JSON.parse(localStorage.getItem("bbsUser"));
+    return bbsUser?.token || "";
+  };
+useEffect(() => {
+  if (hospitalId) loadSettlements();
+}, [hospitalId]);
+
   // Load hospitals for dropdown
   useEffect(() => {
     const fetchHospitals = async () => {
       try {
+        const token = getAuthToken();
         const res = await axios.get(`${API}/hospitals/list`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
-        if (res.data?.success) setHospitals(res.data.hospitals);
+
+        if (res.data?.success) {
+          setHospitals(res.data.hospitals);
+        }
       } catch (err) {
         console.error("Hospital Fetch Error:", err);
       }
@@ -32,29 +45,47 @@ const SettlementSimulationPage = () => {
   const loadSettlements = async () => {
     if (!hospitalId) return;
 
+    console.log("Loading settlements for hospital:", hospitalId);
     const res = await getSettlements(hospitalId);
-    if (res.success) setSettlements(res.settlements);
-  };
-
-  // Handle Generate Settlement
-  const handleGenerate = async () => {
-    if (!hospitalId || !month) {
-      alert("Please select hospital and month");
-      return;
-    }
-
-    const payload = { hospitalId, month };
-
-    const res = await generateSettlement(payload);
 
     if (res.success) {
-      setModalData(res.data);
-      setModalOpen(true);
-      loadSettlements();
+      setSettlements(res.payouts);
     } else {
-      alert(res.message);
+      console.log("Failed to load settlements:", res);
     }
   };
+const formatMonth = (value) => {
+  const d = new Date(value);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+};
+
+  // Handle Generate Settlement
+const handleGenerate = async () => {
+  if (!hospitalId || !month) {
+    alert("Please select hospital and month");
+    return;
+  }
+
+  const formattedMonth = formatMonth(month); // <-- FIX
+
+  const payload = {
+    hospitalId,
+    month: formattedMonth, // <-- FIX
+  };
+
+  const res = await generateSettlement(payload);
+
+  if (res.success) {
+    setModalData(res.data);
+    setModalOpen(true);
+    loadSettlements();
+  } else {
+    alert(res.message || "Something went wrong");
+  }
+};
+
 
   return (
     <div className="container mt-4">

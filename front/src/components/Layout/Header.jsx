@@ -107,11 +107,11 @@ const Header = () => {
             >
               {/* Logo Text */}
               <img
-                src="/health.png"
+                src="/logo.png"
                 alt="Logo Text"
                 style={{
-                  height: "90px",
-                  width: "120px",
+                  height: "180px",
+                  width: "180px",
                   objectFit: "contain",
                 }}
               />
@@ -121,7 +121,7 @@ const Header = () => {
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
             <Nav className="align-items-center gap-1">
-              <Nav.Link as={Link} to="/" onClick={() => handleLinkClick("/")}>
+              <Nav.Link as={Link} to="/" onClick={() => handleLinkClick("/")} >
                 Home
               </Nav.Link>
               <Nav.Link
@@ -456,7 +456,7 @@ const Header = () => {
                     title={`Hi, ${username || "User"}`}
                     id="user-nav"
                   >
-                    <NavDropdown.Item as={Link} to="/user">
+                    <NavDropdown.Item as={Link} to="/user-setting">
                       Profile
                     </NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/myplan">

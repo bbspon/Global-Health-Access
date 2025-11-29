@@ -4,14 +4,14 @@ const { calculatePayout } = require("../utils/payoutModel");
 
 /**
  * SETTLEMENT CONTROLLER
- * Endpoints:
  * POST /api/settlements/generate
  * GET  /api/settlements
  */
 
 exports.generateSettlement = async (req, res) => {
   try {
-    const { hospitalId, month } = req.query;
+    // FIX: Read from req.body (NOT req.query)
+    const { hospitalId, month } = req.body;
 
     if (!hospitalId || !month) {
       return res.status(400).json({
@@ -20,6 +20,7 @@ exports.generateSettlement = async (req, res) => {
       });
     }
 
+    // Fetch all usage logs for this hospital + month
     const usageLogs = await UsageLog.find({
       hospitalId,
       month,
@@ -38,6 +39,7 @@ exports.generateSettlement = async (req, res) => {
       totalPayout += payout;
     });
 
+    // Create payout record
     const payoutRecord = await Payout.create({
       hospitalId,
       month,

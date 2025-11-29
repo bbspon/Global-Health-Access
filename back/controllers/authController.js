@@ -132,3 +132,37 @@ exports.login = async (req, res) => {
     return res.status(500).json({ message: "Login failed" });
   }
 };
+exports.getMyProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json({ success: true, user });
+  } catch (err) {
+    console.error("GET PROFILE ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ===========================
+exports.updateMyProfile = async (req, res) => {
+  try {
+    const { name, email, phone } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id, // <-- FIXED
+      { name, email, phone },
+      { new: true }
+    ).select("-password");
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully",
+      user: updatedUser,
+    });
+  } catch (err) {
+    console.error("UPDATE PROFILE ERROR:", err);
+    res.status(500).json({ message: "Update failed" });
+  }
+};

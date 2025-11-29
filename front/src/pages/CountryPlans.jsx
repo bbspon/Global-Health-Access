@@ -11,13 +11,15 @@ import {
 } from "react-bootstrap";
 import axios from "axios";
 import { Globe, GeoAltFill } from "react-bootstrap-icons";
+import { useNavigate, Link } from "react-router-dom";
 
-const CountryPlans = () => {
+const CountryPlans = ({ plan }) => {
   const [country, setCountry] = useState("India");
   const [city, setCity] = useState("Chennai");
   const [plans, setPlans] = useState([]);
   const [hospitals, setHospitals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const countryOptions = ["India", "UAE"];
   const cityOptions = {
@@ -29,39 +31,46 @@ const CountryPlans = () => {
     fetchPlansAndHospitals(country, city);
   }, [country, city]);
 
-const fetchPlansAndHospitals = async (selectedCountry, selectedCity) => {
-  setLoading(true);
-  try {
-    const planRes = await axios.get(
-      `${import.meta.env.VITE_API_URI}/region/plans?country=${selectedCountry}&city=${selectedCity}`
-    );
-    const hospRes = await axios.get(
-      `${import.meta.env.VITE_API_URI}/region/hospitals?country=${selectedCountry}&city=${selectedCity}`
-    );
+  const fetchPlansAndHospitals = async (selectedCountry, selectedCity) => {
+    setLoading(true);
+    try {
+      const planRes = await axios.get(
+        `${
+          import.meta.env.VITE_API_URI
+        }/region/plans?country=${selectedCountry}&city=${selectedCity}`
+      );
+      const hospRes = await axios.get(
+        `${
+          import.meta.env.VITE_API_URI
+        }/region/hospitals?country=${selectedCountry}&city=${selectedCity}`
+      );
 
-    console.log("✅ Plans API:", planRes.data);
-    console.log("✅ Hospitals API:", hospRes.data);
+      console.log("✅ Plans API:", planRes.data);
+      console.log("✅ Hospitals API:", hospRes.data);
 
-    // If the API wraps data like { success: true, plans: [...] }
-    const plansArray = Array.isArray(planRes.data)
-      ? planRes.data
-      : planRes.data.plans || [];
+      // If the API wraps data like { success: true, plans: [...] }
+      const plansArray = Array.isArray(planRes.data)
+        ? planRes.data
+        : planRes.data.plans || [];
 
-    const hospitalsArray = Array.isArray(hospRes.data)
-      ? hospRes.data
-      : hospRes.data.hospitals || [];
+      const hospitalsArray = Array.isArray(hospRes.data)
+        ? hospRes.data
+        : hospRes.data.hospitals || [];
 
-    setPlans(plansArray);
-    setHospitals(hospitalsArray);
-  } catch (err) {
-    console.error("Error loading region data", err);
-    setPlans([]);
-    setHospitals([]);
-  } finally {
-    setLoading(false);
-  }
-};
-
+      setPlans(plansArray);
+      setHospitals(hospitalsArray);
+    } catch (err) {
+      console.error("Error loading region data", err);
+      setPlans([]);
+      setHospitals([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleBuyClick = () => {
+    localStorage.setItem("selectedPlan", JSON.stringify(plan)); // Save selected plan
+    navigate("/health-access/buy-plan", { state: { plan } });
+  };
 
   return (
     <Container className="my-4">
@@ -111,7 +120,9 @@ const fetchPlansAndHospitals = async (selectedCountry, selectedCity) => {
                         <li key={i}>{f}</li>
                       ))}
                     </ul>
-                    <Button variant="primary">Buy {plan.name}</Button>
+                    <Button variant="primary" onClick={handleBuyClick}>
+                      Buy {plan.name}
+                    </Button>
                   </Card.Body>
                 </Card>
               </Col>

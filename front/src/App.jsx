@@ -139,7 +139,8 @@ import PremiumCalculatorPage from "./pages/PremiumCalculatorPage";
 import SettlementSimulationPage from "./pages/SettlementSimulationPage";
 import CustomerIdentityCardForm from "./pages/CustomerIdentityCardForm";
 import CustomerHealthCard from "./pages/CustomerHealthCard";
-
+import UserSetting from "./components/UserSetting";
+import EditProfile from "./pages/EditProfile";
 function App() {
   return (
     <AuthProvider>
@@ -376,6 +377,8 @@ function App() {
         {/* 18-11-2025 Start */}
         <Route path="/beneficiary-form" element={<FormCard />} />
         <Route path="/card/:id" element={<Card />} />
+        <Route path="/user-setting" element={<UserSetting />} />
+        <Route path="/edit-profile" element={<EditProfile />} />
 
         {/* 18-11-2025 End */}
         <Route path="/health-access/partner" element={<PartnerWithUsForm />} />
