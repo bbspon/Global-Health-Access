@@ -196,8 +196,8 @@ function PannerAd() {
             <div
               style={{
                 position: "absolute",
-                top: "140px", // move vertically (adjust)
-                right: "120px", // move horizontally (adjust)
+                bottom: "200px", // move vertically (adjust)
+                left: "150px", // move horizontally (adjust)
 
                 display: "flex",
                 alignItems: "center",

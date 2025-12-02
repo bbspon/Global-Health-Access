@@ -80,8 +80,8 @@ export default function BBSCARTFooter() {
           <Col md={3}>
             <h5 className="fw-bold mb-3">BBS Global Health Access</h5>
             <p className="mb-1">
-              5, 2nd Cross,2nd Floor, Bharathy Street,
-              <br /> Anna Nagar, Puducherry, 605005
+              Address: No.7, II Floor, Bharathy Street, Ist Cross, Anna Nagar
+              Extension, Puducherry – 605005.
             </p>
             <p className="mb-1 ">
               <MdPhone className="me-2" />
