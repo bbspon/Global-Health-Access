@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Button, ListGroup } from "react-bootstrap";
 import { CheckCircleFill, Hospital, ChatDotsFill } from "react-bootstrap-icons";
 import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 
 const HealthAccessPage = () => {
   const [plans, setPlans] = useState([]);
@@ -81,7 +82,13 @@ const HealthAccessPage = () => {
               Find clinics, OPD slots & priority care through our verified
               partners.
             </Card.Text>
-            <Button variant="outline-primary">Explore Hospitals</Button>
+            <Button
+              as={Link}
+              to="/hospital-partnership"
+              variant="outline-primary"
+            >
+              Explore Hospitals
+            </Button>
           </Card>
         </Col>
         <Col md={6}>
@@ -92,7 +99,9 @@ const HealthAccessPage = () => {
             <Card.Text>
               Describe your symptoms and let our AI guide you instantly.
             </Card.Text>
-            <Button variant="outline-success">Try AI Check</Button>
+            <Button as={Link} to="/ai-risk-engine" variant="outline-success">
+              Try AI Check
+            </Button>
           </Card>
         </Col>
       </Row>
