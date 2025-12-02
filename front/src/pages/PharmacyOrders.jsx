@@ -16,7 +16,7 @@ const PharmacyOrders = () => {
 
   useEffect(() => {
     axios
-      .get("/api/medicines")
+      .get(`${import.meta.env.VITE_API_URI}/medicines`)
       .then((res) => {
         const result = Array.isArray(res.data)
           ? res.data
@@ -54,7 +54,7 @@ const PharmacyOrders = () => {
       if (prescription) formData.append("prescription", prescription);
       formData.append("deliveryMode", deliveryMode);
 
-      await axios.post("/api/pharmacy/order", formData);
+      await axios.post(`${import.meta.env.VITE_API_URI}pharmacy/order`, formData);
       alert("✅ Order placed successfully!");
       setCart([]);
       setPrescription(null);

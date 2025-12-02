@@ -17,7 +17,7 @@ const paymentTransactionSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["initiated", "success", "failed"],
+      enum: ["initiated", "success", "failed", "created"],
       default: "initiated",
     },
     paymentRef: { type: String }, // Razorpay ID or wallet txn ID

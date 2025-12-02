@@ -115,7 +115,7 @@ const HomeDashboard = () => {
             className="d-flex flex-column align-items-center justify-content-center text-center text-md-start w-100"
           >
             <h4 className="text-light ">
-              Welcome to <strong>BBSCART Health</strong>
+              Welcome to <strong>BBSGlobal Health Access</strong>
             </h4>
             <p className="text-secondary mb-0 ">
               Futuristic Health Access Dashboard

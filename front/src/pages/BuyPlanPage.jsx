@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 import PlanTermsModal from "../components/HealthAccess/PlanTermsModal"; // ✅ Add your modal import
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const BuyPlanPage = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const { id } = useParams();
 
   const location = useLocation();
   const selectedPlan = location.state?.plan || null;
@@ -22,8 +23,9 @@ const BuyPlanPage = () => {
   const termsText = `By accepting this plan, you agree to the BBSCART Health Access terms and conditions...`; // 🔁 Can be loaded via API later
 
   useEffect(() => {
- const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
- const token = bbsUserData?.token;    axios
+    const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+    const token = bbsUserData?.token;
+    axios
       .get(`${import.meta.env.VITE_API_URI}/user/wallet`, {
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -41,9 +43,9 @@ const BuyPlanPage = () => {
   const handleFinalPurchase = async (metadata) => {
     setLoading(true);
     try {
- const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
- const token = bbsUserData?.token;
-       const res = await axios.post(
+      const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
+      const token = bbsUserData?.token;
+      const res = await axios.post(
         `${import.meta.env.VITE_API_URI}/user/purchase`,
         {
           planId: selectedPlan._id,
@@ -56,15 +58,15 @@ const BuyPlanPage = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-navigate("/health-access/purchase-summary", {
-  state: {
-    plan: selectedPlan,
-    addons,
-    usedWalletAmount: useWallet ? wallet : 0,
-    paymentMethod,
-    referralCode,
-  },
-});
+      navigate("/health-access/purchase-summary", {
+        state: {
+          plan: selectedPlan,
+          addons,
+          usedWalletAmount: useWallet ? wallet : 0,
+          paymentMethod,
+          referralCode,
+        },
+      });
     } catch (err) {
       console.error("Purchase error", err);
       alert("Purchase failed");

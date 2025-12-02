@@ -51,7 +51,12 @@ const PlanCard = ({ plan }) => {
 
         {/* Buttons Section */}
         <div className="mt-3 d-flex flex-wrap gap-2 justify-content-center">
-          <Button variant="outline-primary" size="sm" disabled>
+          <Button
+            variant="outline-primary"
+            size="sm"
+            // disabled
+            onClick={() => navigate("/compare")}
+          >
             Compare
           </Button>
 

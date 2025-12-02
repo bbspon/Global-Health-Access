@@ -283,7 +283,10 @@ function App() {
           element={<WellnessTrackerWidgets />}
         />
         <Route path="/Wellness-tracker" element={<WellnessTrackerPage />} />
-        <Route path="/health-ecosystem" element={<HealthEcosystemHub />} />
+        <Route
+          path="//hospital/health-ecosystem"
+          element={<HealthEcosystemHub />}
+        />
         <Route
           path="/hospital-partnership"
           element={<HospitalPartnershipDashboard />}

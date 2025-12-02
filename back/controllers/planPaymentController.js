@@ -3,30 +3,55 @@ const PaymentTransaction = require("../models/PaymentTransaction");
 const UserPlan = require("../models/UserPlan");
 const HealthPlan = require("../models/HealthPlan");
 
+const Razorpay = require("razorpay");
+
 exports.initiatePayment = async (req, res) => {
   try {
-    const { planId, amount, method } = req.body;
+    const { planId, amount } = req.body;
     const userId = req.user.id;
 
+    // Validate plan ID
     const plan = await HealthPlan.findById(planId);
     if (!plan) return res.status(404).json({ message: "Plan not found" });
 
+    // Razorpay instance
+    const instance = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+
+    const order = await instance.orders.create({
+      amount: amount * 100, // convert to paise
+      currency: "INR",
+      receipt: `RCPT_${Date.now()}`,
+    });
+
+    // Save TXN
     const txn = new PaymentTransaction({
       userId,
       planId,
       amount,
-      method,
-      status: "initiated",
+      method: "razorpay",
+      status: "created",
+      razorpayOrderId: order.id,
     });
 
     await txn.save();
 
-    res.json({ message: "Payment initiated", txnId: txn._id });
+    res.json({
+      message: "Razorpay order created",
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      txnId: txn._id,
+      key: process.env.RAZORPAY_KEY_ID,
+    });
   } catch (err) {
     console.error("Initiate payment error:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Failed to create Razorpay order" });
   }
 };
+
 
 exports.confirmPayment = async (req, res) => {
   try {

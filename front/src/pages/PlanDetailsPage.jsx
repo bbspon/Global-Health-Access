@@ -5,6 +5,8 @@ import { Card, Badge, Spinner, Button } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
 
 const PlanDetailsPage = () => {
+    const navigate = useNavigate();
+  
   const { id } = useParams();
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -59,13 +61,20 @@ const PlanDetailsPage = () => {
           <strong>Description:</strong> {plan.description}
         </p>
         <p>
-          <strong>Price:</strong> ₹ {plan.price} / year
+          <p>
+            <strong>Price:</strong> ₹ {plan.price?.INR} / year
+          </p>
         </p>
         <h5>Features:</h5>
         <ul>
           {plan.features && plan.features.map((f, i) => <li key={i}>{f}</li>)}
         </ul>
-        <Button variant="success">Buy This Plan</Button>
+        <Button
+          variant="success"
+          onClick={() => navigate("/health-access/buy-plan")}
+        >
+          Buy This Plan
+        </Button>
         <Link to={`/health-access/plan/${id}/records`}>
           View Health Records
         </Link>

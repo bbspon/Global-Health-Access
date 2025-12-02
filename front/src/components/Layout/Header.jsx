@@ -183,141 +183,7 @@ const Header = () => {
           </Navbar.Collapse>
           <Navbar.Collapse className="justify-content-end">
             <Nav className="align-items-center justify-content-end d-flex gap-2">
-              <div>
-                {/* SEARCH ICON */}
-                <div
-                  onClick={() => setOpen(true)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <BiSearchAlt size={18} />
-                </div>
-
-                {/* SEARCH OVERLAY */}
-                {open && (
-                  <div
-                    style={{
-                      position: "fixed",
-                      top: 0,
-                      left: 0,
-                      width: "100%",
-                      height: "100%",
-                      background: "rgba(0,0,0,0.6)",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      zIndex: 9999,
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: "90%",
-                        maxWidth: "650px",
-                        background: "#fff",
-                        borderRadius: "12px",
-                        padding: "20px",
-                      }}
-                    >
-                      {/* HEADER */}
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
-                      >
-                        <h3>Search Healthcare Products</h3>
-                        <IoClose
-                          size={24}
-                          onClick={() => setOpen(false)}
-                          style={{ cursor: "pointer" }}
-                        />
-                      </div>
-
-                      {/* SEARCH INPUT */}
-                      <input
-                        type="text"
-                        placeholder="Search medicines, equipment, supplements..."
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        style={{
-                          width: "100%",
-                          padding: "12px",
-                          marginTop: "10px",
-                          borderRadius: "8px",
-                          border: "1px solid #ccc",
-                          fontSize: "14px",
-                        }}
-                      />
-
-                      {/* ADVANCED FILTERS */}
-                      <div style={{ marginTop: "20px" }}>
-                        <label>Category</label>
-                        <select className="form-control my-2">
-                          <option>All</option>
-                          <option>Medicines</option>
-                          <option>Medical Equipment</option>
-                          <option>Surgery & Tools</option>
-                          <option>Supplements</option>
-                          <option>Diagnostics</option>
-                        </select>
-
-                        <label>Brand</label>
-                        <select className="form-control my-2">
-                          <option>Any</option>
-                          <option>Apollo</option>
-                          <option>1mg</option>
-                          <option>Dr Reddy’s</option>
-                          <option>Pharmeasy</option>
-                        </select>
-
-                        <label>Price Range</label>
-                        <div style={{ display: "flex", gap: "10px" }}>
-                          <input
-                            type="number"
-                            className="form-control my-2"
-                            placeholder="Min ₹"
-                          />
-                          <input
-                            type="number"
-                            className="form-control my-2"
-                            placeholder="Max ₹"
-                          />
-                        </div>
-
-                        <label>Availability</label>
-                        <select className="form-control my-2">
-                          <option>All</option>
-                          <option>In Stock</option>
-                          <option>Out of Stock</option>
-                        </select>
-                      </div>
-
-                      {/* BUTTONS */}
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "flex-end",
-                          gap: "10px",
-                        }}
-                      >
-                        <button
-                          className="btn btn-secondary"
-                          onClick={() => setOpen(false)}
-                        >
-                          Cancel
-                        </button>
-
-                        <button
-                          className="btn btn-primary"
-                          onClick={() => console.log("Searching for:", query)}
-                        >
-                          Search
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+        
               <Button
                 variant="none"
                 size="sm"
@@ -336,6 +202,7 @@ const Header = () => {
                   </Badge>
                 )}
               </Button>
+            
               <Overlay
                 target={notifTarget.current}
                 show={showNotif}
@@ -378,24 +245,6 @@ const Header = () => {
                   </Popover.Body>
                 </Popover>
               </Overlay>
-              <Button
-                variant="none"
-                size="sm"
-                className="position-relative"
-                as={Link}
-                to="/cart"
-              >
-                <Cart size={15} />
-                {cartCount > 0 && (
-                  <Badge
-                    bg="primary"
-                    pill
-                    className="position-absolute top-0 start-20 translate-middle"
-                  >
-                    {cartCount}
-                  </Badge>
-                )}
-              </Button>
               <Button
                 size="sm"
                 variant="none"

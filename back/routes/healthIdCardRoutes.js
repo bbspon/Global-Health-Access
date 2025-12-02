@@ -1,17 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require("../middleware/authMiddleware");
-const healthIdCardController = require("../controllers/healthIdCardController");
+const { getMyHealthID } = require("../controllers/healthIdCardController");
+const auth = require("../middleware/authMiddleware");
 
-router.get(
-  "/my-health-id",
-  authMiddleware,
-  healthIdCardController.getMyHealthId
-);
-router.post(
-  "/generate",
-  authMiddleware,
-  healthIdCardController.generateHealthId
-);
+router.get("/my-health-id", auth, getMyHealthID);
 
 module.exports = router;

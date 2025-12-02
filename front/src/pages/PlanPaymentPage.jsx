@@ -10,6 +10,20 @@ const PlanPaymentPage = () => {
   const [txnId, setTxnId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+const handleConfirmPayment = async (response, txnId) => {
+  const token = JSON.parse(localStorage.getItem("bbsUser"))?.token;
+
+  await axios.post(
+    `${import.meta.env.VITE_API_URI}/plan/pay/confirm`,
+    {
+      txnId,
+      paymentRef: response.razorpay_payment_id,
+    },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+
+  setMessage("Payment Successful. Plan Activated.");
+};
 
   const handleInitiate = async () => {
     setLoading(true);
@@ -21,8 +35,25 @@ const PlanPaymentPage = () => {
         { planId, amount, method },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setTxnId(res.data.txnId);
-      setMessage("✅ Payment Initiated. Now confirm it.");
+     const options = {
+       key: res.data.key,
+       amount: res.data.amount,
+       currency: res.data.currency,
+       name: "BBS Health Access",
+       description: "Plan Purchase",
+       order_id: res.data.orderId,
+       handler: function (response) {
+         handleConfirmPayment(response, res.data.txnId);
+       },
+       prefill: {
+         name: JSON.parse(localStorage.getItem("bbsUser"))?.user?.name,
+         email: JSON.parse(localStorage.getItem("bbsUser"))?.user?.email,
+       },
+     };
+
+     const razor = new window.Razorpay(options);
+     razor.open();
+
     } catch (err) {
       setMessage("❌ Failed to initiate: " + err.response?.data?.message);
     }
