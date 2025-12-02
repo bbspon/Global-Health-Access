@@ -3,69 +3,32 @@ import axios from "axios";
 
 const MedicalVault = () => {
   const [records, setRecords] = useState([]);
+  const [search, setSearch] = useState("");
   const [file, setFile] = useState(null);
-  const [uploadModal, setUploadModal] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [uploadData, setUploadData] = useState({
-    name: "",
-    category: "",
-    date: "",
-    tags: "",
-  });
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("");
+  const [date, setDate] = useState("");
 
-  const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
-  const token = bbsUserData?.token;
+  const API = import.meta.env.VITE_API_URI || "http://localhost:5000";
 
-  // 🔁 Fetch Records
+  // -----------------------------
+  // FETCH RECORDS
+  // -----------------------------
   const fetchRecords = async () => {
     try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_URI}/medical-vault`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const user = JSON.parse(localStorage.getItem("bbsUser"));
+
+      const res = await axios.get(`${API}/medical-vault`, {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
+
+      const sorted = res.data.sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
       );
-      setRecords(res.data);
+
+      setRecords(sorted);
     } catch (err) {
-      console.error("Error fetching records:", err);
-    }
-  };
-
-  // ⬆️ Upload Record
-  const handleUpload = async () => {
-    if (!file || !uploadData.name || !uploadData.date || !uploadData.category) {
-      alert("All fields are required!");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("name", uploadData.name);
-    formData.append("category", uploadData.category);
-    formData.append("date", uploadData.date);
-    formData.append(
-      "tags",
-      JSON.stringify(uploadData.tags.split(",").map((tag) => tag.trim()))
-    );
-
-    try {
-      setUploading(true);
-      await axios.post(
-        `${import.meta.env.VITE_API_URI}/medical-vault/upload`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      setUploading(false);
-      setUploadModal(false);
-      fetchRecords();
-    } catch (err) {
-      console.error("Upload error:", err);
-      setUploading(false);
+      console.error("Failed to load records", err);
     }
   };
 
@@ -73,137 +36,186 @@ const MedicalVault = () => {
     fetchRecords();
   }, []);
 
+  // -----------------------------
+  // UPLOAD RECORD
+  // -----------------------------
+  const uploadRecord = async () => {
+    if (!file || !name || !category || !date) {
+      alert("Please fill name, category, date and choose a file.");
+      return;
+    }
+
+    const user = JSON.parse(localStorage.getItem("bbsUser"));
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("name", name);
+    formData.append("category", category);
+    formData.append("date", date);
+    formData.append("tags", JSON.stringify([])); // REQUIRED by backend
+
+    try {
+      await axios.post(`${API}/medical-vault/upload`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+
+      setFile(null);
+      setName("");
+      setCategory("");
+      setDate("");
+
+      fetchRecords();
+    } catch (err) {
+      console.error("Upload failed:", err);
+      alert("Upload failed. Check console.");
+    }
+  };
+
+  // -----------------------------
+  // FILTER SEARCH
+  // -----------------------------
+  const filteredRecords = records.filter((r) => {
+    const text = search.toLowerCase();
+    return (
+      r.name.toLowerCase().includes(text) ||
+      r.category.toLowerCase().includes(text)
+    );
+  });
+
   return (
-    <div className="container p-4 vh-100">
-      <h2 className="text-xl font-bold mb-4">🧬 My Medical Vault</h2>
-      <div className="d-flex gap-3 justify-content-center">
-        <button
-          onClick={() => setUploadModal(true)}
-          className="bg-dark text-white px-4 py-2 rounded mb-4"
-        >
-          Upload Record
-        </button>
+    <div className="max-w-4xl mx-auto p-6">
+      <h2 className="text-2xl font-bold mb-4">My Medical Vault</h2>
+
+      {/* Upload Section */}
+      <div className="flex items-center gap-3 mb-6">
+        <input
+          type="text"
+          placeholder="Record name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="p-2 border rounded w-40"
+        />
 
         <input
           type="text"
-          placeholder="Search records..."
-          className="w-full p-2 border-2 rounded mb-4"
+          placeholder="Category (e.g., X-ray, Prescription)"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="p-2 border rounded w-48"
         />
+
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className="p-2 border rounded"
+        />
+
+        <input
+          type="file"
+          onChange={(e) => setFile(e.target.files[0])}
+          className="p-2 border rounded"
+        />
+
+        <button
+          onClick={uploadRecord}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Upload Record
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {records.map((record, index) => (
-          <div key={index} className="border p-4 rounded shadow">
-            <h3 className="font-semibold text-lg">📄 {record.name}</h3>
-            <p>
-              <strong>Type:</strong> {record.category}
-            </p>
-            <p>
-              <strong>Date:</strong> {record.date}
-            </p>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {record.tags.map((tag, i) => (
-                <span
-                  key={i}
-                  className="bg-blue-100 text-blue-700 px-2 py-1 text-xs rounded"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-            <a
-              href={`http://localhost:5000${record.fileUrl}`}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-4 inline-block bg-green-600 text-white px-4 py-1 rounded"
+      {/* Search */}
+      <input
+        type="text"
+        placeholder="Search records..."
+        className="w-full p-2 border-2 rounded mb-4"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      {/* ------ RECORDS TABLE ------ */}
+      <div style={{ width: "100%", marginTop: "20px" }}>
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            border: "1px solid #d3dce6",
+            fontFamily: "Arial, sans-serif",
+          }}
+        >
+          <thead>
+            <tr
+              style={{
+                backgroundColor: "#e8f1fb", // Soft healthcare blue
+                borderBottom: "2px solid #c3d4ee",
+                textAlign: "left",
+              }}
             >
-              👁 View
-            </a>
-          </div>
-        ))}
+              <th style={{ padding: "12px" }}>Record Name</th>
+              <th style={{ padding: "12px" }}>Category</th>
+              <th style={{ padding: "12px" }}>Date</th>
+              <th style={{ padding: "12px" }}>File Type</th>
+              <th style={{ padding: "12px" }}>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {filteredRecords.length === 0 ? (
+              <tr>
+                <td
+                  colSpan="5"
+                  style={{ padding: "20px", textAlign: "center" }}
+                >
+                  No records found
+                </td>
+              </tr>
+            ) : (
+              filteredRecords.map((rec) => (
+                <tr
+                  key={rec._id}
+                  style={{
+                    borderBottom: "1px solid #e2e8f0",
+                    transition: "background 0.2s",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = "#f8fbff")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = "white")
+                  }
+                >
+                  <td style={{ padding: "12px" }}>{rec.recordName}</td>
+                  <td style={{ padding: "12px" }}>{rec.category}</td>
+                  <td style={{ padding: "12px" }}>
+                    {new Date(rec.date).toISOString().split("T")[0]}
+                  </td>
+                  <td style={{ padding: "12px" }}>
+                    {(rec.fileType || "").toString().toUpperCase() || "N/A"}
+                  </td>
+                  <td style={{ padding: "12px" }}>
+                    <a
+                      href={`http://localhost:5000/uploads/medical/${rec.fileName}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: "#0B74D0",
+                        fontWeight: "bold",
+                        textDecoration: "none",
+                      }}
+                    >
+                      View
+                    </a>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
-
-      {/* Upload Modal */}
-      {uploadModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
-          <div
-            className="p-4  w-full max-w-md shadow-lg "
-            style={{
-              backgroundColor: "#0598bd96", // Hospital blue
-              color: "#fff", // White text for contrast
-              gap: "1rem", // Gap between inner elements if using flex
-              border: "2px solid #0598bd", // Border color
-            }}
-          >
-            <h3 className="text-lg font-semibold mb-4">
-              Upload Medical Record
-            </h3>
-
-            <div className="d-flex gap-3 justify-content-center flex-wrap mb-4">
-              <input
-                type="text"
-                placeholder="Name"
-                value={uploadData.name}
-                onChange={(e) =>
-                  setUploadData({ ...uploadData, name: e.target.value })
-                }
-                className="w-full border p-2 mb-2 rounded"
-              />
-              <input
-                type="text"
-                placeholder="Category"
-                value={uploadData.category}
-                onChange={(e) =>
-                  setUploadData({ ...uploadData, category: e.target.value })
-                }
-                className="w-full border p-2 mb-2 rounded"
-              />
-              <input
-                type="date"
-                value={uploadData.date}
-                onChange={(e) =>
-                  setUploadData({ ...uploadData, date: e.target.value })
-                }
-                className="w-full border p-2 mb-2 rounded"
-              />
-              <input
-                type="text"
-                placeholder="Tags (comma separated)"
-                value={uploadData.tags}
-                onChange={(e) =>
-                  setUploadData({ ...uploadData, tags: e.target.value })
-                }
-                className="w-full border p-2 mb-2 rounded"
-              />
-              <input
-                type="file"
-                onChange={(e) => setFile(e.target.files[0])}
-                className="w-full mb-4 rounded px-3 py-2"
-                style={{
-                  backgroundColor: "#485f8098", // light hospital blue background
-                  border: "2px solid #121416ff", // hospital blue border
-                  color: "#d9d9f1ff", // text color
-                }}
-              />
-            </div>
-            <div className="d-flex gap-3 justify-content-center">
-              <button
-                onClick={handleUpload}
-                disabled={uploading}
-                className="bg-dark text-white px-4 py-2 rounded"
-              >
-                {uploading ? "Uploading..." : "Upload"}
-              </button>
-              <button
-                onClick={() => setUploadModal(false)}
-                className="bg-gray-400 text-dark bg-secondary px-4 py-2 rounded"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -8,21 +8,25 @@ exports.uploadRecord = async (req, res) => {
     const file = req.file;
     if (!file) return res.status(400).json({ error: "No file uploaded" });
 
+    const parsedTags = tags ? JSON.parse(tags) : [];
+
     const newRecord = new MedicalRecord({
       userId: req.user.id,
       name,
       category,
       date,
-      tags: JSON.parse(tags),
+      tags: parsedTags,
       fileUrl: `/uploads/medical/${file.filename}`,
     });
 
     await newRecord.save();
     res.status(201).json(newRecord);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Upload Error:", err);
+    res.status(500).json({ error: "Upload failed" });
   }
 };
+
 
 exports.getRecordsByUser = async (req, res) => {
   try {
