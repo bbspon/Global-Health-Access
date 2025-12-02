@@ -19,7 +19,7 @@ const MyHealthPlan = () => {
 
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_API_URI}/my-plan`,
+          `${import.meta.env.VITE_API_URI}/user/my-plan`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
