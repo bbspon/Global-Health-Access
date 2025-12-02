@@ -5,33 +5,32 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const PlanTermsModal = ({ show, onClose, onAccept, version }) => {
-  // --- keep existing props; add route params ---
   const { planId } = useParams();
   const navigate = useNavigate();
 
-  // --- default to open when used as a page/route ---
+  // If used as page, modal should always show
   const isOpen = show ?? true;
 
-  // --- local state (keep your existing fields) ---
   const [loading, setLoading] = useState(false);
   const [termsText, setTermsText] = useState("");
   const [error, setError] = useState("");
 
-  // --- base URL helper (works both local/prod) ---
-  const API_BASE = import.meta?.env?.VITE_API_URI || "/api";
+  // YOUR BACKEND URL (fixes the wrong 5173 call)
+  const API_BASE = import.meta.env.VITE_API_URI || "http://localhost:5000/api";
 
-  // --- fetch terms whenever planId changes (route usage) ---
+  // -------------------------------
+  // FETCH TERMS WHEN PAGE LOADS
+  // -------------------------------
   useEffect(() => {
     if (!planId) return;
+
     setLoading(true);
     setError("");
 
     axios
       .get(`${API_BASE}/plans/terms/${planId}`)
       .then((res) => {
-        // Expecting { termsText: string, version?: string }
-        const data = res.data || {};
-        setTermsText(data.termsText || "");
+        setTermsText(res.data?.termsText || "");
       })
       .catch((err) => {
         console.error("Error loading terms:", err);
@@ -42,40 +41,46 @@ const PlanTermsModal = ({ show, onClose, onAccept, version }) => {
       .finally(() => setLoading(false));
   }, [planId]);
 
-  // --- close handler (works as modal or route) ---
+  // -------------------------------
+  // CLOSE MODAL
+  // -------------------------------
   const handleClose = onClose ?? (() => navigate(-1));
 
-  // --- accept handler (preserve existing prop if provided) ---
-  const handleAccept = async () => {
-    try {
-      if (typeof onAccept === "function") {
-        await onAccept(planId, version);
-        return;
-      }
-      // default accept flow if onAccept not provided
-      const raw = localStorage.getItem("bbsUser");
-      const token = raw ? JSON.parse(raw).token : null;
+  // -------------------------------
+  // ACCEPT TERMS
+  // -------------------------------
+const handleAccept = async () => {
+  try {
+    const raw = localStorage.getItem("bbsUser");
+    const token = raw ? JSON.parse(raw).token : null;
 
-      await axios.post(
-        `${API_BASE}/plans/terms/${planId}/accept`,
-        { version: version || "v1" },
-        token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
-      );
-
-      // go back/close after accept
-      handleClose();
-    } catch (e) {
-      console.error("Accept terms failed:", e);
-      setError("Unable to accept terms at the moment. Please try again.");
+    if (!token) {
+      setError("You must be logged in to accept terms.");
+      return;
     }
-  };
+
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    await axios.post(
+      `${API_BASE}/plans/terms/accept`,
+      { planId, version: version || "v1", signature: "auto", device: "web" },
+      { headers }
+    );
+
+    handleClose();
+  } catch (err) {
+    console.error("Accept terms failed:", err);
+    setError("Unable to accept terms at the moment. Please try again.");
+  }
+};
+
 
   return (
     <Modal show={isOpen} onHide={handleClose} size="lg" centered scrollable>
       <Modal.Header closeButton>
-        <Modal.Title>
-          Plan Terms & Conditions {version ? `(v${version})` : ""} — #{planId}
-        </Modal.Title>
+        <Modal.Title>Plan Terms & Conditions — #{planId}</Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
@@ -106,9 +111,9 @@ const PlanTermsModal = ({ show, onClose, onAccept, version }) => {
 
       <Modal.Footer className="d-flex justify-content-between">
         <div className="text-muted small">
-          {/* keep any footer info you had; version shown if provided */}
           {version ? `Version: ${version}` : null}
         </div>
+
         <div>
           <Button
             variant="outline-secondary"

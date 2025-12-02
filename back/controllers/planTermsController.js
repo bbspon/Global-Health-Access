@@ -45,3 +45,27 @@ exports.getUserAcceptance = async (req, res) => {
       .json({ message: "Failed to fetch acceptance history", error });
   }
 };
+exports.getPlanTerms = async (req, res) => {
+  try {
+    const { planId } = req.params;
+
+    // For now you don't have a Plan model with terms stored.
+    // So we return dummy terms until you add DB storage.
+
+    const dummyTerms = `
+    These are the Terms & Conditions for plan ID: ${planId}.
+
+    1. This is sample content.
+    2. You can replace this with real plan terms later.
+    3. Acceptance will be tracked in PlanTermsAcceptance collection.
+    `;
+
+    return res.json({
+      planId,
+      termsText: dummyTerms,
+    });
+  } catch (error) {
+    console.error("Get Plan Terms Error:", error);
+    return res.status(500).json({ message: "Unable to load terms" });
+  }
+};

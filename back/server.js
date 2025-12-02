@@ -92,7 +92,7 @@ app.use("/api", require("./routes/planCardRoutes"));
 app.use("/api", qrRoutes); // ✅ mounts /user/qr → /api/user/qr
 app.use("/api", userRoutes); // /my-plan, /purchase, etc
 app.use("/api/plans", healthPlanRoutes); // this MUST be present
-app.use("/api/terms", planTermsRoutes); // ✅ NEW - Plan Terms
+app.use("/api/plans/terms", planTermsRoutes);
 app.use("/api/user", require("./routes/purchaseSummaryRoutes"));
 app.use("/api/user", walletRoutes);
 app.use("/api", planUsageRoutes);
