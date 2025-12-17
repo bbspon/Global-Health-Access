@@ -17,7 +17,7 @@ import HealthPlansLandingPage from "./pages/HealthPlansLandingPage";
 import PlanComparisonPage from "./pages/PlanComparisonPage";
 import BuyPlanPage from "./pages/BuyPlanPage";
 import MyHealthPlan from "./pages/MyHealthPlan";
-
+import ContactUs from "./pages/HealthAccessContactPage";
 // Layout
 import Header from "./components/Layout/Header";
 import Footer from "./components/Layout/Footer";
@@ -156,6 +156,7 @@ function App() {
         <Route path="/about" element={<AboutUs />} />
         {/* Main app routes */}
         <Route path="/" element={<HealthObjectivePage />} />
+          <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/plans-landing" element={<HealthAccessPage />} />
         <Route path="/health-membership" element={<HealthMembershipPage />} />
         <Route path="/stakeholders" element={<StakeholdersPage />} />
@@ -266,7 +267,6 @@ function App() {
           path="/uae-insurance-integration"
           element={<UAEInsuranceIntegration />}
         />
-
         <Route
           path="/health-access-ecosystem"
           element={<HealthAccessAPIEcosystem />}
@@ -284,7 +284,7 @@ function App() {
         />
         <Route path="/Wellness-tracker" element={<WellnessTrackerPage />} />
         <Route
-          path="//hospital/health-ecosystem"
+          path="/hospital/health-ecosystem"
           element={<HealthEcosystemHub />}
         />
         <Route
@@ -345,7 +345,6 @@ function App() {
           path="/premiumCalculatorPage"
           element={<PremiumCalculatorPage />}
         />
-
         <Route
           path="/health-access/renew-plan"
           element={<HealthPlanRenewal />}
@@ -376,13 +375,11 @@ function App() {
           path="/settlement-simulation"
           element={<SettlementSimulationPage />}
         />
-
         {/* 18-11-2025 Start */}
         <Route path="/beneficiary-form" element={<FormCard />} />
         <Route path="/card/:id" element={<Card />} />
         <Route path="/user-setting" element={<UserSetting />} />
         <Route path="/edit-profile" element={<EditProfile />} />
-
         {/* 18-11-2025 End */}
         <Route path="/health-access/partner" element={<PartnerWithUsForm />} />
         <Route path="/health-access/pay-plan" element={<PlanPaymentPage />} />

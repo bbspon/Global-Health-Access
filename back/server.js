@@ -69,7 +69,7 @@ const eligibilityRoutes = require("./routes/eligibilityRoutes");
 const hospitalRoutes = require("./routes/hospitalRoutes");
 const settlementRoutes = require("./routes/settlementRoutes");
 const customerIdentityRoutes = require("./routes/customerIdentityRoutes");
-
+const healthAccessContactRoutes = require("./routes/healthAccessContactRoutes");
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -160,6 +160,7 @@ app.use("/api/beneficiary", beneficiaryRoutes);
 app.use("/api/pricing", pricingRoutes);
 app.use("/api/eligibility", eligibilityRoutes);
 app.use("/api/hospitals", hospitalRoutes);
+app.use("/api/health-access/contact", healthAccessContactRoutes);
 app.use("/api/hospitals", require("./routes/hospitalOnboardingRoutes"));
 app.use("/api/labs", require("./routes/labRoutes"));
 

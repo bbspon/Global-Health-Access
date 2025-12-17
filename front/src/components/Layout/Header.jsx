@@ -121,7 +121,7 @@ const Header = () => {
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
             <Nav className="align-items-center gap-1">
-              <Nav.Link as={Link} to="/" onClick={() => handleLinkClick("/")} >
+              <Nav.Link as={Link} to="/" onClick={() => handleLinkClick("/")}>
                 Home
               </Nav.Link>
               <Nav.Link
@@ -151,6 +151,13 @@ const Header = () => {
                 onClick={() => handleLinkClick("/plan-comparison")}
               >
                 Compare Plans
+              </Nav.Link>
+              <Nav.Link
+                as={Link}
+                to="/contact-us"
+                onClick={() => handleLinkClick("/plan-comparison")}
+              >
+                Contact Us
               </Nav.Link>
               <NavDropdown title="More Services" id="services-nav">
                 <NavDropdown.Item as={Link} to="/plans-landing">
@@ -183,7 +190,6 @@ const Header = () => {
           </Navbar.Collapse>
           <Navbar.Collapse className="justify-content-end">
             <Nav className="align-items-center justify-content-end d-flex gap-2">
-        
               <Button
                 variant="none"
                 size="sm"
@@ -202,7 +208,7 @@ const Header = () => {
                   </Badge>
                 )}
               </Button>
-            
+
               <Overlay
                 target={notifTarget.current}
                 show={showNotif}
