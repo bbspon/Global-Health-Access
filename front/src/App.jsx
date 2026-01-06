@@ -141,6 +141,7 @@ import CustomerIdentityCardForm from "./pages/CustomerIdentityCardForm";
 import CustomerHealthCard from "./pages/CustomerHealthCard";
 import UserSetting from "./components/UserSetting";
 import EditProfile from "./pages/EditProfile";
+ 
 function App() {
   return (
     <AuthProvider>
@@ -156,7 +157,7 @@ function App() {
         <Route path="/about" element={<AboutUs />} />
         {/* Main app routes */}
         <Route path="/" element={<HealthObjectivePage />} />
-          <Route path="/contact-us" element={<ContactUs />} />
+        <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/plans-landing" element={<HealthAccessPage />} />
         <Route path="/health-membership" element={<HealthMembershipPage />} />
         <Route path="/stakeholders" element={<StakeholdersPage />} />
@@ -323,7 +324,10 @@ function App() {
           path="/user-plan/:planId/family"
           element={<FamilyMembersPage />}
         />
-        <Route path="/family-timeline" element={<FamilyHealthTimeline />} />
+        <Route
+          path="/family-timeline/:planId"
+          element={<FamilyHealthTimeline />}
+        />
         <Route path="/dynamic-pricing" element={<DynamicPricingEngine />} />
         <Route path="/fraud-detection" element={<FraudDetectionDashboard />} />
         <Route

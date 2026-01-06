@@ -9,7 +9,7 @@ const {
   getWalletHistory,
 } = require("../controllers/walletController");
 const authMiddleware = require("../middleware/authMiddleware");
-router.get("/wallet", authMiddleware, getWalletBalance);
+router.get("/", authMiddleware, getWalletBalance);
 router.post("/topup", authMiddleware, topupWallet);
 router.get("/my-wallet", authMiddleware, getWalletDetails);
 router.get(

@@ -18,11 +18,12 @@ import { GiArchiveRegister } from "react-icons/gi";
 import { BiSearchAlt } from "react-icons/bi";
 import { IoClose } from "react-icons/io5";
 import { BiCurrentLocation } from "react-icons/bi";
+import { useLocationContext } from "../../context/LocationContext";
+
 const Header = () => {
   const [open, setOpen] = useState(false);
   const [openLocation, setOpenLocation] = useState(false);
   const [query, setQuery] = useState("");
-  const location = useLocation();
   const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
   const token = bbsUserData?.token;
   const username = bbsUserData?.user.name;
@@ -63,8 +64,8 @@ const Header = () => {
     { title: "Reminder: OPD at 5 PM", time: "Today" },
   ];
 
-  const [selectedState, setSelectedState] = useState("");
-
+const { selectedState, updateLocation } = useLocationContext();
+ const { location, updateCity } = useLocationContext();
   const statesList = [
     "Tamil Nadu",
     "Kerala",
@@ -74,15 +75,28 @@ const Header = () => {
     "Punjab",
     "Gujarat",
   ];
+const INDIA_CITIES = [
+  "Chennai",
+  "Bengaluru",
+  "Hyderabad",
+  "Mumbai",
+  "Delhi",
+  "Pune",
+  "Kolkata",
+  "Coimbatore",
+  "Madurai",
+  "Trichy",
+  "Salem",
+];
 
   // Function to apply selected location
-  const applyLocation = (state) => {
-    setSelectedState(state);
-    setOpenLocation(false);
 
-    // 🔥 call your filter api or product filter logic here
-    console.log("Location applied:", state);
+  const applyCity = (city) => {
+    updateCity(city);
+    setOpenLocation(false);
   };
+
+
 
   return (
     <header
@@ -338,10 +352,75 @@ const Header = () => {
                     background: "#f8f8f8",
                   }}
                 >
-                  <BiCurrentLocation size={22} />
-                  <span style={{ fontSize: "14px", fontWeight: 500 }}>
-                    {selectedState || "Select Location"}
-                  </span>
+
+                  {/* 📍 CITY SELECTOR */}
+                  <div style={{ position: "relative" }}>
+                    <div
+                      onClick={() => setOpenLocation(!openLocation)}
+                      style={{
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        padding: "6px 10px",
+                        borderRadius: "10px",
+                        background: "#f8f8f8",
+                      }}
+                    >
+                      <BiCurrentLocation size={22} />
+                      <span style={{ fontSize: "14px", fontWeight: 500 }}>
+                        {location?.city
+                          ? `${location.city}, India`
+                          : "Select City"}
+                      </span>
+                    </div>
+
+                    {openLocation && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: "45px",
+                          right: 0,
+                          background: "#fff",
+                          padding: "12px",
+                          width: "260px",
+                          borderRadius: "14px",
+                          boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
+                          zIndex: 1000,
+                        }}
+                      >
+                        <h5 style={{ marginBottom: "10px" }}>
+                          {location?.city
+                            ? `Selected: ${location.city}`
+                            : "Select Your City"}
+                        </h5>
+
+                        <ul
+                          style={{ listStyle: "none", padding: 0, margin: 0 }}
+                        >
+                          {INDIA_CITIES.map((city) => (
+                            <li
+                              key={city}
+                              onClick={() => applyCity(city)}
+                              style={{
+                                padding: "10px",
+                                cursor: "pointer",
+                                borderRadius: "8px",
+                              }}
+                              onMouseEnter={(e) =>
+                                (e.target.style.backgroundColor = "#f4f4f4")
+                              }
+                              onMouseLeave={(e) =>
+                                (e.target.style.backgroundColor = "transparent")
+                              }
+                            >
+                              {city}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* 📌 DROPDOWN BOX */}
@@ -379,31 +458,7 @@ const Header = () => {
                         : "Select Your State"}
                     </h5>
 
-                    {/* 🌍 STATE LIST */}
-                    <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                      {statesList.map((state, index) => (
-                        <li
-                          key={index}
-                          onClick={() => applyLocation(state)}
-                          style={{
-                            padding: "10px 8px",
-                            cursor: "pointer",
-                            fontSize: "14px",
-                            color: "#333",
-                            borderRadius: "8px",
-                            transition: "0.25s",
-                          }}
-                          onMouseEnter={(e) =>
-                            (e.target.style.backgroundColor = "#f4f4f4")
-                          }
-                          onMouseLeave={(e) =>
-                            (e.target.style.backgroundColor = "transparent")
-                          }
-                        >
-                          {state}
-                        </li>
-                      ))}
-                    </ul>
+             
                   </div>
                 )}
               </div>

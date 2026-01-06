@@ -4,17 +4,25 @@ exports.getWalletBalance = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    const user = await User.findById(userId).select("walletBalance");
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    const transactions = await WalletTransaction.find({ user: userId });
 
-    res.json({ walletBalance: user.walletBalance || 0 });
+    const balance = transactions.reduce((acc, txn) => {
+      if (txn.type === "credit") return acc + txn.amount;
+      if (txn.type === "debit") return acc - txn.amount;
+      return acc;
+    }, 0);
+
+    res.json({
+      success: true,
+      balance,
+      transactions,
+    });
   } catch (error) {
     console.error("Error fetching wallet balance:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 exports.topupWallet = async (req, res) => {
   try {
     const { amount, method, referenceId } = req.body;

@@ -70,6 +70,8 @@ const hospitalRoutes = require("./routes/hospitalRoutes");
 const settlementRoutes = require("./routes/settlementRoutes");
 const customerIdentityRoutes = require("./routes/customerIdentityRoutes");
 const healthAccessContactRoutes = require("./routes/healthAccessContactRoutes");
+const hospitalPlanTierRoutes = require("./routes/hospitalPlanTierRoutes");
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -163,6 +165,7 @@ app.use("/api/hospitals", hospitalRoutes);
 app.use("/api/health-access/contact", healthAccessContactRoutes);
 app.use("/api/hospitals", require("./routes/hospitalOnboardingRoutes"));
 app.use("/api/labs", require("./routes/labRoutes"));
+app.use("/api", hospitalPlanTierRoutes);
 
 app.use("/api/settlements", settlementRoutes);
 app.use("/api/customer-identity", customerIdentityRoutes);
@@ -177,6 +180,7 @@ app.use(
   express.static(path.join(__dirname, "uploads/beneficiaries"))
 );
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/downloads", express.static(path.join(__dirname, "public/downloads")));
 
 app.listen(process.env.PORT || 5000, () =>
   console.log(`Server running on port ${process.env.PORT || 5000}`)

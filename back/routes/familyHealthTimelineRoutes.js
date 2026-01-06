@@ -7,7 +7,7 @@ const {
   deleteEvent,
 } = require("../controllers/familyHealthTimelineController");
 
-router.get("/", authMiddleware, getTimeline);
+router.get("/:planId", authMiddleware, getTimeline);
 router.post("/", authMiddleware, addEvent);
 router.delete("/:member/:eventId", authMiddleware, deleteEvent);
 

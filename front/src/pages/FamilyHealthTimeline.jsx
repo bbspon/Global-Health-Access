@@ -15,9 +15,10 @@ import {
   addTimelineEvent,
   deleteTimelineEvent,
 } from "../services/familyHealthTimelineAPI";
+import { useParams } from "react-router-dom";
 
 export default function FamilyHealthTimeline() {
-  const [currentPerson, setCurrentPerson] = useState("");
+  const [currentPerson, setCurrentPerson] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [adminMode, setAdminMode] = useState(false);
   const [newEvent, setNewEvent] = useState({
@@ -29,44 +30,108 @@ export default function FamilyHealthTimeline() {
   });
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { planId } = useParams();
 
-  const handleAddEvent = async () => {
-    if (!currentPerson || currentPerson.trim() === "") {
-      alert("Please select a family member before adding an event.");
-      return;
-    }
+const handleAddEvent = async () => {
+  if (!currentPerson) {
+    alert("Please select a family member before adding an event.");
+    return;
+  }
 
-    try {
-      const updatedData = await addTimelineEvent(currentPerson, newEvent);
-      setMembers(updatedData);
-      setShowModal(false);
-      setNewEvent({
-        type: "Doctor",
-        label: "",
-        date: "",
-        notes: "",
-        attachment: null,
-      });
-    } catch (err) {
-      alert("Failed to save event");
-    }
-  };
+  try {
+    const member = members.find((m) => m._id === currentPerson);
+    if (!member) return;
+
+    const payload = {
+      type: newEvent.type,
+      label: newEvent.label,
+      date: newEvent.date,
+      notes: newEvent.notes,
+      attachmentUrl: null,
+    };
+
+await addTimelineEvent(member.name, payload);
+
+await loadTimeline(); // 🔑 refresh state from DB
+
+setShowModal(false);
+setNewEvent({
+  type: "Doctor",
+  label: "",
+  date: "",
+  notes: "",
+  attachment: null,
+});
+
+alert("Event saved successfully");
+
+  } catch (err) {
+    console.error("Add event error:", err?.response?.data || err);
+    alert("Failed to save event");
+  }
+};
+
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     setNewEvent({ ...newEvent, attachment: file });
   };
 
-  const exportTimeline = () => {
-    const member = members.find((m) => m.memberName === currentPerson);
-    if (!member) return;
-    let content = `Timeline for ${member.memberName}\n\n`;
-    member.events.forEach((e) => {
-      content += `${e.date} - ${e.label} - ${e.notes}\n`;
-    });
-    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-    saveAs(blob, `${currentPerson.replace(/\s/g, "_")}_timeline.txt`);
-  };
+const exportTimeline = () => {
+  const member = members.find((m) => m._id === currentPerson);
+
+  if (!member) {
+    alert("Please select a family member");
+    return;
+  }
+
+  if (!member.events || member.events.length === 0) {
+    alert("No events to export");
+    return;
+  }
+
+  const doc = new jsPDF();
+
+  let y = 10;
+  doc.setFontSize(14);
+  doc.text("Family Health Timeline", 10, y);
+
+  y += 8;
+  doc.setFontSize(11);
+  doc.text(`Member Name: ${member.name}`, 10, y);
+
+  y += 6;
+  doc.text(`Plan ID: ${planId}`, 10, y);
+
+  y += 10;
+  doc.setFontSize(12);
+  doc.text("Events:", 10, y);
+
+  y += 6;
+  doc.setFontSize(10);
+
+  member.events.forEach((event, index) => {
+    if (y > 270) {
+      doc.addPage();
+      y = 10;
+    }
+
+    doc.text(`${index + 1}. ${event.date} | ${event.type}`, 10, y);
+    y += 5;
+
+    doc.text(`Label: ${event.label}`, 12, y);
+    y += 5;
+
+    if (event.notes) {
+      doc.text(`Notes: ${event.notes}`, 12, y);
+      y += 6;
+    }
+
+    y += 2;
+  });
+
+  doc.save(`${member.name.replace(/\s/g, "_")}_Health_Timeline.pdf`);
+};
 
   const handleDeleteEvent = async (eventId) => {
     try {
@@ -76,27 +141,40 @@ export default function FamilyHealthTimeline() {
       alert("Error deleting event");
     }
   };
+const loadTimeline = async () => {
+  try {
+    setLoading(true);
+    if (!planId) return;
 
-  useEffect(() => {
-    const loadTimeline = async () => {
-      try {
-        setLoading(true);
-        const response = await fetchTimeline();
-        const data = Array.isArray(response?.data) ? response.data : [];
-        setMembers(data);
-        if (data.length > 0) setCurrentPerson(data[0].memberName);
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const response = await fetchTimeline(planId);
 
-    loadTimeline();
-  }, []);
+    const membersData = Array.isArray(response?.data)
+      ? response.data
+      : Array.isArray(response?.data?.data)
+      ? response.data.data
+      : [];
 
-  const selectedMember = members.find((m) => m.memberName === currentPerson);
+    setMembers(membersData);
 
+    if (membersData.length > 0) {
+      setCurrentPerson(membersData[0]._id);
+    } else {
+      setCurrentPerson(null);
+    }
+  } catch (error) {
+    console.error("Failed to fetch timeline:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  loadTimeline();
+}, [planId]);
+
+
+
+  const selectedMember = members.find((m) => m._id === currentPerson);
   return (
     <div className="container py-4">
       <h4>👨‍👩‍👧 Family Health Timeline & Milestones</h4>
@@ -115,11 +193,18 @@ export default function FamilyHealthTimeline() {
 
       <Form.Select
         className="mb-3"
+        value={currentPerson || ""}
         onChange={(e) => setCurrentPerson(e.target.value)}
-        value={currentPerson}
       >
-        {Array.isArray(members) &&
-          members.map((p) => <option key={p._id}>{p.memberName}</option>)}
+        <option value="" disabled>
+          -- Select Family Member --
+        </option>
+
+        {members.map((m) => (
+          <option key={m._id} value={m._id}>
+            {m.name}
+          </option>
+        ))}
       </Form.Select>
 
       {selectedMember?.events?.map((event, idx) => (
@@ -229,7 +314,7 @@ export default function FamilyHealthTimeline() {
           {members.map((m) => (
             <Card className="mb-2" key={m._id}>
               <Card.Body>
-                <h6>{m.memberName}</h6>
+                <h6>{m.name}</h6>
                 <p>Total Events: {m.events.length}</p>
                 <p>
                   Doctor Visits:{" "}

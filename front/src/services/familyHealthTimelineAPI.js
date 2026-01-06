@@ -1,45 +1,74 @@
 import axios from "axios";
 
-const API_BASE = `${import.meta.env.VITE_API_URI}/family-health-timeline`; // Change on deploy
+/**
+ * Base API URL
+ * Example: http://localhost:5000/api
+ */
+const API_BASE = import.meta.env.VITE_API_URI;
 
-const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
-const token = bbsUserData?.token;
+/**
+ * Get auth token safely
+ */
+const getAuthHeaders = () => {
+  const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
 
-// ✅ Fallback for different key names: 'id' or '_id'
-const userId = bbsUserData?.user?.id || bbsUserData?.user?._id;
+  const token = bbsUserData?.token;
 
-if (!userId) {
-  console.error("❌ userId is still undefined. Check localStorage format.");
-}
+  if (!token) {
+    console.error("❌ Auth token not found in localStorage (bbsUser.token)");
+  }
 
-const getAuthHeaders = () => ({
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
-});
-
-export const fetchTimeline = async () => {
-  const res = await axios.get(API_BASE, getAuthHeaders());
-  return res.data.data;
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
 };
+
 
 export const addTimelineEvent = async (memberName, newEvent) => {
-  const timelineData = {
-    userId, // ✅ Include userId
+  const payload = {
     memberName,
-    events: [newEvent], // ✅ Send as array
+    newEvent,
   };
 
-  console.log("Sending timeline data:", timelineData); // Debug log
-
-  const res = await axios.post(API_BASE, timelineData, getAuthHeaders());
-  return res.data.data;
-};
-
-export const deleteTimelineEvent = async (member, eventId) => {
-  const res = await axios.delete(
-    `${API_BASE}/${encodeURIComponent(member)}/${eventId}`,
+  const res = await axios.post(
+    `${API_BASE}/family-health-timeline`,
+    payload,
     getAuthHeaders()
   );
+
+  return res.data.data; // updated timeline
+};
+
+// ================================
+// DELETE EVENT
+// DELETE /api/family-health-timeline/:member/:eventId
+// ================================
+export const deleteTimelineEvent = async (memberName, eventId) => {
+  const res = await axios.delete(
+    `${API_BASE}/family-health-timeline/${memberName}/${eventId}`,
+    getAuthHeaders()
+  );
+
   return res.data.data;
+};
+export const fetchTimeline = async (planId) => {
+  if (!planId) {
+    throw new Error("❌ planId is required to fetch family members");
+  }
+
+  const res = await axios.get(
+    `${API_BASE}/user-plan/${planId}/family`,
+    getAuthHeaders()
+  );
+
+  /**
+   * Expected response:
+   * {
+   *   success: true,
+   *   data: [ { _id, name, age, relationship, ... } ]
+   * }
+   */
+  return res.data;
 };

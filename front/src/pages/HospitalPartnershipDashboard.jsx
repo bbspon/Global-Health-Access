@@ -21,9 +21,18 @@ const HospitalPartnershipKit = () => {
     }, 2000);
   };
 
-  const handleDownload = (docType) => {
-    alert(`Downloading ${docType}...`);
-  };
+const handleDownload = (docType) => {
+  const base = import.meta.env.VITE_BASE_URL;; // local backend origin (NOT /api)
+
+  const url =
+    docType === "MSA"
+      ? `${base}/downloads/msa.pdf`
+      : `${base}/downloads/hospital-toolkit.zip`;
+
+  window.open(url, "_blank", "noopener,noreferrer");
+};
+
+
 
   return (
     <Container className="py-5">

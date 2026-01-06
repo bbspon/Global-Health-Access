@@ -22,6 +22,9 @@ const PlanCard = ({ plan }) => {
     localStorage.setItem("selectedPlan", JSON.stringify(plan)); // Save selected plan
     navigate("/health-access/buy-plan", { state: { plan } });
   };
+const handleFamilyTimeline = () => {
+  navigate(`/family-timeline/${plan._id}`);
+};
 
   return (
     <Card className="h-100 shadow-sm">
@@ -81,6 +84,13 @@ const PlanCard = ({ plan }) => {
               Coverage Status
             </Button>
           </Link>
+          <Button
+            variant="outline-dark"
+            size="sm"
+            onClick={handleFamilyTimeline}
+          >
+            Family Timeline
+          </Button>
         </div>
       </Card.Body>
     </Card>
