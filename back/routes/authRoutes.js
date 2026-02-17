@@ -5,11 +5,17 @@ const {
   login,
   getMyProfile,
   updateMyProfile,
+  sendOtp,
+  verifyOtp,
 } = require("../controllers/authController");
 const auth = require("../middleware/auth");
 
 router.post("/signup", register);
 router.post("/login", login);
+// OTP endpoints
+router.post("/send-otp", sendOtp);
+router.post("/verify-otp", verifyOtp);
+
 router.get("/me", auth, getMyProfile);
 router.put("/me", auth, updateMyProfile);
 module.exports = router;

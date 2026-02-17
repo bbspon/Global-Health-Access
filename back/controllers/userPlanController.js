@@ -6,6 +6,7 @@ exports.purchasePlan = async (req, res) => {
     const userId = req.user._id; // from auth middleware
     const { planId, paymentMethod, useWallet = false } = req.body;
 
+    // Validate plan exists
     const plan = await HealthPlan.findById(planId);
     if (!plan || !plan.isActive) {
       return res
@@ -16,19 +17,25 @@ exports.purchasePlan = async (req, res) => {
     // Plan duration logic
     const startDate = new Date();
     const endDate = new Date();
-    endDate.setDate(startDate.getDate() + plan.validityInDays);
+    endDate.setDate(startDate.getDate() + (plan.validityInDays || 365)); // default 1 year
 
+    // Create user plan with all required fields
     const userPlan = new UserPlan({
       userId,
       planId,
+      selectedPlan: plan.name, // ✅ Required field from schema
       paymentMethod,
       startDate,
       endDate,
-      usedWalletAmount: useWallet ? 100 : 0, // future wallet logic
+      usedWalletAmount: useWallet ? 100 : 0,
       transactionId: `TXN-${Date.now()}`,
+      status: "active", // ✅ Explicitly set status
     });
 
     await userPlan.save();
+
+    // Populate plan details before returning
+    await userPlan.populate("planId");
 
     return res.status(201).json({
       success: true,
@@ -36,10 +43,12 @@ exports.purchasePlan = async (req, res) => {
       userPlan,
     });
   } catch (error) {
-    console.error("Purchase Error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Server error during plan purchase" });
+    console.error("❌ Purchase Error:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Server error during plan purchase",
+      error: error.message 
+    });
   }
 };
 // Buy Plan Controller

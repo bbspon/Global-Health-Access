@@ -7,7 +7,7 @@ const grievanceSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ["Hospital", "Lab", "Plan", "App", "Others"],
+    enum: ["Hospital", "Lab", "Plan", "App", "Others","Doctor"],
     required: true,
   },
   title: {

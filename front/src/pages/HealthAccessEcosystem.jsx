@@ -17,11 +17,19 @@ const HealthAccessEcosystem = () => {
   const [cashback, setCashback] = useState(0);
   const [coachQuery, setCoachQuery] = useState("");
   const [bookingSubmitted, setBookingSubmitted] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // ✅ Load Plan, Wallet, Cashback
   useEffect(() => {
     const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
-    const userId = bbsUserData?.user?.id; // ✅ use `id`, not `_id`    if (!userId) return;
+    // backend returns `_id` only, and Mongoose attaches `id` sometimes, so support both
+    const userId =
+      bbsUserData?.user?.id || bbsUserData?.user?._id || null;
+    setIsLoggedIn(!!userId);
+    if (!userId) {
+      // user not logged in yet – nothing to fetch
+      return;
+    }
 
     const fetchData = async () => {
       try {
@@ -47,7 +55,15 @@ const HealthAccessEcosystem = () => {
     try {
       const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
 
-      const userId = bbsUserData?.user?.id; // ✅ use `id`, not `_id`
+      const userId =
+        bbsUserData?.user?.id || bbsUserData?.user?._id || null;
+      if (!userId) {
+        alert("⚠️ You must be logged in to book an appointment.");
+        setBookingSubmitted(false);
+        return;
+      }
+
+      console.debug("booking request", { userId });
       const res = await axios.post(
         `${import.meta.env.VITE_API_URI}/ecosystem/book-appointment`,
         {
@@ -110,7 +126,7 @@ const HealthAccessEcosystem = () => {
             variant="success"
             className="me-2"
             onClick={handleBookAppointment}
-            disabled={bookingSubmitted}
+            disabled={bookingSubmitted || !isLoggedIn}
           >
             {bookingSubmitted ? (
               <Spinner size="sm" animation="border" />

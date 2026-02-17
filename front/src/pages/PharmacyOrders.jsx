@@ -15,8 +15,17 @@ const PharmacyOrders = () => {
   const [refillAlert, setRefillAlert] = useState(null);
 
   useEffect(() => {
+    // ensure we have a valid base URL; if the env variable is missing
+    // fall back to the current host plus /api so that developers don't
+    // accidentally hit a relative path like ":5000/api/...".
+    const baseUri =
+      import.meta.env.VITE_API_URI ||
+      `${window.location.protocol}//${window.location.host}/api`;
+
+    console.log("PharmacyOrders fetching from", baseUri);
+
     axios
-      .get(`${import.meta.env.VITE_API_URI}/medicines`)
+      .get(`${baseUri.replace(/\/$/, "")}/medicines`)
       .then((res) => {
         const result = Array.isArray(res.data)
           ? res.data
@@ -24,9 +33,10 @@ const PharmacyOrders = () => {
         setMedicines(result);
       })
       .catch((err) => {
-        console.error(err);
+        console.error("Error loading medicines", err);
         setMedicines([]);
-        setError("⚠️ Failed to load medicines. Please try again.");
+        const status = err.response ? ` (status ${err.response.status})` : "";
+        setError("⚠️ Failed to load medicines. Please try again." + status);
       });
   }, []);
 
@@ -54,7 +64,12 @@ const PharmacyOrders = () => {
       if (prescription) formData.append("prescription", prescription);
       formData.append("deliveryMode", deliveryMode);
 
-      await axios.post(`${import.meta.env.VITE_API_URI}pharmacy/order`, formData);
+      // note the extra slash – the original code concatenated without it
+      // which resulted in requests like "http://.../apipharmacy/order".
+      const orderBase =
+        import.meta.env.VITE_API_URI ||
+        `${window.location.protocol}//${window.location.host}/api`;
+      await axios.post(`${orderBase.replace(/\/$/, "")}/pharmacy/order`, formData);
       alert("✅ Order placed successfully!");
       setCart([]);
       setPrescription(null);

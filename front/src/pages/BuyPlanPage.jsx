@@ -25,12 +25,23 @@ const BuyPlanPage = () => {
   useEffect(() => {
     const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
     const token = bbsUserData?.token;
+    if (!token) {
+      console.warn("Wallet fetch skipped: no auth token");
+      return;
+    }
+
     axios
-      .get(`${import.meta.env.VITE_API_URI}/user/wallet`, {
+      // the backend exposes `/wallet` (protected) not `/user/wallet`
+      .get(`${import.meta.env.VITE_API_URI}/wallet`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then((res) => setWallet(res.data.balance))
-      .catch((err) => console.warn("Wallet fetch failed", err));
+      .then((res) => {
+        // endpoint returns { success, balance, transactions }
+        setWallet(res.data.balance || 0);
+      })
+      .catch((err) => {
+        console.warn("Wallet fetch failed", err);
+      });
   }, []);
 
   const toggleAddon = (name) => {

@@ -9,6 +9,10 @@ baseURL: `${import.meta.env.VITE_API_URI}/auth`,
 export const loginUser = (data) => API.post("/login", data);
 export const signupUser = (data) => API.post("/signup", data);
 
+// OTP flows
+export const sendOtp = (data) => API.post("/send-otp", data);
+export const verifyOtp = (data) => API.post("/verify-otp", data);
+
 // Save user session
 export const saveUserSession = (sessionData) => {
 try {

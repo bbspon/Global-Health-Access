@@ -1,6 +1,11 @@
 // back/controllers/authController.js
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const { sendOTPSMS } = require("../utils/bsnlSms");
+
+// small helper to create 6‑digit code
+const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
+
 
 // Always sign with { id } so authMiddleware can read decoded.id
 const signAccessToken = (user, expiresIn = "1d") =>
@@ -132,6 +137,75 @@ exports.login = async (req, res) => {
     return res.status(500).json({ message: "Login failed" });
   }
 };
+
+// ----- OTP LOGIN HELPERS -----
+
+// request an OTP sent to the given phone number (must already exist)
+exports.sendOtp = async (req, res) => {
+  try {
+    const { phone } = req.body || {};
+    if (!phone) return res.status(400).json({ message: "Phone number is required" });
+
+    const user = await User.findOne({ phone });
+    if (!user) {
+      return res.status(404).json({ message: "No user found with that phone number" });
+    }
+
+    const code = generateOtp();
+    user.otp = { code, expiresAt: new Date(Date.now() + 5 * 60 * 1000) }; // 5 min
+    await user.save();
+
+    // fire off SMS, but don't block the request if SMS fails
+    try {
+      await sendOTPSMS(phone, code);
+    } catch (smsErr) {
+      console.error("Failed to send OTP sms", smsErr);
+    }
+
+    res.json({ success: true, message: "OTP sent" });
+  } catch (err) {
+    console.error("sendOtp error", err);
+    res.status(500).json({ message: "Unable to send OTP" });
+  }
+};
+
+exports.verifyOtp = async (req, res) => {
+  try {
+    const { phone, otp } = req.body || {};
+    if (!phone || !otp) return res.status(400).json({ message: "Phone and OTP required" });
+
+    const user = await User.findOne({ phone });
+    if (!user || !user.otp) {
+      return res.status(400).json({ message: "Invalid OTP or phone" });
+    }
+
+    if (user.otp.code !== otp) {
+      return res.status(400).json({ message: "Incorrect OTP" });
+    }
+
+    if (user.otp.expiresAt < new Date()) {
+      return res.status(400).json({ message: "OTP expired" });
+    }
+
+    // clear OTP before issuing token
+    user.otp = undefined;
+    await user.save();
+
+    const token = signAccessToken(user, "1d");
+    return res.json({ message: "Login success", token, user: {
+        _id: user._id,
+        name: user.name,
+        phone: user.phone,
+        email: user.email,
+        roleTags: user.roleTags || [],
+        createdFrom: user.createdFrom,
+      } });
+  } catch (err) {
+    console.error("verifyOtp error", err);
+    res.status(500).json({ message: "OTP verification failed" });
+  }
+};
+
 exports.getMyProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");

@@ -25,24 +25,40 @@ const DigitalHealthCard = () => {
   const [qrData, setQrData] = useState("");
   const [refreshed, setRefreshed] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchCard = async () => {
       try {
+        const baseUri =
+          import.meta.env.VITE_API_URI ||
+          `${window.location.protocol}//${window.location.host}/api`;
+        // ensure no trailing slash
+        const url = `${baseUri.replace(/\/$/, "")}/card/digital-card`;
+
         const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
         const token = bbsUserData?.token;
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URI}/card/digital-card`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        if (!token) {
+          throw new Error("No auth token found");
+        }
+
+        console.log("Fetching digital card from", url, "with token", token);
+
+        const res = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setUserInfo(res.data);
         setQrData(res.data.qrToken);
       } catch (err) {
         console.error("Error loading digital health card", err);
+        if (err.response && err.response.status === 404) {
+          setError("No digital health card found for your account.");
+        } else {
+          setError("Failed to load digital health card. " +
+            (err.response ? `status ${err.response.status}` : err.message));
+        }
       }
     };
 
@@ -51,10 +67,19 @@ const DigitalHealthCard = () => {
 
   const handleRefreshQR = async () => {
     try {
+      const baseUri =
+        import.meta.env.VITE_API_URI ||
+        `${window.location.protocol}//${window.location.host}/api`;
+      const url = `${baseUri.replace(/\/$/, "")}/card/digital-card/refresh`;
+
       const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
       const token = bbsUserData?.token;
+      if (!token) throw new Error("No auth token");
+
+      console.log("Refreshing QR via", url);
+
       const res = await axios.put(
-        `${import.meta.env.VITE_API_URI}/card/digital-card/refresh`,
+        url,
         {},
         {
           headers: {
@@ -65,7 +90,8 @@ const DigitalHealthCard = () => {
       setQrData(res.data.qrToken);
       setRefreshed(true);
     } catch (err) {
-      alert("QR refresh failed");
+      console.error("QR refresh error", err);
+      alert("QR refresh failed. " + (err.response ? `status ${err.response.status}` : err.message));
     }
   };
 
@@ -76,6 +102,8 @@ const DigitalHealthCard = () => {
   return (
     <Container className="my-4">
       <h2 className="mb-3">🩺 Your Digital Health Access Card</h2>
+
+      {error && <Alert variant="danger">{error}</Alert>}
 
       {userInfo ? (
         <Card className="shadow-lg border-primary p-3">

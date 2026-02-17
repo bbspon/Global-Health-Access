@@ -16,8 +16,8 @@ const StaffManager = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // 🔥 FIXED API BASE URL
-  const API = "http://localhost:5000/api";
+  // 🔥 API BASE URL from environment
+  const API = import.meta.env.VITE_API_URI;
 
   useEffect(() => {
     fetchStaff();

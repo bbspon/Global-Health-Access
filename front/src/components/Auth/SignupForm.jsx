@@ -53,7 +53,15 @@ const SignupForm = () => {
       const res = await axios.get(
         `${import.meta.env.VITE_API_URI}/region/hospitals/all`
       );
-      setAllHospitals(res.data?.hospitals || []);
+      // Accept both array or wrapped { hospitals: [...] } or single object
+      const payload = res.data?.hospitals || res.data;
+      const normalized = Array.isArray(payload)
+        ? payload
+        : payload
+        ? [payload]
+        : [];
+      console.log("Loaded allHospitals:", normalized);
+      setAllHospitals(normalized);
     } catch (err) {
       console.log("Hospital load error:", err);
     }
@@ -91,18 +99,34 @@ const SignupForm = () => {
   const filterHospitals = async () => {
     try {
       const res = await axios.get(
-        `${
-          import.meta.env.VITE_API_URI
-        }/region/hospitals?country=${country}&city=${city}`
+        `${import.meta.env.VITE_API_URI}/region/hospitals?country=${country}&city=${city}`
       );
 
-      if (Array.isArray(res.data)) {
-        setFilteredHospitals(res.data);
-      } else {
-        setFilteredHospitals(res.data.hospitals || []);
+      const hospitals = Array.isArray(res.data)
+        ? res.data
+        : res.data?.hospitals || [];
+
+      // If server returned nothing, fall through to client-side filter below
+      if (hospitals && hospitals.length) {
+        setFilteredHospitals(hospitals);
+        return;
       }
     } catch (err) {
-      console.log("Hospital filter error:", err);
+      console.log("Hospital filter error (server):", err);
+    }
+
+    // Fallback: filter from loaded `allHospitals` client-side
+    try {
+      const fallback = allHospitals.filter((h) => {
+        return (
+          String(h.country || "").toLowerCase() === String(country || "").toLowerCase() &&
+          String(h.city || "").toLowerCase() === String(city || "").toLowerCase()
+        );
+      });
+      setFilteredHospitals(fallback || []);
+    } catch (err) {
+      console.log("Hospital filter error (fallback):", err);
+      setFilteredHospitals([]);
     }
   };
 

@@ -4,15 +4,17 @@ import { Modal, Button, Spinner } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const PlanTermsModal = ({ show, onClose, onAccept, version }) => {
-  const { planId } = useParams();
+const PlanTermsModal = ({ show, onClose, onAccept, version, termsText: propTermsText, planId: propPlanId }) => {
+  // allow parent to supply planId directly when not using route params
+  const params = useParams();
+  const planId = propPlanId || params.planId;
   const navigate = useNavigate();
 
   // If used as page, modal should always show
   const isOpen = show ?? true;
 
   const [loading, setLoading] = useState(false);
-  const [termsText, setTermsText] = useState("");
+  const [termsText, setTermsText] = useState(propTermsText || "");
   const [error, setError] = useState("");
 
   // YOUR BACKEND URL (fixes the wrong 5173 call)
@@ -22,7 +24,16 @@ const PlanTermsModal = ({ show, onClose, onAccept, version }) => {
   // FETCH TERMS WHEN PAGE LOADS
   // -------------------------------
   useEffect(() => {
-    if (!planId) return;
+    if (!planId) {
+      console.warn("PlanTermsModal mounted without planId");
+      return;
+    }
+
+    // if parent supplied static text, keep it instead of re-fetching
+    if (propTermsText) {
+      setTermsText(propTermsText);
+      return;
+    }
 
     setLoading(true);
     setError("");
@@ -39,7 +50,7 @@ const PlanTermsModal = ({ show, onClose, onAccept, version }) => {
         );
       })
       .finally(() => setLoading(false));
-  }, [planId]);
+  }, [planId, propTermsText]);
 
   // -------------------------------
   // CLOSE MODAL
@@ -50,6 +61,13 @@ const PlanTermsModal = ({ show, onClose, onAccept, version }) => {
   // ACCEPT TERMS
   // -------------------------------
 const handleAccept = async () => {
+  // quick validation first so we don't hit the network with bad payload
+  if (!planId) {
+    setError("No plan specified. Cannot accept terms.");
+    console.warn("handleAccept called without planId", { planId, version, propTermsText });
+    return;
+  }
+
   try {
     const raw = localStorage.getItem("bbsUser");
     const token = raw ? JSON.parse(raw).token : null;
@@ -63,16 +81,25 @@ const handleAccept = async () => {
       Authorization: `Bearer ${token}`,
     };
 
-    await axios.post(
-      `${API_BASE}/plans/terms/accept`,
-      { planId, version: version || "v1", signature: "auto", device: "web" },
-      { headers }
-    );
+    const payload = {
+      planId,
+      version: version || "v1",
+      signature: "auto",
+      device: "web",
+    };
+
+    console.debug("sending acceptTerms payload", payload);
+
+    await axios.post(`${API_BASE}/plans/terms/accept`, payload, { headers });
 
     handleClose();
   } catch (err) {
     console.error("Accept terms failed:", err);
-    setError("Unable to accept terms at the moment. Please try again.");
+    const msg =
+      err?.response?.data?.message ||
+      err?.message ||
+      "Unable to accept terms at the moment. Please try again.";
+    setError(msg);
   }
 };
 

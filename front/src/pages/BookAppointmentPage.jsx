@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 const BookAppointmentPage = () => {
   const [form, setForm] = useState({
-    type: "doctor",
+    type: "Doctor",
     providerName: "",
     doctorName: "",
     specialization: "",

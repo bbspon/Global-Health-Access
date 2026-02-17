@@ -187,12 +187,12 @@ const HomeDashboard = () => {
               <h5 className="text-light mb-3">Quick Actions</h5>
               <div className=" d-flex flex-wrap justify-content-center gap-2 mt-3 ">
                 {/* Switch User */}
-                <Button
+                {/* <Button
                   variant="success"
                   onClick={() => console.log("Switch User")}
                 >
                   Switch User
-                </Button>
+                </Button> */}
 
                 {/* Emergency → /emergency */}
                 <Button variant="danger" onClick={() => navigate("/emergency")}>

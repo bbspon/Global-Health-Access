@@ -71,7 +71,7 @@ const PlanDetailsPage = () => {
         </ul>
         <Button
           variant="success"
-          onClick={() => navigate("/health-access/buy-plan")}
+          onClick={() => navigate("/health-access/buy-plan", { state: { plan } })}
         >
           Buy This Plan
         </Button>

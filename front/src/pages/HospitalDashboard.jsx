@@ -129,7 +129,7 @@ const HospitalDashboard = () => {
       title: "Ecosystem Expansion",
       description: "View important hospital ecosystem-expansion",
       icon: <GraphUp size={28} />,
-      link: "/hospital/ecosystem-expansion",
+      link: "/ecosystem-expansion",
       color: "primary",
       bgImage: "/health.png",
     },

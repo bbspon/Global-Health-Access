@@ -82,7 +82,25 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log("✅ Connected to bbshealthcare (Default DB)"))
+  .then(async () => {
+    console.log("✅ Connected to bbshealthcare (Default DB)");
+
+    // simple seeding for medicines so the pharmacy page isn't empty
+    try {
+      const Medicine = require("./models/Medicine");
+      const count = await Medicine.countDocuments();
+      if (count === 0) {
+        await Medicine.insertMany([
+          { name: "Paracetamol 500mg", price: 20, stock: 100 },
+          { name: "Cetirizine 10mg", price: 35, stock: 50 },
+          { name: "Amoxicillin 250mg", price: 120, stock: 25 },
+        ]);
+        console.log("🔁 Seeded default medicines");
+      }
+    } catch (seedErr) {
+      console.error("Error seeding medicines", seedErr);
+    }
+  })
   .catch((err) => console.error("❌ Main DB error:", err));
 
 // ✅ Export the healthcare DB for use in models
@@ -107,6 +125,10 @@ app.use("/api/wallet", walletAdminRoutes);
 app.use("/api/plan-value", planValueRoutes);
 app.use("/api/plan-dynamic", dynamicPricingRoutes);
 app.use("/api/feedback", feedbackRoutes);
+
+// simple pharmacy / medicines endpoint used by the React frontend
+// (returns DB entries or a few hard‑coded items when empty)
+app.use("/api/medicines", require("./routes/medicineRoutes"));
 app.use("/api/ai-risk", aiDiseaseRiskRoutes);
 app.use("/api/health-insights", healthInsightRoutes);
 app.use("/api/health-insights-trends", healthInsightsTrendRoutes);

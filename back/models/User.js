@@ -20,6 +20,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      unique: true,
     },
     password: {
       type: String,
@@ -47,6 +48,11 @@ const UserSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "HealthcarePartner",
       default: null,
+    },
+    // one-time password for login/verification
+    otp: {
+      code: { type: String },
+      expiresAt: { type: Date },
     },
   },
   { timestamps: true }

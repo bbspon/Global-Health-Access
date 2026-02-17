@@ -1,13 +1,27 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import IntroImage from '../assets/images/banner1.png'; // replace with your healthcare logo/illustration
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+  ScrollView,
+  Dimensions,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import IntroImage from '../assets/images/banner1.png';
+
+const { height } = Dimensions.get('window');
 
 const IntroScreen = () => {
   const navigation = useNavigation();
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
+    >
       <Image
         source={IntroImage}
         style={styles.image}
@@ -19,40 +33,45 @@ const IntroScreen = () => {
       </Text>
 
       <Text style={styles.subText}>
-        Book doctor appointments, track your medicines,{"\n"}get lab tests, and manage your health with ease.
+        Book doctor appointments, track your medicines,{"\n"}
+        get lab tests, and manage your health with ease.
       </Text>
 
-      {/* Custom Styled Button */}
-      <TouchableOpacity 
-        style={styles.button} 
+      <TouchableOpacity
+        style={styles.button}
         onPress={() => navigation.navigate('SignUp')}
       >
         <Text style={styles.buttonText}>Get Started</Text>
       </TouchableOpacity>
 
-      {/* Secondary action */}
-      <TouchableOpacity 
-        style={styles.secondaryButton} 
+      <TouchableOpacity
+        style={styles.secondaryButton}
         onPress={() => navigation.navigate('SignIn')}
       >
-        <Text style={styles.secondaryButtonText}>Already have an account? Log In</Text>
+        <Text style={styles.secondaryButtonText}>
+          Already have an account? Log In
+        </Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
+    padding: 16,
     alignItems: 'center',
-    flex: 1,
-    justifyContent: 'flex-start',
-    backgroundColor: '#F5F9FF',
+    // backgroundColor: '#F5F9FF',
+    paddingBottom: 40,
   },
+
+  /* ✅ Responsive image */
   image: {
-    width: 450,
-    height: 450,
+    width: '90%',
+    height: height * 0.35,   // 35% of screen height
+    maxHeight: 320,          // prevents oversized logo on tablets/web
+    marginBottom: 20,
   },
+
   heading: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -60,37 +79,36 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#1E3A8A',
   },
+
   subText: {
     fontSize: 15,
-    marginBottom: 40,
+    marginBottom: 30,
     paddingHorizontal: 10,
     lineHeight: 24,
     textAlign: 'center',
     color: '#374151',
   },
+
   button: {
-    backgroundColor: '#34D399', // green = health/vitality
+    backgroundColor: '#34D399',
     paddingVertical: 14,
     paddingHorizontal: 30,
     borderRadius: 50,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
     elevation: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
     marginTop: 10,
     ...(Platform.OS === 'web' && { cursor: 'pointer' }),
   },
+
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
   },
+
   secondaryButton: {
     marginTop: 20,
   },
+
   secondaryButtonText: {
     fontSize: 14,
     color: '#2563EB',

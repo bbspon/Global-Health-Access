@@ -58,7 +58,7 @@ const handleFamilyTimeline = () => {
             variant="outline-primary"
             size="sm"
             // disabled
-            onClick={() => navigate("/compare")}
+            onClick={() => navigate("/plan-comparison")}
           >
             Compare
           </Button>

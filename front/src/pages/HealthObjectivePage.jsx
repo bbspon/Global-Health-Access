@@ -35,7 +35,14 @@ const HealthObjectivePage = () => {
     axios
       .get(`${import.meta.env.VITE_API_URI}/health-objective`)
       .then((res) => setContent(res.data))
-      .catch((err) => console.error("Failed to load health content", err));
+      .catch((err) => {
+        if (err.response?.status === 404) {
+          // no content yet - silently ignore
+          setContent({});
+        } else {
+          console.error("Failed to load health content", err);
+        }
+      });
   }, []);
 
   return (
@@ -79,7 +86,7 @@ const HealthObjectivePage = () => {
             </Link>
           </Col>
           <Col md={4}>
-            <Link to="/hospital-directory">
+            <Link to="/hospital">
               <Button variant="outline-success" className="w-100">
                 🏥 Find Partner Hospitals
               </Button>
@@ -94,6 +101,11 @@ const HealthObjectivePage = () => {
           </Col>
         </Row>
         <HealthcareSection />
+      {content && Object.keys(content).length === 0 && (
+        <div className="text-center text-muted py-5">
+          <p>No health objective content has been published yet.</p>
+        </div>
+      )}
       </Container>
       <style>
         {`

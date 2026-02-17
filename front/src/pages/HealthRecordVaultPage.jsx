@@ -47,8 +47,9 @@ const HealthRecordVaultPage = () => {
   // ✅ Fetch records from API
   const fetchRecords = async () => {
     try {
-      const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
-      const token = bbsUserData?.token;
+
+      const bbsUserData = JSON.parse(localStorage.getItem("bbsUser")) || null;
+      const token = bbsUserData?.token || localStorage.getItem("token");
 
       console.log("Fetching for PlanID:", id);
       const res = await axios.get(
@@ -60,7 +61,7 @@ const HealthRecordVaultPage = () => {
         }
       );
 
-      console.log("API Response:", res.data); // 👈 ADD THIS LINE
+      console.log("API Response:", res.data);
 
       setRecords(res.data?.data || []);
     } catch (error) {
@@ -75,20 +76,40 @@ const HealthRecordVaultPage = () => {
   // ✅ Upload new record
   const handleSaveRecord = async () => {
     try {
-      const bbsUserData = JSON.parse(localStorage.getItem("bbsUser"));
-      const token = bbsUserData?.token;
-      await axios.post(
+      const bbsUserData = JSON.parse(localStorage.getItem("bbsUser")) || null;
+      const token = bbsUserData?.token || localStorage.getItem("token");
+
+      if (!token) throw new Error("Not authenticated");
+
+      const payload = {
+        ...newRecord,
+        tags: newRecord.tags ? newRecord.tags.split(",").map((t) => t.trim()) : [],
+      };
+
+      const res = await axios.post(
         `${import.meta.env.VITE_API_URI}/user-plan/${id}/records`,
-        {
-          ...newRecord,
-          tags: newRecord.tags.split(",").map((t) => t.trim()),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        payload,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
+
+      console.log("Record save response:", res.data);
+
+      // Refresh list and close modal
+      setUploadModal(false);
+      setNewRecord({
+        title: "",
+        type: "Lab Report",
+        file: "",
+        tags: "",
+        date: new Date().toISOString().slice(0, 10),
+        hospital: "User Upload",
+        addedBy: "Self",
+        notes: "",
+        fileUrl: "",
+      });
+
+      // refetch
+      fetchRecords();
     } catch (err) {
       console.error("Error uploading record", err);
     }

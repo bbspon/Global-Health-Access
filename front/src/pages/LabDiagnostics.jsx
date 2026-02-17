@@ -21,8 +21,13 @@ const LabDiagnostics = () => {
   const fetchLabs = async () => {
     setLoading(true);
     setError('');
+
+    const baseUri =
+      import.meta.env.VITE_API_URI ||
+      `${window.location.protocol}//${window.location.host}/api`;
+
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URI}/labs`); // adjust based on actual endpoint
+      const res = await axios.get(`${baseUri.replace(/\/$/, "")}/labs`);
       console.log("Lab API response:", res.data);
       if (Array.isArray(res.data)) {
         setLabs(res.data);
@@ -46,13 +51,26 @@ const LabDiagnostics = () => {
 
   const confirmBooking = async () => {
     if (!selectedLab) return;
+
+    // build base URI (falls back to current host + /api)
+    const baseUri =
+      import.meta.env.VITE_API_URI ||
+      `${window.location.protocol}//${window.location.host}/api`;
+
+    const labId = selectedLab.id || selectedLab._id;
+
     try {
-      await axios.post('/api/labs/book', { labId: selectedLab.id }); // adjust API if needed
+      await axios.post(
+        `${baseUri.replace(/\/$/, "")}/labs/book`,
+        { labId }
+      );
       setAlertMessage(`✅ Booking confirmed with ${selectedLab.name}`);
       setShowBookingModal(false);
       setSelectedLab(null);
     } catch (err) {
-      setAlertMessage('❌ Booking failed. Please try again.');
+      console.error('Lab booking error', err);
+      const status = err.response ? ` (status ${err.response.status})` : '';
+      setAlertMessage('❌ Booking failed. Please try again.' + status);
     }
   };
 

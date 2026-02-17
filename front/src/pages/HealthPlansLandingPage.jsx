@@ -86,7 +86,7 @@ const HealthPlansLandingPage = () => {
       <Button
         variant="outline-info"
         size="sm"
-        onClick={() => navigate("/compare")}
+        onClick={() => navigate("/plan-comparison")}
       >
         Compare All Plans
       </Button>

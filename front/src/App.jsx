@@ -60,6 +60,7 @@ import PlanUsageDashboard from "./pages/PlanUsageDashboard";
 import LoyaltyRewardsDashboard from "./pages/LoyaltyRewardsDashboard";
 import RoleBasedDashboard from "./pages/RoleBasedDashboard";
 import CoverageStatusDashboard from "./pages/CoverageStatus";
+import Coverage from "./pages/Coverage";
 import HealthCoachDashboard from "./pages/HealthCoachDashboard";
 import ConsultRoom from "./pages/ConsultRoom";
 import HomeVisitBooking from "./pages/HomeVisitBooking";
@@ -141,6 +142,8 @@ import CustomerIdentityCardForm from "./pages/CustomerIdentityCardForm";
 import CustomerHealthCard from "./pages/CustomerHealthCard";
 import UserSetting from "./components/UserSetting";
 import EditProfile from "./pages/EditProfile";
+// service info page
+import ServicePage from "./pages/services/ServicePage";
  
 function App() {
   return (
@@ -219,6 +222,10 @@ function App() {
         <Route path="/loyalty-reward" element={<LoyaltyRewardsDashboard />} />
         <Route path="/role-based" element={<RoleBasedDashboard />} />
         <Route path="/coverage-status" element={<CoverageStatusDashboard />} />
+        {/* standalone coverage listing */}
+        <Route path="/coverage" element={<Coverage />} />
+        {/* service detail pages */}
+        <Route path="/services/:slug" element={<ServicePage />} />
         <Route
           path="/health-access/my-plan/coach/:userId"
           element={<HealthCoachDashboard />}

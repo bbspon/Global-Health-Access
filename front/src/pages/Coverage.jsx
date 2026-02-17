@@ -2,65 +2,18 @@ import React from "react";
 import earth from "../assets/earth.png";
 import { useNavigate, Link } from "react-router-dom";
 
-import {
-  TbDental,
-  TbHeart,
-  TbStethoscope,
-  TbEye,
-  TbBone,
-  TbRibbonHealth,
-} from "react-icons/tb";
+import { serviceTopics } from "../data/serviceTopics.jsx";
 
 import { BsArrowRightShort } from "react-icons/bs";
 
 const Coverage = () => {
   const navigate = useNavigate();
+;
 
-  // 🔥 Service Data (Dynamic Cards)
-  const services = [
-    {
-      title: "Dental Care",
-      desc: "Modern dental treatment with advanced facilities",
-      icon: <TbDental size={60} />,
-      bg: "#EAF7FF",
-      path: "/services/dental",
-    },
-    {
-      title: "Heart Care",
-      desc: "Top-tier cardiac diagnosis & treatment",
-      icon: <TbHeart size={60} color="#D62828" />,
-      bg: "#FFECEC",
-      path: "/services/heart",
-    },
-    {
-      title: "Pediatrics",
-      desc: "Complete health solutions for children",
-      icon: <TbStethoscope size={60} color="#805500" />,
-      bg: "#FFF6CC",
-      path: "/services/pediatrics",
-    },
-    {
-      title: "Eye Care",
-      desc: "Advanced vision care & laser treatments",
-      icon: <TbEye size={60} color="#0A7B83" />,
-      bg: "#E6FFE6",
-      path: "/services/eye",
-    },
-    {
-      title: "Oncology",
-      desc: "Comprehensive cancer screening & therapy",
-      icon: <TbRibbonHealth size={60} color="#7B2CBF" />,
-      bg: "#FBE4FF",
-      path: "/services/oncology",
-    },
-    {
-      title: "Orthopedics",
-      desc: "Bone & joint treatment with surgical support",
-      icon: <TbBone size={60} color="#8B4513" />,
-      bg: "#FFF1E6",
-      path: "/services/orthopedics",
-    },
-  ];
+  const services = serviceTopics.map((item) => ({
+    ...item,
+    path: `/services/${item.slug}`,
+  }));
 
   // 🔥 Handle Click Navigation
   const handleServiceClick = (path, title) => {

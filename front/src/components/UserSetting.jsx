@@ -12,6 +12,13 @@ const UserSetting = () => {
     tier: "",
   });
 
+  const [preferences, setPreferences] = useState({
+    pushNotifications: true,
+    emailNotifications: true,
+    smsNotifications: false,
+    darkTheme: false,
+  });
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -74,6 +81,30 @@ setUser({
     navigate("/login");
   };
 
+  const handlePreferenceChange = (key) => {
+    setPreferences((prev) => {
+      const updated = { ...prev, [key]: !prev[key] };
+      localStorage.setItem("userPreferences", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleSupportClick = (type) => {
+    switch (type) {
+      case "faq":
+        window.open("https://example.com/faq", "_blank");
+        break;
+      case "contact":
+          navigate("/contact-us");
+        break;
+      case "feedback":
+        navigate("/feedback-engine");
+        break;
+      default:
+        break;
+    }
+  };
+
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
@@ -124,28 +155,44 @@ setUser({
             <input
               className="form-check-input"
               type="checkbox"
-              defaultChecked
+              id="pushNotif"
+              checked={preferences.pushNotifications}
+              onChange={() => handlePreferenceChange("pushNotifications")}
             />
-            <label className="form-check-label">Push Notifications</label>
+            <label className="form-check-label" htmlFor="pushNotif">Push Notifications</label>
           </div>
 
           <div className="form-check mb-2">
             <input
               className="form-check-input"
               type="checkbox"
-              defaultChecked
+              id="emailNotif"
+              checked={preferences.emailNotifications}
+              onChange={() => handlePreferenceChange("emailNotifications")}
             />
-            <label className="form-check-label">Email Notifications</label>
+            <label className="form-check-label" htmlFor="emailNotif">Email Notifications</label>
           </div>
 
           <div className="form-check mb-2">
-            <input className="form-check-input" type="checkbox" />
-            <label className="form-check-label">SMS Notifications</label>
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="smsNotif"
+              checked={preferences.smsNotifications}
+              onChange={() => handlePreferenceChange("smsNotifications")}
+            />
+            <label className="form-check-label" htmlFor="smsNotif">SMS Notifications</label>
           </div>
 
           <div className="form-check">
-            <input className="form-check-input" type="checkbox" />
-            <label className="form-check-label">Dark Theme</label>
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="darkTheme"
+              checked={preferences.darkTheme}
+              onChange={() => handlePreferenceChange("darkTheme")}
+            />
+            <label className="form-check-label" htmlFor="darkTheme">Dark Theme</label>
           </div>
         </div>
 
@@ -153,15 +200,29 @@ setUser({
         <div className="card p-3 mb-3">
           <h5 className="fw-bold">Support</h5>
 
-          <button className="btn btn-link text-primary p-0 mt-2">
+          {/* <a
+            href="#"
+            onClick={(e) => { e.preventDefault(); handleSupportClick("faq"); }}
+            className="btn btn-link text-primary p-0 mt-2"
+          >
             Help & FAQ
-          </button>
-          <button className="btn btn-link text-primary p-0 mt-2">
+          </a> */}
+          <br />
+          <a
+            href="#"
+            onClick={(e) => { e.preventDefault(); handleSupportClick("contact"); }}
+            className="btn btn-link text-primary p-0 mt-2"
+          >
             Contact Support
-          </button>
-          <button className="btn btn-link text-primary p-0 mt-2">
+          </a>
+          <br />
+          <a
+            href="#"
+            onClick={(e) => { e.preventDefault(); handleSupportClick("feedback"); }}
+            className="btn btn-link text-primary p-0 mt-2"
+          >
             Feedback / Rate App
-          </button>
+          </a>
         </div>
 
         {/* ACCOUNT ACTIONS */}
