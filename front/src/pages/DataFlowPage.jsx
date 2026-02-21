@@ -98,28 +98,79 @@ const dataFlowSteps = [
 const DataFlowPage = () => {
   return (
     <Container className="py-5">
-      <h2 className="text-center mb-4">🔗 BBSCART Health Data Flow</h2>
-      <p className="text-center mb-5">
-        A step-by-step journey of how your health plan powers the entire ecosystem.
-      </p>
+      <div style={{ marginBottom: "50px", textAlign: "center" }}>
+        <h1
+          style={{
+            fontSize: "2.8rem",
+            fontWeight: 800,
+            color: "#1a3a52",
+            marginBottom: "16px",
+            letterSpacing: "-0.5px",
+          }}
+        >
+           BBS Global Health Access Data Flow
+        </h1>
+        <p
+          style={{
+            fontSize: "1.15rem",
+            color: "#666",
+            fontWeight: 500,
+            lineHeight: 1.6,
+            maxWidth: "600px",
+            margin: "0 auto",
+          }}
+        >
+          A step-by-step journey of how your health plan powers the entire ecosystem.
+        </p>
+      </div>
+
       <Row>
         {dataFlowSteps.map((step, idx) => (
           <Col md={6} lg={4} className="mb-4" key={idx}>
-            <Card className="shadow-sm h-100 border-0">
+            <Card className="shadow-sm h-100 border-0" style={{ transition: "all 0.3s ease" }}>
               <Card.Img
                 variant="top"
                 src={step.image}
                 alt={step.title}
                 style={{ height: "180px", objectFit: "cover" }}
               />
-              <Card.Body>
-                <div className="d-flex align-items-center mb-3">
-                  <Badge pill bg="primary" className="me-2">
+              <Card.Body style={{ padding: "24px" }}>
+                <div className="d-flex align-items-flex-start mb-3" style={{ gap: "12px" }}>
+                  <Badge
+                    pill
+                    bg="primary"
+                    style={{
+                      padding: "10px 14px",
+                      fontSize: "18px",
+                      flexShrink: 0,
+                      marginTop: "2px",
+                    }}
+                  >
                     {step.icon}
                   </Badge>
-                  <h6 className="mb-0">{step.title}</h6>
+                  <h5
+                    style={{
+                      fontSize: "1.05rem",
+                      fontWeight: 700,
+                      color: "#1a3a52",
+                      marginBottom: 0,
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {step.title}
+                  </h5>
                 </div>
-                <Card.Text>{step.desc}</Card.Text>
+                <Card.Text
+                  style={{
+                    fontSize: "0.95rem",
+                    color: "#555",
+                    fontWeight: 400,
+                    lineHeight: 1.6,
+                    marginBottom: 0,
+                  }}
+                >
+                  {step.desc}
+                </Card.Text>
               </Card.Body>
             </Card>
           </Col>

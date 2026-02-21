@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Form,
+  Button,
+  Table,
+  InputGroup,
+  Badge,
+  Alert,
+} from "react-bootstrap";
+import { Upload, Search, Download, FileEarmarkPdf } from "react-bootstrap-icons";
 
 const MedicalVault = () => {
   const [records, setRecords] = useState([]);
@@ -86,137 +99,189 @@ const MedicalVault = () => {
   });
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4">My Medical Vault</h2>
-
-      {/* Upload Section */}
-      <div className="flex items-center gap-3 mb-6">
-        <input
-          type="text"
-          placeholder="Record name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="p-2 border rounded w-40"
-        />
-
-        <input
-          type="text"
-          placeholder="Category (e.g., X-ray, Prescription)"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="p-2 border rounded w-48"
-        />
-
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="p-2 border rounded"
-        />
-
-        <input
-          type="file"
-          onChange={(e) => setFile(e.target.files[0])}
-          className="p-2 border rounded"
-        />
-
-        <button
-          onClick={uploadRecord}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Upload Record
-        </button>
+    <Container className="py-5">
+      {/* Header */}
+      <div className="mb-5">
+        <h1 style={{ fontSize: "2.5rem", fontWeight: 700, color: "#1a3a52" }}>
+          📁 My Medical Vault
+        </h1>
+        <p className="text-muted" style={{ fontSize: "1.05rem" }}>
+          Securely store, organize and access all your medical records in one place
+        </p>
       </div>
 
-      {/* Search */}
-      <input
-        type="text"
-        placeholder="Search records..."
-        className="w-full p-2 border-2 rounded mb-4"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      {/* Upload Card */}
+      <Card className="shadow-sm mb-5 border-0">
+        <Card.Header className="bg-primary bg-opacity-10 border-0">
+          <h5 className="mb-0" style={{ fontWeight: 600 }}>
+            <Upload className="me-2" size={20} /> Upload New Medical Record
+          </h5>
+        </Card.Header>
+        <Card.Body className="p-4">
+          <Form>
+            <Row>
+              <Col md={6} className="mb-3">
+                <Form.Group>
+                  <Form.Label className="fw-600">Record Name *</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="e.g., Blood Test Report"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="form-control-lg"
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6} className="mb-3">
+                <Form.Group>
+                  <Form.Label className="fw-600">Category *</Form.Label>
+                  <Form.Select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="form-control-lg"
+                  >
+                    <option value="">-- Select Category --</option>
+                    <option>X-ray Report</option>
+                    <option>Prescription</option>
+                    <option>Lab Report</option>
+                    <option>Discharge Summary</option>
+                    <option>Invoice/Bill</option>
+                    <option>Other</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
 
-      {/* ------ RECORDS TABLE ------ */}
-      <div style={{ width: "100%", marginTop: "20px" }}>
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            border: "1px solid #d3dce6",
-            fontFamily: "Arial, sans-serif",
-          }}
-        >
-          <thead>
-            <tr
-              style={{
-                backgroundColor: "#e8f1fb", // Soft healthcare blue
-                borderBottom: "2px solid #c3d4ee",
-                textAlign: "left",
-              }}
-            >
-              <th style={{ padding: "12px" }}>Record Name</th>
-              <th style={{ padding: "12px" }}>Category</th>
-              <th style={{ padding: "12px" }}>Date</th>
-              <th style={{ padding: "12px" }}>File Type</th>
-              <th style={{ padding: "12px" }}>Actions</th>
-            </tr>
-          </thead>
+            <Row>
+              <Col md={6} className="mb-3">
+                <Form.Group>
+                  <Form.Label className="fw-600">Date *</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="form-control-lg"
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6} className="mb-3">
+                <Form.Group>
+                  <Form.Label className="fw-600">Choose File *</Form.Label>
+                  <Form.Control
+                    type="file"
+                    onChange={(e) => setFile(e.target.files[0])}
+                    className="form-control-lg"
+                  />
+                  <small className="text-muted">PDF, DOC, JPG, PNG - Max 10MB</small>
+                </Form.Group>
+              </Col>
+            </Row>
 
-          <tbody>
-            {filteredRecords.length === 0 ? (
-              <tr>
-                <td
-                  colSpan="5"
-                  style={{ padding: "20px", textAlign: "center" }}
-                >
-                  No records found
-                </td>
-              </tr>
-            ) : (
-              filteredRecords.map((rec) => (
-                <tr
-                  key={rec._id}
-                  style={{
-                    borderBottom: "1px solid #e2e8f0",
-                    transition: "background 0.2s",
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.background = "#f8fbff")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.background = "white")
-                  }
-                >
-                  <td style={{ padding: "12px" }}>{rec.recordName}</td>
-                  <td style={{ padding: "12px" }}>{rec.category}</td>
-                  <td style={{ padding: "12px" }}>
-                    {new Date(rec.date).toISOString().split("T")[0]}
-                  </td>
-                  <td style={{ padding: "12px" }}>
-                    {(rec.fileType || "").toString().toUpperCase() || "N/A"}
-                  </td>
-                  <td style={{ padding: "12px" }}>
-                    <a
-                      href={`http://localhost:5000/uploads/medical/${rec.fileName}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+            <div className="d-grid gap-2">
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={uploadRecord}
+                className="d-flex align-items-center justify-content-center"
+                style={{ fontWeight: 600 }}
+              >
+                <Upload className="me-2" size={20} /> Upload Record
+              </Button>
+            </div>
+          </Form>
+        </Card.Body>
+      </Card>
+
+      {/* Search Section */}
+      <div className="mb-4">
+        <InputGroup>
+          <InputGroup.Text className="bg-white">
+            <Search size={20} className="text-muted" />
+          </InputGroup.Text>
+          <Form.Control
+            placeholder="Search by record name or category..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="form-control-lg"
+          />
+        </InputGroup>
+      </div>
+
+      {/* Records Table */}
+      <Card className="shadow-sm border-0">
+        <Card.Header className="bg-light border-bottom">
+          <h6 className="mb-0" style={{ fontWeight: 600 }}>
+            Medical Records ({filteredRecords.length})
+          </h6>
+        </Card.Header>
+        <Card.Body className="p-0">
+          {filteredRecords.length === 0 ? (
+            <div className="text-center py-5">
+              <FileEarmarkPdf size={48} className="text-muted mb-3" />
+              <p className="text-muted fw-500">No records found. Start by uploading your first medical document.</p>
+            </div>
+          ) : (
+            <div style={{ overflowX: "auto" }}>
+              <Table hover responsive className="mb-0">
+                <thead>
+                  <tr style={{ backgroundColor: "#f8f9fa", borderBottom: "2px solid #dee2e6" }}>
+                    <th style={{ fontWeight: 600, color: "#333", padding: "16px" }}>Record Name</th>
+                    <th style={{ fontWeight: 600, color: "#333", padding: "16px" }}>Category</th>
+                    <th style={{ fontWeight: 600, color: "#333", padding: "16px" }}>Date</th>
+                    <th style={{ fontWeight: 600, color: "#333", padding: "16px" }}>File Type</th>
+                    <th style={{ fontWeight: 600, color: "#333", padding: "16px", textAlign: "center" }}>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredRecords.map((rec) => (
+                    <tr
+                      key={rec._id}
                       style={{
-                        color: "#0B74D0",
-                        fontWeight: "bold",
-                        textDecoration: "none",
+                        borderBottom: "1px solid #e9ecef",
+                        transition: "background-color 0.2s ease",
                       }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f8fbff")}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "white")}
                     >
-                      View
-                    </a>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+                      <td style={{ padding: "16px", fontWeight: 500, color: "#1a3a52" }}>
+                        {rec.recordName}
+                      </td>
+                      <td style={{ padding: "16px" }}>
+                        <Badge bg="info" className="text-white">
+                          {rec.category}
+                        </Badge>
+                      </td>
+                      <td style={{ padding: "16px", color: "#666" }}>
+                        {new Date(rec.date).toLocaleDateString("en-IN", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </td>
+                      <td style={{ padding: "16px", color: "#666" }}>
+                        <Badge bg="light" text="dark">
+                          {(rec.fileType || "").toUpperCase() || "FILE"}
+                        </Badge>
+                      </td>
+                      <td style={{ padding: "16px", textAlign: "center" }}>
+                        <a
+                          href={`http://localhost:5000/uploads/medical/${rec.fileName}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-2"
+                        >
+                          <Download size={16} /> View
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          )}
+        </Card.Body>
+      </Card>
+    </Container>
   );
 };
 
