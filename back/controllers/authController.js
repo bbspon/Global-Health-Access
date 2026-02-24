@@ -8,12 +8,17 @@ const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString()
 
 
 // Always sign with { id } so authMiddleware can read decoded.id
-const signAccessToken = (user, expiresIn = "1d") =>
+const signAccessToken = (user, expiresIn = "7d") =>
   jwt.sign(
-    {
-      id: user._id.toString(),
+    // {
+    //   id: user._id.toString(),
+    //   email: user.email,
+    //   roleTags: user.roleTags || [],
+    // },
+        {
+      id: user._id,
       email: user.email,
-      roleTags: user.roleTags || [],
+      roles: user.roles,
     },
     process.env.JWT_SECRET,
     { expiresIn }
