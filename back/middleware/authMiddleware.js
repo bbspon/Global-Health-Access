@@ -14,8 +14,11 @@ const authMiddleware = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log("[AUTH] decoded:", decoded); // temp debug
 
-    const user = await User.findById(decoded.id); // BBSlive
-    if (!user) {
+const userId = decoded.id || decoded.userId;
+
+console.log("[AUTH] resolved userId:", userId);
+
+const user = await User.findById(userId);    if (!user) {
       return res.status(401).json({ message: "Unauthorized: User not found" });
     }
 
